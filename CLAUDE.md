@@ -48,7 +48,7 @@ Checked 2026-10-21 against the "October 2026" Terms of Use.
 | Concurrency | `async`/`await`; default actor isolation is `MainActor` |
 | Images | `AsyncImage` + enlarged `URLCache.shared` |
 
-**Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `TMDBService` fills poster/backdrop paths → `ReelFeedView` reads reviews with `@Query` and orders them with `ReelQueue`.
+**Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `FilmArtLoader` (via `TMDBService`) fills poster/backdrop paths → `ReelFeedView` reads reviews with `@Query` and orders them with `ReelQueue`.
 
 **Secrets:** `VILLE/VILLE/Secrets.swift` holds the TMDB v3 key and is gitignored. Template: `Secrets.example.swift` at the repo root.
 
@@ -66,9 +66,10 @@ VILLE/VILLE/
 ├── Services/
 │   ├── RSSService.swift        # Fetch + parse RSS, keep reviews only
 │   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
-│   └── TMDBService.swift       # Poster + backdrop by TMDB id
+│   ├── TMDBService.swift       # Poster + backdrop by TMDB id
+│   └── FilmArtLoader.swift     # Fills missing art, one TMDB request per film
 ├── ViewModels/
-│   ├── FeedViewModel.swift     # Refresh, members, TMDB art
+│   ├── FeedViewModel.swift     # Refresh, members, triggers art loading
 │   └── ReelQueue.swift         # Session shuffle with no repeats per round
 └── Views/
     ├── ReelFeedView.swift      # Vertical paging feed + top bar + empty states

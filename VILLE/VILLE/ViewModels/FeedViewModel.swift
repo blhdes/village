@@ -3,8 +3,8 @@
 //  VILLE
 //
 //  Owns everything that changes the local library: refreshing members' RSS
-//  feeds, adding and removing members, and filling in TMDB art. Also keeps
-//  the session's `ReelQueue`.
+//  feeds, adding and removing members, and filling in TMDB art (through
+//  `FilmArtLoader`). Also keeps the session's `ReelQueue`.
 //
 //  Views read reviews straight from SwiftData with `@Query`, so the feed
 //  looks the same online and offline.
@@ -35,22 +35,23 @@ final class FeedViewModel {
     /// Shown as a small banner when a refresh fails completely.
     var errorMessage: String?
 
+    /// Spoiler reviews the user chose to read. Kept for the session only, so
+    /// a review stays uncovered when it comes round again.
+    private(set) var revealedSpoilers: Set<String> = []
+
     // MARK: Dependencies
 
     private let context: ModelContext
     private let rss: RSSService
-    private let tmdb: TMDBService
+    private let artLoader: FilmArtLoader
 
     private var hasRefreshedThisSession = false
     private var currentIndex = 0
 
-    /// Concurrent TMDB requests per batch — keeps well under TMDB's rate limit.
-    private let artBatchSize = 6
-
-    init(context: ModelContext, rss: RSSService = RSSService(), tmdb: TMDBService = TMDBService()) {
+    init(context: ModelContext, rss: RSSService = RSSService(), artLoader: FilmArtLoader = FilmArtLoader()) {
         self.context = context
         self.rss = rss
-        self.tmdb = tmdb
+        self.artLoader = artLoader
     }
 
     // MARK: Queue
@@ -66,6 +67,10 @@ final class FeedViewModel {
         guard let index = queue.index(of: slotID) else { return }
         currentIndex = index
         queue.extendIfNeeded(currentIndex: index, reviewIDs: reviewIDs)
+    }
+
+    func revealSpoilers(for reviewID: String) {
+        revealedSpoilers.insert(reviewID)
     }
 
     // MARK: Refresh
@@ -209,63 +214,12 @@ final class FeedViewModel {
 
     // MARK: TMDB art
 
-    /// Asks TMDB once per film for reviews that don't have art yet. Films
-    /// already looked up for another review are reused without a request.
     private func fetchMissingArt() async {
-        let all: [Review]
         do {
-            all = try context.fetch(FetchDescriptor<Review>())
+            try await artLoader.fillMissingArt(in: context)
         } catch {
             print("FeedViewModel: could not load reviews for art — \(error)")
             return
-        }
-
-        var known: [Int: FilmArt] = [:]
-        for review in all where review.artFetched {
-            guard let id = review.tmdbID else { continue }
-            known[id] = FilmArt(posterPath: review.posterPath, backdropPath: review.backdropPath)
-        }
-
-        let missing = all.filter { !$0.artFetched && $0.tmdbID != nil }
-        let idsToFetch = Array(Set(missing.compactMap(\.tmdbID)).subtracting(known.keys))
-
-        let tmdb = self.tmdb
-        batches: for start in stride(from: 0, to: idsToFetch.count, by: artBatchSize) {
-            let batch = idsToFetch[start..<min(start + artBatchSize, idsToFetch.count)]
-            let results = await withTaskGroup(of: (Int, Result<FilmArt, Error>).self) { group in
-                for id in batch {
-                    group.addTask {
-                        do {
-                            return (id, .success(try await tmdb.art(forMovieID: id)))
-                        } catch {
-                            return (id, .failure(error))
-                        }
-                    }
-                }
-                var collected: [(Int, Result<FilmArt, Error>)] = []
-                for await result in group { collected.append(result) }
-                return collected
-            }
-
-            for (id, result) in results {
-                switch result {
-                case .success(let art):
-                    known[id] = art
-                case .failure(TMDBError.missingAPIKey):
-                    print("FeedViewModel: \(TMDBError.missingAPIKey.localizedDescription)")
-                    break batches
-                case .failure(let error):
-                    // Left un-fetched so the next launch retries.
-                    print("FeedViewModel: TMDB lookup failed for movie \(id) — \(error)")
-                }
-            }
-        }
-
-        for review in missing {
-            guard let id = review.tmdbID, let art = known[id] else { continue }
-            review.posterPath = art.posterPath
-            review.backdropPath = art.backdropPath
-            review.artFetched = true
         }
         save()
     }

@@ -16,12 +16,17 @@ struct ReelView: View {
     let showBackdrop: Bool
     let insets: EdgeInsets
 
-    @State private var spoilersRevealed = false
+    @Environment(FeedViewModel.self) private var viewModel
+
     @State private var isReading = false
     @State private var contentHeight: CGFloat = 0
     @State private var boxHeight: CGFloat = 0
 
     private var isOverflowing: Bool { contentHeight > boxHeight + 1 }
+
+    private var isSpoilerCovered: Bool {
+        review.containsSpoilers && !viewModel.revealedSpoilers.contains(review.id)
+    }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -30,7 +35,7 @@ struct ReelView: View {
             VStack(alignment: .leading, spacing: 24) {
                 ReviewHeader(review: review, showPoster: showPoster)
 
-                if review.containsSpoilers && !spoilersRevealed {
+                if isSpoilerCovered {
                     spoilerGate
                     Spacer(minLength: 0)
                 } else {
@@ -89,7 +94,7 @@ struct ReelView: View {
                 .font(.subheadline.weight(.medium))
             Button("Show review") {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    spoilersRevealed = true
+                    viewModel.revealSpoilers(for: review.id)
                 }
             }
             .buttonStyle(.glass)

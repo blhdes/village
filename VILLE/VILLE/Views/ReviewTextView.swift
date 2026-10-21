@@ -18,7 +18,7 @@ struct ReviewTextView: View {
             }
         }
         .font(.system(.body, design: .serif))
-        .foregroundStyle(.white.opacity(0.88))
+        .foregroundStyle(Color.primary.opacity(0.88))
         .lineSpacing(5)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -31,17 +31,17 @@ struct ReviewTextView: View {
         case .quote(let text):
             HStack(spacing: 14) {
                 Capsule()
-                    .fill(.white.opacity(0.3))
+                    .fill(Color.primary.opacity(0.3))
                     .frame(width: 2)
                 Text(text)
                     .italic()
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(Color.primary.opacity(0.7))
             }
             .fixedSize(horizontal: false, vertical: true)
         case .listItem(let marker, let text):
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(marker)
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(Color.primary.opacity(0.5))
                 Text(text)
             }
         }

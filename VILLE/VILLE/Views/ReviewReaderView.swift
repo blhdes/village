@@ -34,6 +34,6 @@ struct ReviewReaderView: View {
                 }
             }
         }
-        .presentationBackground(.black)
+        .presentationBackground(Color.reelBackground)
     }
 }

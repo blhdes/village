@@ -73,11 +73,14 @@ VILLE/VILLE/
 │   └── ReelQueue.swift         # Session shuffle with no repeats per round
 └── Views/
     ├── ReelFeedView.swift      # Vertical paging feed + top bar + empty states
-    ├── ReelView.swift          # One reel + shared header, actions, backdrop
+    ├── ReelView.swift          # One reel + its backdrop
+    ├── ReviewHeader.swift      # Poster, title, rating (reel + reader)
+    ├── ReviewActions.swift     # Share + View on Letterboxd (reel + reader)
     ├── ReviewTextView.swift    # Draws ReviewHTML blocks
     ├── ReviewReaderView.swift  # Full text of a long review
     ├── MembersView.swift       # Add/remove members
-    └── SettingsView.swift      # Poster/backdrop toggles + attributions
+    ├── SettingsView.swift      # Appearance, poster/backdrop toggles + attributions
+    └── Appearance.swift        # System / Light / Dark choice
 ```
 
 ---
@@ -96,7 +99,7 @@ xcodebuild -project VILLE/VILLE.xcodeproj -scheme VILLE -destination 'generic/pl
 
 ## Style Rules (follow in all new code)
 
-- **Dark mode only.** Deep blacks, high contrast, cinematic.
+- **Light, dark or system** (Settings → Appearance, default System). Reels sit on `Color.reelBackground` (pure black in dark, white in light). Never hardcode `.white`/`.black` for text or backgrounds — use `Color.primary` and `Color.reelBackground`. Masks may stay `.black` (only their opacity counts).
 - **Liquid Glass** for controls: `.buttonStyle(.glass)`, `.glassEffect()`, `GlassEffectContainer`.
 - **Animations**: `.spring(response: 0.4, dampingFraction: 0.8)` as default.
 - **Haptics** on meaningful interactions (`.sensoryFeedback`).
@@ -104,4 +107,4 @@ xcodebuild -project VILLE/VILLE.xcodeproj -scheme VILLE -destination 'generic/pl
 - **Reveal actions are one-way** (e.g. spoilers): no collapse toggle.
 - **No UIKit** unless genuinely unavoidable. **No third-party deps** without explicit approval.
 - **Never swallow errors** — log with `print` and context, or rethrow.
-- **Never hand-draw logos** — use official asset files only.
+- **Never hand-draw logos** — use official asset files only. In `Assets.xcassets` (downloaded 2026-10-21): `LetterboxdLogo` and `LetterboxdDots` (letterboxd.com/about/brand, light + dark variants), `TMDBLogo` (themoviedb.org/about/logos-attribution, "Alt short" SVG converted to PDF unchanged, because Xcode ignores the SVG's CSS styles).

@@ -2,8 +2,8 @@
 //  SettingsView.swift
 //  VILLE
 //
-//  Look options (posters and backdrops on/off) and the attributions required
-//  by Letterboxd and TMDB.
+//  Look options (appearance, posters and backdrops on/off) and the
+//  attributions required by Letterboxd and TMDB.
 //
 
 import SwiftUI
@@ -12,6 +12,7 @@ import SwiftUI
 enum SettingsKey {
     static let showPosters = "showPosters"
     static let showBackdrops = "showBackdrops"
+    static let appearance = "appearance"
 }
 
 struct SettingsView: View {
@@ -19,10 +20,21 @@ struct SettingsView: View {
 
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
     @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = true
+    @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
     var body: some View {
         NavigationStack {
             Form {
+                Section("Appearance") {
+                    Picker("Appearance", selection: $appearance) {
+                        ForEach(Appearance.allCases) { option in
+                            Text(option.title).tag(option)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                }
+
                 Section {
                     Toggle("Posters", isOn: $showPosters)
                     Toggle("Backdrops", isOn: $showBackdrops)
@@ -35,8 +47,15 @@ struct SettingsView: View {
                 Section("About") {
                     Text("Reviews come from members' public Letterboxd RSS feeds and belong to their authors. VILLE is not affiliated with or endorsed by Letterboxd.")
                     Text("This product uses the TMDB API but is not endorsed or certified by TMDB.")
-                    Link("Letterboxd", destination: URL(string: "https://letterboxd.com")!)
-                    Link("The Movie Database (TMDB)", destination: URL(string: "https://www.themoviedb.org")!)
+                    // Official files from letterboxd.com/about/brand and
+                    // themoviedb.org/about/logos-attribution. Letterboxd only
+                    // allows its logo as a link to the platform.
+                    Link(destination: URL(string: "https://letterboxd.com")!) {
+                        AttributionLogo(image: .letterboxdLogo, label: "Letterboxd", height: 24)
+                    }
+                    Link(destination: URL(string: "https://www.themoviedb.org")!) {
+                        AttributionLogo(image: .tmdbLogo, label: "The Movie Database (TMDB)", height: 14)
+                    }
                 }
                 .font(.footnote)
             }
@@ -48,5 +67,21 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+}
+
+/// A partner logo drawn from its official asset, never redrawn or recolored.
+private struct AttributionLogo: View {
+    let image: ImageResource
+    let label: String
+    let height: CGFloat
+
+    var body: some View {
+        Image(image)
+            .resizable()
+            .scaledToFit()
+            .frame(height: height)
+            .padding(.vertical, 4)
+            .accessibilityLabel(label)
     }
 }

@@ -13,6 +13,7 @@ import SwiftData
 struct VILLEApp: App {
     private let container: ModelContainer
     @State private var viewModel: FeedViewModel
+    @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
     init() {
         // AsyncImage goes through URLSession.shared — a bigger cache keeps
@@ -34,9 +35,9 @@ struct VILLEApp: App {
         WindowGroup {
             ReelFeedView()
                 .environment(viewModel)
-                // Dark mode only — part of VILLE's cinematic identity.
-                .preferredColorScheme(.dark)
-                .tint(.white)
+                // System, Light or Dark, picked in Settings.
+                .preferredColorScheme(appearance.colorScheme)
+                .tint(Color.primary)
         }
         .modelContainer(container)
     }

@@ -44,7 +44,8 @@ Reels rebuild in progress (October 2026).
 - [x] Random session feed, repeats only after everything has been seen
 - [x] TMDB poster and backdrop, each toggleable
 - [x] Share as a link
-- [ ] Official Letterboxd and TMDB logos in Settings / "View on Letterboxd"
+- [x] Official Letterboxd and TMDB logos in Settings / "View on Letterboxd"
+- [x] Appearance: System / Light / Dark
 - [ ] App icon
 - [ ] Email Letterboxd describing the app before release
 - [ ] App Store submission

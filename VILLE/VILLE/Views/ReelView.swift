@@ -114,112 +114,15 @@ struct ReelView: View {
     }
 }
 
-// MARK: - Header
-
-/// Poster, title, year and the author's rating — shared by reel and reader.
-struct ReviewHeader: View {
-    let review: Review
-    let showPoster: Bool
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 16) {
-            if showPoster, let posterURL = review.posterURL {
-                AsyncImage(url: posterURL) { image in
-                    image.resizable().scaledToFill()
-                } placeholder: {
-                    Color.white.opacity(0.06)
-                }
-                .frame(width: 84, height: 126)
-                .clipShape(.rect(cornerRadius: 6))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 6).strokeBorder(.white.opacity(0.12), lineWidth: 0.5)
-                }
-                .shadow(color: .black.opacity(0.5), radius: 12, y: 6)
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Review by \(Text(review.authorName).bold())")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.65))
-
-                Text("\(Text(review.filmTitle).font(.system(.title, design: .serif, weight: .bold)))\(yearText)")
-                    .lineLimit(3)
-
-                HStack(spacing: 8) {
-                    if !review.stars.isEmpty {
-                        Text(review.stars)
-                            .foregroundStyle(.white.opacity(0.9))
-                    }
-                    if review.liked {
-                        Image(systemName: "heart.fill")
-                            .foregroundStyle(.white.opacity(0.7))
-                            .accessibilityLabel("Liked")
-                    }
-                    if review.isRewatch {
-                        Image(systemName: "arrow.trianglehead.2.clockwise")
-                            .foregroundStyle(.white.opacity(0.6))
-                            .accessibilityLabel("Rewatch")
-                    }
-                }
-                .font(.subheadline)
-
-                Text(review.watchedLabel)
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.5))
-            }
-        }
-        .shadow(color: .black.opacity(0.4), radius: 10)
-    }
-
-    /// "  2026" in a lighter, smaller style after the title.
-    private var yearText: Text {
-        guard let year = review.filmYear else { return Text(verbatim: "") }
-        return Text(verbatim: "  \(year)")
-            .font(.system(.title3, design: .serif))
-            .foregroundStyle(.white.opacity(0.55))
-    }
-}
-
-// MARK: - Actions
-
-/// Share (as a link to the original — never the text itself, per Letterboxd's
-/// ToS on exporting others' content) and open the review on Letterboxd.
-struct ReviewActions: View {
-    let review: Review
-    let url: URL
-
-    var body: some View {
-        GlassEffectContainer(spacing: 10) {
-            HStack(spacing: 10) {
-                ShareLink(
-                    item: url,
-                    subject: Text(review.filmTitle),
-                    message: Text("\(review.filmTitle) — review by \(review.authorName)")
-                ) {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                }
-
-                Link(destination: url) {
-                    Label("View on Letterboxd", systemImage: "arrow.up.right")
-                }
-
-                Spacer(minLength: 0)
-            }
-            .font(.subheadline.weight(.medium))
-            .buttonStyle(.glass)
-        }
-    }
-}
-
 // MARK: - Background
 
-/// TMDB backdrop across the top of the screen, fading into black.
+/// TMDB backdrop across the top of the screen, fading into the background.
 private struct ReelBackground: View {
     let url: URL?
 
     var body: some View {
         ZStack(alignment: .top) {
-            Color.black
+            Color.reelBackground
 
             if let url {
                 GeometryReader { proxy in
@@ -230,7 +133,7 @@ private struct ReelBackground: View {
                     }
                     .frame(width: proxy.size.width, height: proxy.size.height * 0.62)
                     .clipped()
-                    .overlay(Color.black.opacity(0.35))
+                    .overlay(Color.reelBackground.opacity(0.35))
                     .mask {
                         LinearGradient(
                             colors: [.black, .black.opacity(0.85), .clear],

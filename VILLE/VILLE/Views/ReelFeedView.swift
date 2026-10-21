@@ -31,7 +31,7 @@ struct ReelFeedView: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color.reelBackground.ignoresSafeArea()
 
                 if viewModel.queue.slots.isEmpty {
                     emptyState
@@ -75,7 +75,7 @@ struct ReelFeedView: View {
                                 insets: insets
                             )
                         } else {
-                            Color.black
+                            Color.reelBackground
                         }
                     }
                     .containerRelativeFrame([.horizontal, .vertical])
@@ -96,8 +96,8 @@ struct ReelFeedView: View {
             Text("VILLE")
                 .font(.system(.headline, design: .serif, weight: .bold))
                 .tracking(4)
-                .foregroundStyle(.white.opacity(0.9))
-                .shadow(color: .black.opacity(0.6), radius: 8)
+                .foregroundStyle(Color.primary.opacity(0.9))
+                .shadow(color: Color.reelBackground.opacity(0.6), radius: 8)
 
             Spacer()
 
@@ -152,7 +152,7 @@ struct ReelFeedView: View {
                 ProgressView()
                 Text("Fetching reviews…")
                     .font(.footnote)
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(Color.primary.opacity(0.6))
             }
         } else {
             emptyMessage(
@@ -168,12 +168,12 @@ struct ReelFeedView: View {
         VStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.system(size: 44, weight: .ultraLight))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Color.primary.opacity(0.5))
             Text(title)
                 .font(.system(.title2, design: .serif, weight: .semibold))
             Text(message)
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(Color.primary.opacity(0.6))
                 .multilineTextAlignment(.center)
             Button(buttonTitle) { activeSheet = .members }
                 .buttonStyle(.glassProminent)

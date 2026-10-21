@@ -6,133 +6,101 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project: VILLE
 
-**VILLE** is a brand-new, minimal, 100% offline-first iOS app — a beautiful Letterboxd RSS client focused exclusively on **discovering cinema through reviews**.
+**VILLE** is a minimal, local-only iOS app for reading Letterboxd reviews as full-screen **reels**. The user saves the Letterboxd usernames they want to read; VILLE pulls each member's public RSS feed and shows their written reviews one per page, swiped vertically.
 
-It is a radical simplification / refactor of the existing React Native + Expo app `ville-du-cinema-mobile`. VILLE strips out:
-- Authentication (no Supabase, no accounts)
-- Social features (no takes, comments, follows-via-Supabase)
-- The web layer
-- React Native / Expo / JS entirely
-
-…and focuses on **one thing**: reading Letterboxd reviews from followed users, beautifully, fully offline-first.
+It is the lighter stepping stone before the full social network (`../ville-du-cinema-mobile/`). Target: App Store before the end of 2026.
 
 ---
 
 ## Vision (keep in sync — update as the app evolves)
 
-- A phone-first, calm, cinematic reading app.
-- User adds Letterboxd usernames (no login — Letterboxd public RSS only).
-- Feed = merged, reverse-chronological list of review cards from all followed users.
-- Tap a card → immersive reader.
-- Everything is cached via SwiftData → works offline after first fetch.
-- No social layer, no auth, no server. Pure client.
-
-Future (not this step):
-- Multi-tab layout (Feed / Saved / Profile) — TabView is already scaffolded.
-- Followed-users management UI.
-- Clippings / highlights (like the reference project's `ReviewReaderScreen`).
-- Custom fonts + refined typography.
-- Widget / Live Activities.
+- **No accounts, no server, no social layer.** No likes, comments or reactions. Everything lives on the device.
+- **Pure text.** Only written reviews. Lists and plain "watched" diary entries are never shown.
+- **Reels feed.** Each launch is a new session: all saved reviews are shuffled, and none repeats until every one has been seen. Then a new shuffled round starts. No "running low" warnings.
+- **Letterboxd-style review layout**: poster, title + year, "Review by", stars, like, rewatch, then the rich text (paragraphs, italics, bold, quotes, lists, links).
+- **TMDB art**: poster and backdrop per film, each switchable off in Settings.
+- **Share = link to the original review on Letterboxd**, never the review text or an image of it.
+- **The library grows**: reviews stay saved after they drop out of the RSS window (RSS holds ~50 diary entries per member).
 
 ---
 
-## Architecture Decisions
+## Letterboxd ToS — hard rules
 
-| Area | Choice | Reason |
-|---|---|---|
-| UI | **SwiftUI only** (iOS 18+) | Latest design system (Liquid Glass), no UIKit bridges |
-| State | **`@Observable`** (Observation framework) | Modern, value-type friendly, replaces ObservableObject |
-| Persistence | **SwiftData** as single source of truth | First-class SwiftUI integration, offline-first by design |
-| Networking | `URLSession` + `XMLParser` (Foundation) | Zero third-party deps |
-| Concurrency | `async/await` everywhere | No Combine, no callbacks |
-| Design | **Liquid Glass** (`.glassEffect`, `.glassBackgroundEffect`), dark-only | Cinematic, premium feel |
-| Target | iOS 18+, iPhone 13 and newer | Allows full use of Liquid Glass + Observation |
-| Deps | **None** (outside Apple SDKs) | Keep it minimal, future-proof |
+Checked 2026-10-21 against the "October 2026" Terms of Use.
 
-**Data flow**: `RSSService` → `FeedViewModel` → SwiftData `Review` objects → `@Query` in `FeedView`. Pull-to-refresh re-fetches RSS, upserts into SwiftData by `id`. The view always reads from SwiftData (never directly from RSSService), so the UI is identical online and offline.
+- **RSS only.** Never fetch or parse Letterboxd HTML pages (clause 6.11 bans scraping). The RSS feed is the route Letterboxd offers on letterboxd.com/api-beta.
+- **No exporting others' content** (6.8): sharing sends the Letterboxd URL only.
+- **No index of a "significant portion"** (6.8): only reviews from members the user added, stored locally. No bundled or suggested member catalogs.
+- **No competing business** (6.9): keep the app free, credit the author on every reel, and always link back to the original.
+- **Logo** (19): only when linking to Letterboxd, only the official file from their Brand page, never implying a partnership. Never redraw it.
+- Letterboxd has not answered our email (sent March 2026). Write again before release.
+
+---
+
+## Architecture
+
+| Area | Choice |
+|---|---|
+| UI | SwiftUI only, iOS 26 (Liquid Glass) |
+| State | `@Observable` view model, shared through `.environment` |
+| Persistence | SwiftData, store name `VILLEReels` |
+| Networking | `URLSession` + `XMLParser`, zero third-party deps |
+| Concurrency | `async`/`await`; default actor isolation is `MainActor` |
+| Images | `AsyncImage` + enlarged `URLCache.shared` |
+
+**Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `TMDBService` fills poster/backdrop paths → `ReelFeedView` reads reviews with `@Query` and orders them with `ReelQueue`.
+
+**Secrets:** `VILLE/VILLE/Secrets.swift` holds the TMDB v3 key and is gitignored. Template: `Secrets.example.swift` at the repo root.
 
 ---
 
 ## Folder Structure
 
 ```
-VILLE/
-├── VILLEApp.swift              # @main App entry, ModelContainer, dark-mode enforcement
+VILLE/VILLE/
+├── VILLEApp.swift              # Entry point: SwiftData container, URLCache, view model
+├── Secrets.swift               # (gitignored) TMDB key
 ├── Models/
-│   └── Review.swift            # SwiftData @Model — mirrors Review type from RN project
+│   ├── Review.swift            # One written review + display helpers
+│   └── FollowedUser.swift      # A saved Letterboxd member
 ├── Services/
-│   └── RSSService.swift        # Async Letterboxd RSS fetch + XML parsing
+│   ├── RSSService.swift        # Fetch + parse RSS, keep reviews only
+│   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
+│   └── TMDBService.swift       # Poster + backdrop by TMDB id
 ├── ViewModels/
-│   └── FeedViewModel.swift     # @Observable, orchestrates refresh + cache
+│   ├── FeedViewModel.swift     # Refresh, members, TMDB art
+│   └── ReelQueue.swift         # Session shuffle with no repeats per round
 └── Views/
-    ├── FeedView.swift          # Main screen, TabView-ready
-    ├── ReviewCard.swift        # Liquid Glass cinematic card
-    └── ReviewDetailView.swift  # Immersive full-screen reader
+    ├── ReelFeedView.swift      # Vertical paging feed + top bar + empty states
+    ├── ReelView.swift          # One reel + shared header, actions, backdrop
+    ├── ReviewTextView.swift    # Draws ReviewHTML blocks
+    ├── ReviewReaderView.swift  # Full text of a long review
+    ├── MembersView.swift       # Add/remove members
+    └── SettingsView.swift      # Poster/backdrop toggles + attributions
 ```
 
 ---
 
-## Reference Project
+## Build
 
-Full React Native codebase being distilled from (already cloned locally):
+Open `VILLE/VILLE.xcodeproj` in Xcode 26+. The project uses synchronized folders, so new files inside `VILLE/VILLE/` are picked up automatically. Copy `Secrets.example.swift` to `VILLE/VILLE/Secrets.swift` first.
 
-- **Path**: `../ville-du-cinema-mobile/`
-- **Branch to use**: `feature/tos-compliant-rebuild`
-- **GitHub**: https://github.com/blhdes/ville-du-cinema-mobile/tree/feature/tos-compliant-rebuild
+Build-check from the terminal (never boot the simulator — testing happens on a physical device):
 
-Key files to cross-reference when extending VILLE:
-
-| Concern | Reference file |
-|---|---|
-| RSS fetching + pagination | `services/feed.ts` → `fetchFeed()`, `fetchUserFeed()`, `_fetchUserFeed()` |
-| `Review` TypeScript type | `types/database.ts` → `interface Review` (line ~461) |
-| HTML sanitation | `utils/html.ts` + `cleanDescription()` in `services/feed.ts` |
-| Card rendering + truncation | `components/ReviewCard.tsx` |
-| Immersive reader + word selection | `screens/ReviewReaderScreen.tsx` |
-| Feed screen composition | `screens/FeedScreen.tsx` |
-
-When porting logic, **preserve behavior** (e.g. rating extraction regex, list-skipping, poster-image stripping) — it's already ToS-compliant and battle-tested.
-
----
-
-## Build / Run
-
-This repo ships Swift source files + a CLAUDE.md but **does not yet ship an Xcode project file** (`.xcodeproj`). Create one once:
-
-1. Open Xcode → **File ▸ New ▸ Project…** → iOS ▸ App.
-2. Settings:
-   - Product Name: **VILLE**
-   - Interface: **SwiftUI**
-   - Language: **Swift**
-   - Storage: **SwiftData**
-   - Minimum Deployment: **iOS 18.0**
-3. Save inside this directory (`village/`) so Xcode creates `village/VILLE.xcodeproj`.
-4. In Xcode's Project Navigator, delete the template-generated `ContentView.swift` and `VILLEApp.swift`.
-5. Right-click the `VILLE` group → **Add Files to "VILLE"…** → select the `Models`, `Services`, `ViewModels`, `Views` folders *and* the root `VILLEApp.swift`. Choose **"Create groups"**.
-6. In target settings, enable **User Interface Style = Dark** (Info.plist key `UIUserInterfaceStyle`).
-7. Build & run (⌘R).
-
-From then on: standard `⌘B` build, `⌘R` run, `⌘U` tests.
+```
+xcodebuild -project VILLE/VILLE.xcodeproj -scheme VILLE -destination 'generic/platform=iOS' build CODE_SIGNING_ALLOWED=NO
+```
 
 ---
 
 ## Style Rules (follow in all new code)
 
 - **Dark mode only.** Deep blacks, high contrast, cinematic.
-- **Liquid Glass everywhere**: prefer `.glassBackgroundEffect(.regular)`, `.glassEffect()`, vibrancy materials over flat fills.
-- **Large cinematic cards** (~full-width on iPhone).
+- **Liquid Glass** for controls: `.buttonStyle(.glass)`, `.glassEffect()`, `GlassEffectContainer`.
 - **Animations**: `.spring(response: 0.4, dampingFraction: 0.8)` as default.
-- **Haptics** on every meaningful interaction (`UIImpactFeedbackGenerator`, `.sensoryFeedback` modifier).
-- **Typography**: system fonts for now (`.largeTitle`, `.title`, `.body` with `.serif` / `.rounded` designs). Custom fonts later.
-- **No UIKit** unless genuinely unavoidable (haptics are fine).
-- **No third-party deps** without explicit approval.
-- **Never use `try/catch` that swallows errors silently** — always log via `print` or rethrow with context.
-- **`any` is banned** (Swift equivalent: avoid `Any`, prefer precise types).
-
----
-
-## Original Prompt (for context persistence)
-
-> We are building a brand-new minimal iOS app called **VILLE**. VILLE is a lightweight, 100% offline-first Letterboxd RSS client focused exclusively on discovering cinema through beautiful reviews. It is a radical simplification / refactor of the existing "Village du Cinema" / "Ville du Cinema Mobile" app (`../ville-du-cinema-mobile/`, branch `feature/tos-compliant-rebuild`).
->
-> Target iOS 18+, SwiftUI only, Liquid Glass, dark cinematic aesthetic, SwiftData single source of truth, `@Observable` view models, no UIKit, no third-party dependencies. First step: project skeleton + Feed screen + ReviewCards + basic immersive reader.
+- **Haptics** on meaningful interactions (`.sensoryFeedback`).
+- **Typography**: system serif for review text and titles.
+- **Reveal actions are one-way** (e.g. spoilers): no collapse toggle.
+- **No UIKit** unless genuinely unavoidable. **No third-party deps** without explicit approval.
+- **Never swallow errors** — log with `print` and context, or rethrow.
+- **Never hand-draw logos** — use official asset files only.

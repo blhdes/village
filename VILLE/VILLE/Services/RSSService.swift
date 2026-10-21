@@ -2,129 +2,130 @@
 //  RSSService.swift
 //  VILLE
 //
-//  Fetches Letterboxd public RSS feeds and parses them into `Review` models.
+//  Fetches a member's public Letterboxd RSS feed — the access route Letterboxd
+//  offers in place of its private API — and keeps only written reviews.
+//  Lists and plain "watched" diary entries are dropped so the app stays
+//  pure text.
 //
-//  Ported from `services/feed.ts` (RN project). Uses Foundation's `XMLParser`
-//  (SAX-style, zero dependencies). The parser is wrapped in a small delegate
-//  that accumulates items and returns them once parsing finishes.
-//
-//  Threading: all public APIs are `async` and safe to call from anywhere.
-//  Network work happens on URLSession's default queue; parsing runs on the
-//  current actor (cheap for typical RSS sizes).
+//  Never reads Letterboxd HTML pages: scraping is forbidden by ToS 6.11.
 //
 
 import Foundation
 
-// MARK: - Result type
+// MARK: - Result types
 
-/// Plain-old struct representing a parsed RSS item, **before** it's turned
-/// into a SwiftData `Review`. Keeps the parser decoupled from persistence.
+/// A review as parsed from RSS, before it becomes a SwiftData `Review`.
 struct ParsedReview: Sendable {
     let id: String
     let username: String
-    let title: String
+    let authorName: String
     let link: String
-    let pubDateRaw: String
     let publishedAt: Date
-    let creator: String
+    let watchedOn: Date?
+    let filmTitle: String
+    let filmYear: Int?
+    let tmdbID: Int?
+    let rating: Double?
+    let liked: Bool
+    let isRewatch: Bool
+    let containsSpoilers: Bool
     let reviewHTML: String
-    let rating: String
-    let movieTitle: String
-    let kind: ReviewKind
+}
+
+struct UserFeed: Sendable {
+    /// Display name from the feed, or nil if the feed had nothing to read it from.
+    let displayName: String?
+    let reviews: [ParsedReview]
 }
 
 // MARK: - Errors
 
-enum RSSError: Error, LocalizedError {
-    case invalidURL(String)
+enum RSSError: LocalizedError {
+    case invalidUsername(String)
+    case userNotFound(String)
     case badResponse(Int)
-    case parsingFailed
 
     var errorDescription: String? {
         switch self {
-        case .invalidURL(let u): "Invalid RSS URL: \(u)"
-        case .badResponse(let code): "Letterboxd returned HTTP \(code)"
-        case .parsingFailed: "Could not parse the RSS feed"
+        case .invalidUsername(let input): "“\(input)” isn't a valid Letterboxd username."
+        case .userNotFound(let username): "No Letterboxd member called “\(username)”."
+        case .badResponse(let code): "Letterboxd returned an error (HTTP \(code))."
         }
     }
 }
 
 // MARK: - Service
 
-/// Fetches and parses Letterboxd user RSS feeds.
-///
-/// Stateless by design — no in-memory cache (SwiftData is the cache).
-/// If we want a 5-minute soft cache later, wrap this in an actor.
 struct RSSService {
 
-    // MARK: Public API
-
-    /// Fetch a single user's feed. Returns an empty array on network failure
-    /// (mirrors the RN project's "fail soft" behaviour so one bad user
-    /// doesn't break the whole feed).
-    func fetchUserFeed(username: String) async -> [ParsedReview] {
+    /// Fetch and parse one member's feed. Throws so callers decide how to
+    /// report failures (one bad member must not break the whole refresh).
+    func fetchUserFeed(username: String) async throws -> UserFeed {
         guard let url = URL(string: "https://letterboxd.com/\(username)/rss/") else {
-            print("RSSService: invalid username \(username)")
-            return []
+            throw RSSError.invalidUsername(username)
         }
 
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-                print("RSSService: \(username) returned HTTP \(http.statusCode)")
-                return []
+        let (data, response) = try await URLSession.shared.data(from: url)
+        if let http = response as? HTTPURLResponse {
+            if http.statusCode == 404 { throw RSSError.userNotFound(username) }
+            guard (200..<300).contains(http.statusCode) else {
+                throw RSSError.badResponse(http.statusCode)
             }
-            return parse(data: data, username: username)
-        } catch {
-            print("RSSService: failed to fetch \(username): \(error)")
-            return []
-        }
-    }
-
-    /// Fetch multiple users in parallel and return a merged, date-descending list.
-    /// Matches `fetchFeed()` in `services/feed.ts`.
-    func fetchFeed(usernames: [String]) async -> [ParsedReview] {
-        guard !usernames.isEmpty else { return [] }
-
-        let all = await withTaskGroup(of: [ParsedReview].self) { group in
-            for username in usernames {
-                group.addTask { await fetchUserFeed(username: username) }
-            }
-            var merged: [ParsedReview] = []
-            for await batch in group { merged.append(contentsOf: batch) }
-            return merged
         }
 
-        return all.sorted { $0.publishedAt > $1.publishedAt }
-    }
-
-    // MARK: Parsing
-
-    private func parse(data: Data, username: String) -> [ParsedReview] {
         let delegate = RSSParserDelegate(username: username)
         let parser = XMLParser(data: data)
         parser.delegate = delegate
         parser.shouldProcessNamespaces = false
-        parser.parse()
-        return delegate.items
+        guard parser.parse() else {
+            throw parser.parserError ?? RSSError.badResponse(0)
+        }
+        return UserFeed(displayName: delegate.displayName, reviews: delegate.reviews)
+    }
+
+    /// Turns what the user typed — "Dave", "@dave", or a profile link — into
+    /// a lowercase handle. Returns nil when it can't be a Letterboxd username.
+    static func normalizeUsername(_ input: String) -> String? {
+        var handle = input.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
+        if let range = handle.range(of: "letterboxd.com/") {
+            handle = String(handle[range.upperBound...])
+            handle = String(handle.prefix { $0 != "/" && $0 != "?" })
+        }
+        if handle.hasPrefix("@") { handle.removeFirst() }
+
+        guard !handle.isEmpty,
+              handle.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "_") })
+        else { return nil }
+        return handle
     }
 }
 
 // MARK: - XML delegate
 
-/// SAX-style parser that collects `<item>` elements from a Letterboxd RSS feed.
-/// Keeps per-item state in a scratch dictionary; commits to `items` on `</item>`.
-private final class RSSParserDelegate: NSObject, XMLParserDelegate {
+/// SAX-style parser that collects `<item>` elements, keeping only reviews.
+/// Nonisolated because `XMLParserDelegate` callbacks are nonisolated.
+private nonisolated final class RSSParserDelegate: NSObject, XMLParserDelegate {
     let username: String
-    private(set) var items: [ParsedReview] = []
+    private(set) var reviews: [ParsedReview] = []
+    private var channelTitle: String?
+    private var firstCreator: String?
 
-    private var currentElement: String = ""
     private var currentItem: [String: String] = [:]
-    private var buffer: String = ""
+    private var buffer = ""
     private var insideItem = false
 
     init(username: String) {
         self.username = username
+    }
+
+    /// Prefer the author's name on an item; fall back to the channel title
+    /// ("Letterboxd - Dave Vis") for members whose feed has no items.
+    var displayName: String? {
+        if let firstCreator, !firstCreator.isEmpty { return firstCreator }
+        guard let channelTitle else { return nil }
+        let name = channelTitle.replacingOccurrences(of: "Letterboxd - ", with: "")
+        return name.isEmpty ? nil : name
     }
 
     func parser(
@@ -134,7 +135,6 @@ private final class RSSParserDelegate: NSObject, XMLParserDelegate {
         qualifiedName qName: String?,
         attributes attributeDict: [String: String] = [:]
     ) {
-        currentElement = elementName
         buffer = ""
         if elementName == "item" {
             insideItem = true
@@ -143,14 +143,13 @@ private final class RSSParserDelegate: NSObject, XMLParserDelegate {
     }
 
     func parser(_ parser: XMLParser, foundCharacters string: String) {
-        guard insideItem else { return }
         buffer += string
     }
 
-    // CDATA sections (Letterboxd wraps HTML descriptions in CDATA).
+    // Letterboxd wraps the HTML description in CDATA.
     func parser(_ parser: XMLParser, foundCDATA CDATABlock: Data) {
-        guard insideItem, let s = String(data: CDATABlock, encoding: .utf8) else { return }
-        buffer += s
+        guard let text = String(data: CDATABlock, encoding: .utf8) else { return }
+        buffer += text
     }
 
     func parser(
@@ -159,109 +158,90 @@ private final class RSSParserDelegate: NSObject, XMLParserDelegate {
         namespaceURI: String?,
         qualifiedName qName: String?
     ) {
-        if insideItem && elementName != "item" {
-            // Trim and stash the accumulated text against the tag name.
-            currentItem[elementName] = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-
-        if elementName == "item" {
-            if let parsed = makeReview(from: currentItem) {
-                items.append(parsed)
-            }
-            insideItem = false
-            currentItem = [:]
-        }
-
+        let text = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
         buffer = ""
+
+        guard insideItem else {
+            if elementName == "title", channelTitle == nil { channelTitle = text }
+            return
+        }
+
+        guard elementName == "item" else {
+            currentItem[elementName] = text
+            return
+        }
+
+        insideItem = false
+        if firstCreator == nil { firstCreator = currentItem["dc:creator"] }
+        if let review = makeReview(from: currentItem) {
+            reviews.append(review)
+        }
     }
 
-    // MARK: Map dictionary → ParsedReview
+    // MARK: Map item → ParsedReview
 
     private func makeReview(from item: [String: String]) -> ParsedReview? {
-        let link = item["link"] ?? ""
-        // Skip "list" activity entries (matches RN project).
-        if link.contains("/list/") { return nil }
+        // Letterboxd marks each item's kind in the guid:
+        // letterboxd-review-…, letterboxd-watch-…, letterboxd-list-…
+        guard let guid = item["guid"], guid.hasPrefix("letterboxd-review-"),
+              let link = item["link"]
+        else { return nil }
 
+        var html = item["description"] ?? ""
+        // The first paragraph is always the film poster from Letterboxd's CDN.
+        html = html.replacingOccurrences(
+            of: #"^\s*<p>\s*<img[^>]*>\s*</p>"#,
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+
+        // Spoiler reviews open with an italic warning paragraph.
+        let spoilerPattern = #"<p>\s*<(em|i)>\s*This review may contain spoilers\.?\s*</(em|i)>\s*</p>"#
+        let markedInBody = html.range(of: spoilerPattern, options: [.regularExpression, .caseInsensitive]) != nil
+        if markedInBody {
+            html = html.replacingOccurrences(of: spoilerPattern, with: "", options: [.regularExpression, .caseInsensitive])
+        }
         let title = item["title"] ?? ""
-        let rawDescription = item["description"] ?? ""
-        let pubDateRaw = item["pubDate"] ?? ""
-        // `dc:creator` arrives un-namespaced because we disabled namespace processing.
-        let creator = item["dc:creator"] ?? username
+        let containsSpoilers = markedInBody || title.localizedCaseInsensitiveContains("(contains spoilers)")
 
-        let cleaned = cleanDescription(rawDescription)
-        let plain = cleaned.strippingHTMLTags()
-        let isWatch = plain.isEmpty || plain.hasPrefix("Watched on")
+        html = html.trimmingCharacters(in: .whitespacesAndNewlines)
+        // A "review" with no words left is just a diary entry — skip it.
+        guard !ReviewHTML.plainText(from: html).isEmpty else { return nil }
 
+        let pubDate = item["pubDate"] ?? ""
         return ParsedReview(
-            id: "\(username)-\(link)",
+            id: guid,
             username: username,
-            title: title,
+            authorName: item["dc:creator"] ?? username,
             link: link,
-            pubDateRaw: pubDateRaw,
-            publishedAt: Self.parseRFC822(pubDateRaw) ?? .distantPast,
-            creator: creator,
-            reviewHTML: isWatch ? "" : cleaned,
-            rating: Self.extractRating(from: title),
-            movieTitle: Self.extractMovieTitle(from: title),
-            kind: isWatch ? .watch : .review
+            publishedAt: Self.rfc822.date(from: pubDate) ?? .distantPast,
+            watchedOn: item["letterboxd:watchedDate"].flatMap { Self.dayFormatter.date(from: $0) },
+            filmTitle: item["letterboxd:filmTitle"] ?? title,
+            filmYear: item["letterboxd:filmYear"].flatMap { Int($0) },
+            tmdbID: item["tmdb:movieId"].flatMap { Int($0) },
+            rating: item["letterboxd:memberRating"].flatMap { Double($0) },
+            liked: item["letterboxd:memberLike"] == "Yes",
+            isRewatch: item["letterboxd:rewatch"] == "Yes",
+            containsSpoilers: containsSpoilers,
+            reviewHTML: html
         )
     }
 
-    // MARK: Helpers (mirror services/feed.ts)
+    // MARK: Dates
 
-    /// Extract "★★★½" from a title ending in " - ★★★½".
-    static func extractRating(from title: String) -> String {
-        // Match trailing " - " followed by any run of ★ and ½ characters.
-        guard let match = title.range(
-            of: #" - ([★½]+)$"#,
-            options: .regularExpression
-        ) else { return "" }
-        let slice = title[match]
-        // Strip the leading " - " prefix.
-        return slice.replacingOccurrences(of: " - ", with: "")
-    }
-
-    /// Remove year + optional rating suffix: "Movie, 1984 - ★★★½" → "Movie".
-    static func extractMovieTitle(from title: String) -> String {
-        let pattern = #",\s*\d{4}\s*(-\s*[★½]+)?$"#
-        let cleaned = title.replacingOccurrences(
-            of: pattern,
-            with: "",
-            options: .regularExpression
-        )
-        return cleaned.trimmingCharacters(in: .whitespaces)
-    }
-
-    /// Drop the poster `<img>` block and any risky script/style/form tags.
-    /// Intentionally lenient — preserves bold, italics, blockquotes, links, images.
-    private func cleanDescription(_ html: String) -> String {
-        guard !html.isEmpty else { return "" }
-        let posterStripped = html.replacingOccurrences(
-            of: #"<p>\s*<img[^>]*>\s*</p>"#,
-            with: "",
-            options: [.regularExpression, .caseInsensitive]
-        )
-        let sanitised = posterStripped.replacingOccurrences(
-            of: #"</?(?:script|style|form|input|textarea|select|button)\b[^>]*>"#,
-            with: "",
-            options: [.regularExpression, .caseInsensitive]
-        )
-        return sanitised.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    // MARK: Date parsing
-
-    /// Parses RFC 822 dates (e.g. "Sun, 19 Apr 2026 08:14:23 +0000") — the format
-    /// Letterboxd RSS uses. Returns nil on failure; caller falls back to .distantPast.
-    private static let rfc822Formatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.timeZone = TimeZone(secondsFromGMT: 0)
-        f.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
-        return f
+    /// "Thu, 15 Oct 2026 03:23:56 +1300"
+    private static let rfc822: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "EEE, d MMM yyyy HH:mm:ss Z"
+        return formatter
     }()
 
-    static func parseRFC822(_ s: String) -> Date? {
-        rfc822Formatter.date(from: s)
-    }
+    /// "2026-10-14"
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 }

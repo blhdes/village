@@ -27,3 +27,6 @@ Carthage/Build/
 
 # macOS
 .DS_Store
+
+# Local API keys (see Secrets.example.swift)
+VILLE/VILLE/Secrets.swift

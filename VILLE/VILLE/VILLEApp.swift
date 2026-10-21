@@ -2,8 +2,8 @@
 //  VILLEApp.swift
 //  VILLE
 //
-//  App entry point. Sets up the SwiftData model container and forces a
-//  dark, cinematic appearance across the entire app.
+//  App entry point. Sets up SwiftData, a larger image cache for posters and
+//  backdrops, and the shared `FeedViewModel`.
 //
 
 import SwiftUI
@@ -11,22 +11,31 @@ import SwiftData
 
 @main
 struct VILLEApp: App {
-    /// Single SwiftData container for the whole app — passed down via
-    /// `.modelContainer(_:)` so every view can use `@Query` and `@Environment(\.modelContext)`.
-    let container: ModelContainer = {
+    private let container: ModelContainer
+    @State private var viewModel: FeedViewModel
+
+    init() {
+        // AsyncImage goes through URLSession.shared — a bigger cache keeps
+        // TMDB art around between launches and offline.
+        URLCache.shared = URLCache(memoryCapacity: 50_000_000, diskCapacity: 300_000_000)
+
         do {
-            return try ModelContainer(for: Review.self)
+            // A new store name: the reels model doesn't match the old scaffold's
+            // data, so we start clean instead of migrating it.
+            let configuration = ModelConfiguration("VILLEReels")
+            container = try ModelContainer(for: Review.self, FollowedUser.self, configurations: configuration)
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            fatalError("VILLEApp: could not create the SwiftData container — \(error)")
         }
-    }()
+        _viewModel = State(initialValue: FeedViewModel(context: container.mainContext))
+    }
 
     var body: some Scene {
         WindowGroup {
-            FeedView()
+            ReelFeedView()
+                .environment(viewModel)
                 // Dark mode only — part of VILLE's cinematic identity.
                 .preferredColorScheme(.dark)
-                // Smooth system-wide tint; cards/glass will override locally.
                 .tint(.white)
         }
         .modelContainer(container)

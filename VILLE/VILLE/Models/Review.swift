@@ -2,120 +2,114 @@
 //  Review.swift
 //  VILLE
 //
-//  SwiftData model representing a single Letterboxd review or watch entry.
-//  Mirrors the `Review` interface from the reference project
-//  (`types/database.ts` in ville-du-cinema-mobile).
+//  SwiftData model for a single written Letterboxd review.
 //
-//  `@Model` makes this class the persistence unit AND an observable object —
-//  SwiftUI views that observe instances will refresh automatically.
+//  Only real reviews are stored — lists and plain "watched" diary entries are
+//  dropped by `RSSService`. Reviews are never deleted when they fall out of a
+//  member's RSS window, so the local library keeps growing over time.
 //
 
 import Foundation
 import SwiftData
 
-/// Distinguishes plain "Watched on X" entries from actual written reviews.
-/// Mirrors the `'review' | 'watch'` union in the RN project.
-enum ReviewKind: String, Codable {
-    case review
-    case watch
-}
-
 @Model
 final class Review {
-    /// Stable unique ID — `"<username>-<link>"` — used as the de-duplication key
-    /// when merging fresh RSS results into the cache.
+    /// RSS `<guid>` — e.g. "letterboxd-review-1537861745". Stable across edits.
     @Attribute(.unique) var id: String
 
-    /// Letterboxd username the review was fetched from (lowercase handle).
+    /// Lowercase Letterboxd handle of the author (matches `FollowedUser.username`).
     var username: String
 
-    /// Raw RSS `<title>` — e.g. "Fallen Angels, 1995 - ★★★★".
-    var title: String
+    /// `<dc:creator>` — the author's display name.
+    var authorName: String
 
     /// Direct link to the review on letterboxd.com.
     var link: String
 
-    /// Original `<pubDate>` string from the RSS feed (RFC 822).
-    /// Kept as-is so we can reparse on demand; `publishedAt` is the derived Date.
-    var pubDateRaw: String
-
-    /// Parsed publish date — used for sorting, grouping, and display.
     var publishedAt: Date
 
-    /// `<dc:creator>` — human-readable display name (falls back to username).
-    var creator: String
+    /// `<letterboxd:watchedDate>` — the day the author logged the film.
+    var watchedOn: Date?
 
-    /// Sanitised HTML body of the review. Empty for `.watch` entries.
+    var filmTitle: String
+    var filmYear: Int?
+
+    /// `<tmdb:movieId>` — used to fetch the poster and backdrop.
+    var tmdbID: Int?
+
+    /// Star rating from 0.5 to 5, or nil when the author didn't rate.
+    var rating: Double?
+
+    var liked: Bool
+    var isRewatch: Bool
+    var containsSpoilers: Bool
+
+    /// Review body as Letterboxd's HTML, with the poster image removed.
     var reviewHTML: String
 
-    /// Star rating string extracted from the title — e.g. "★★★½". Empty if none.
-    var rating: String
+    /// TMDB image paths (append to an image base URL). Nil when TMDB has none.
+    var posterPath: String?
+    var backdropPath: String?
 
-    /// Movie title stripped of year + rating suffix — e.g. "Fallen Angels".
-    var movieTitle: String
+    /// True once TMDB has been asked for art, even if it had none — avoids
+    /// asking again on every launch.
+    var artFetched: Bool
 
-    /// Whether this is a full review or just a watch log entry.
-    var kind: ReviewKind
-
-    /// Cache insertion timestamp — used for ordering fallbacks and eviction.
     var fetchedAt: Date
 
-    init(
-        id: String,
-        username: String,
-        title: String,
-        link: String,
-        pubDateRaw: String,
-        publishedAt: Date,
-        creator: String,
-        reviewHTML: String,
-        rating: String,
-        movieTitle: String,
-        kind: ReviewKind,
-        fetchedAt: Date = .now
-    ) {
-        self.id = id
-        self.username = username
-        self.title = title
-        self.link = link
-        self.pubDateRaw = pubDateRaw
-        self.publishedAt = publishedAt
-        self.creator = creator
-        self.reviewHTML = reviewHTML
-        self.rating = rating
-        self.movieTitle = movieTitle
-        self.kind = kind
-        self.fetchedAt = fetchedAt
+    init(from parsed: ParsedReview) {
+        id = parsed.id
+        username = parsed.username
+        authorName = parsed.authorName
+        link = parsed.link
+        publishedAt = parsed.publishedAt
+        watchedOn = parsed.watchedOn
+        filmTitle = parsed.filmTitle
+        filmYear = parsed.filmYear
+        tmdbID = parsed.tmdbID
+        rating = parsed.rating
+        liked = parsed.liked
+        isRewatch = parsed.isRewatch
+        containsSpoilers = parsed.containsSpoilers
+        reviewHTML = parsed.reviewHTML
+        posterPath = nil
+        backdropPath = nil
+        artFetched = false
+        fetchedAt = .now
+    }
+
+    /// Refresh the fields an author can change after posting.
+    func update(from parsed: ParsedReview) {
+        authorName = parsed.authorName
+        watchedOn = parsed.watchedOn
+        rating = parsed.rating
+        liked = parsed.liked
+        isRewatch = parsed.isRewatch
+        containsSpoilers = parsed.containsSpoilers
+        reviewHTML = parsed.reviewHTML
+        fetchedAt = .now
     }
 }
 
-// MARK: - Derived convenience
+// MARK: - Display helpers
 
 extension Review {
-    /// Formatted display date — "Apr 20, 2026".
-    var displayDate: String {
-        publishedAt.formatted(.dateTime.month(.abbreviated).day().year())
+    /// "★★★½" — empty when unrated.
+    var stars: String {
+        guard let rating, rating > 0 else { return "" }
+        let full = Int(rating)
+        let half = rating - Double(full) >= 0.5
+        return String(repeating: "★", count: full) + (half ? "½" : "")
     }
 
-    /// Plain-text preview of the review body (tags stripped).
-    var plainTextPreview: String {
-        reviewHTML.strippingHTMLTags()
+    /// "Watched Oct 14, 2026", falling back to the publish date.
+    var watchedLabel: String {
+        let date = (watchedOn ?? publishedAt).formatted(.dateTime.month(.abbreviated).day().year())
+        return isRewatch ? "Rewatched \(date)" : "Watched \(date)"
     }
-}
 
-// MARK: - HTML helper (tiny, stateless, zero-dep)
+    var url: URL? { URL(string: link) }
 
-extension String {
-    /// Mirror of `stripHtml()` from `utils/html.ts` in the RN project.
-    /// Removes all HTML tags and trims whitespace. Not a security boundary —
-    /// meant purely for previews, never for rendering untrusted content.
-    func strippingHTMLTags() -> String {
-        let pattern = "<[^>]*>"
-        let plain = self.replacingOccurrences(
-            of: pattern,
-            with: "",
-            options: .regularExpression
-        )
-        return plain.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
+    var posterURL: URL? { TMDBService.imageURL(path: posterPath, size: "w342") }
+    var backdropURL: URL? { TMDBService.imageURL(path: backdropPath, size: "w1280") }
 }

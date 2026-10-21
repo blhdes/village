@@ -48,6 +48,11 @@ final class FeedViewModel {
     private var hasRefreshedThisSession = false
     private var currentIndex = 0
 
+    /// The single art load allowed at a time, and whether another was asked
+    /// for while it ran.
+    private var artTask: Task<Void, Never>?
+    private var artRequestedAgain = false
+
     init(context: ModelContext, rss: RSSService = RSSService(), artLoader: FilmArtLoader = FilmArtLoader()) {
         self.context = context
         self.rss = rss
@@ -132,7 +137,7 @@ final class FeedViewModel {
             ? "Couldn't reach Letterboxd. Showing saved reviews."
             : nil
 
-        await fetchMissingArt()
+        loadMissingArt()
     }
 
     // MARK: Members
@@ -153,7 +158,7 @@ final class FeedViewModel {
         store(feed, for: username)
         save()
 
-        await fetchMissingArt()
+        loadMissingArt()
     }
 
     /// Removes members together with every review saved from them.
@@ -175,6 +180,21 @@ final class FeedViewModel {
     /// Insert-or-update by review id. Reviews that dropped out of the RSS
     /// window are kept, so the library grows over time.
     private func store(_ feed: UserFeed, for username: String) {
+        let memberDescriptor = FetchDescriptor<FollowedUser>(predicate: #Predicate { $0.username == username })
+        let member: FollowedUser?
+        do {
+            member = try context.fetch(memberDescriptor).first
+        } catch {
+            print("FeedViewModel: could not look up member \(username) — \(error)")
+            return
+        }
+        // The member can be removed while their feed is still downloading.
+        // Saving it then would bring back reviews nothing can delete.
+        guard let member else {
+            print("FeedViewModel: \(username) was removed during the refresh — skipping their feed")
+            return
+        }
+
         let descriptor = FetchDescriptor<Review>(predicate: #Predicate { $0.username == username })
         let saved: [Review]
         do {
@@ -194,12 +214,7 @@ final class FeedViewModel {
         }
 
         if let name = feed.displayName {
-            let memberDescriptor = FetchDescriptor<FollowedUser>(predicate: #Predicate { $0.username == username })
-            do {
-                try context.fetch(memberDescriptor).first?.displayName = name
-            } catch {
-                print("FeedViewModel: could not update display name for \(username) — \(error)")
-            }
+            member.displayName = name
         }
     }
 
@@ -213,6 +228,24 @@ final class FeedViewModel {
     }
 
     // MARK: TMDB art
+
+    /// Starts filling in missing art without waiting for it, so adding a
+    /// member finishes as soon as their reviews are saved. Only one load runs
+    /// at a time; a call made meanwhile adds one more pass afterwards, for
+    /// the reviews saved since the first one began.
+    private func loadMissingArt() {
+        guard artTask == nil else {
+            artRequestedAgain = true
+            return
+        }
+        artTask = Task {
+            repeat {
+                artRequestedAgain = false
+                await fetchMissingArt()
+            } while artRequestedAgain
+            artTask = nil
+        }
+    }
 
     private func fetchMissingArt() async {
         do {

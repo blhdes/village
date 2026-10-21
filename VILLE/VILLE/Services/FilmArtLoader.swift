@@ -33,8 +33,8 @@ struct FilmArtLoader {
             known[id] = FilmArt(posterPath: review.posterPath, backdropPath: review.backdropPath)
         }
 
-        let missing = all.filter { !$0.artFetched && $0.tmdbID != nil }
-        let idsToFetch = Array(Set(missing.compactMap(\.tmdbID)).subtracting(known.keys))
+        let missingIDs = all.filter { !$0.artFetched }.compactMap(\.tmdbID)
+        let idsToFetch = Array(Set(missingIDs).subtracting(known.keys))
 
         batches: for start in stride(from: 0, to: idsToFetch.count, by: batchSize) {
             let batch = idsToFetch[start..<min(start + batchSize, idsToFetch.count)]
@@ -53,6 +53,9 @@ struct FilmArtLoader {
             }
         }
 
+        // Read again after the waits above: reviews may have been deleted (a
+        // member removed) or saved (a member added) while TMDB answered.
+        let missing = try context.fetch(FetchDescriptor<Review>(predicate: #Predicate { !$0.artFetched }))
         for review in missing {
             guard let id = review.tmdbID, let art = known[id] else { continue }
             review.posterPath = art.posterPath

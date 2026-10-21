@@ -93,17 +93,19 @@ struct MembersView: View {
 
     private func add() {
         guard canAdd else { return }
+        let submitted = input
         isAdding = true
         addError = nil
 
         Task {
             defer { isAdding = false }
             do {
-                try await viewModel.addMember(input)
-                input = ""
+                try await viewModel.addMember(submitted)
+                // Keep anything typed while waiting — it's the next member.
+                if input == submitted { input = "" }
                 addedCount += 1
             } catch {
-                print("MembersView: adding \(input) failed — \(error)")
+                print("MembersView: adding \(submitted) failed — \(error)")
                 addError = error.localizedDescription
             }
         }

@@ -56,10 +56,13 @@ enum RSSError: LocalizedError {
 
 // MARK: - Service
 
-struct RSSService {
+nonisolated struct RSSService {
 
     /// Fetch and parse one member's feed. Throws so callers decide how to
     /// report failures (one bad member must not break the whole refresh).
+    /// Runs off the main thread: parsing a feed takes several milliseconds,
+    /// enough to stall a swipe.
+    @concurrent
     func fetchUserFeed(username: String) async throws -> UserFeed {
         guard let url = URL(string: "https://letterboxd.com/\(username)/rss/") else {
             throw RSSError.invalidUsername(username)

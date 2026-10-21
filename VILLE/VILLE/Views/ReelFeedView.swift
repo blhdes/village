@@ -109,7 +109,11 @@ struct ReelFeedView: View {
             }
         }
         .padding(.horizontal, 20)
-        .overlay(alignment: .bottom) { errorBanner.offset(y: 52) }
+        .overlay(alignment: .bottom) {
+            errorBanner
+                .offset(y: 52)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.errorMessage)
+        }
     }
 
     private func barButton(_ systemImage: String, label: String, action: @escaping () -> Void) -> some View {

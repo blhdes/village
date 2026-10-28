@@ -45,7 +45,7 @@ struct MembersView: View {
                     }
                 } footer: {
                     if let addError {
-                        Text(addError).foregroundStyle(.red)
+                        Text(addError).foregroundStyle(Color.brandRed)
                     } else {
                         Text("Only public reviews from Letterboxd RSS feeds are shown.")
                     }

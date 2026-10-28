@@ -170,6 +170,10 @@ struct ReelView: View {
 
 /// TMDB backdrop across the top of the screen, fading into the background.
 /// A different one of the film's backdrops each time it appears.
+///
+/// The wash and the fade are set for legibility: even on a white frame in
+/// dark mode (or a black one in light mode) the small header text keeps
+/// 4.5:1 contrast, and the image is mostly gone where the review starts.
 private struct ReelBackground: View {
     let url: URL?
 
@@ -184,12 +188,16 @@ private struct ReelBackground: View {
                             image.resizable().scaledToFill()
                         }
                     }
-                    .frame(width: proxy.size.width, height: proxy.size.height * 0.62)
+                    .frame(width: proxy.size.width, height: proxy.size.height * 0.55)
                     .clipped()
-                    .overlay(Color.reelBackground.opacity(0.35))
+                    .overlay(Color.reelBackground.opacity(0.55))
                     .mask {
                         LinearGradient(
-                            colors: [.black, .black.opacity(0.85), .clear],
+                            stops: [
+                                .init(color: .black, location: 0),
+                                .init(color: .black.opacity(0.9), location: 0.4),
+                                .init(color: .clear, location: 1),
+                            ],
                             startPoint: .top,
                             endPoint: .bottom
                         )

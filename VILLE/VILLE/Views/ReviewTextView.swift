@@ -42,8 +42,9 @@ struct ReviewTextView: View {
             .fixedSize(horizontal: false, vertical: true)
         case .listItem(let marker, let text):
             HStack(alignment: .firstTextBaseline, spacing: 8) {
+                // 0.6 keeps list numbers at 4.5:1 or better on white.
                 Text(marker)
-                    .foregroundStyle(Color.primary.opacity(0.5))
+                    .foregroundStyle(Color.primary.opacity(0.6))
                 Text(text)
             }
         }

@@ -4,7 +4,8 @@
 //
 //  Poster, title, year and the author's rating at the top of a review.
 //  Used by both the reel and the full reader. Stars, like and rewatch wear
-//  the yellow, red and blue of the Village du Cinéma plates.
+//  the yellow, red and blue of the Village du Cinéma plates (the stars in
+//  `starYellow`, deepened in light mode so they read on white).
 //
 
 import SwiftUI
@@ -33,7 +34,7 @@ struct ReviewHeader: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Review by \(Text(review.authorName).bold())")
                     .font(.caption)
-                    .foregroundStyle(Color.primary.opacity(0.65))
+                    .foregroundStyle(Color.primary.opacity(0.8))
 
                 Text("\(Text(review.filmTitle).font(.system(.title, design: .serif, weight: .bold)))\(yearText)")
                     .lineLimit(3)
@@ -41,7 +42,7 @@ struct ReviewHeader: View {
                 HStack(spacing: 8) {
                     if !review.stars.isEmpty {
                         Text(review.stars)
-                            .foregroundStyle(Color.brandYellow)
+                            .foregroundStyle(Color.starYellow)
                     }
                     if review.liked {
                         Image(systemName: "heart.fill")
@@ -58,8 +59,13 @@ struct ReviewHeader: View {
 
                 Text(review.watchedLabel)
                     .font(.caption)
-                    .foregroundStyle(Color.primary.opacity(0.5))
+                    .foregroundStyle(Color.primary.opacity(0.65))
             }
+            // A tight halo in the background color around the text and the
+            // rating keeps them readable over a busy backdrop; two passes
+            // make it dense enough. Invisible on a plain background.
+            .shadow(color: Color.reelBackground.opacity(0.9), radius: 2)
+            .shadow(color: Color.reelBackground.opacity(0.9), radius: 2)
         }
         .shadow(color: Color.reelBackground.opacity(0.4), radius: 10)
     }
@@ -95,6 +101,6 @@ struct ReviewHeader: View {
         guard let year = review.filmYear else { return Text(verbatim: "") }
         return Text(verbatim: "  \(year)")
             .font(.system(.title3, design: .serif))
-            .foregroundStyle(Color.primary.opacity(0.55))
+            .foregroundStyle(Color.primary.opacity(0.65))
     }
 }

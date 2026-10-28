@@ -3,7 +3,8 @@
 //  VILLE
 //
 //  App entry point. Sets up SwiftData, a larger image cache for posters and
-//  backdrops, and the shared `FeedViewModel`.
+//  backdrops, the shared `FeedViewModel` (the library) and `ReelSession`
+//  (what's on screen).
 //
 
 import SwiftUI
@@ -13,6 +14,7 @@ import SwiftData
 struct VILLEApp: App {
     private let container: ModelContainer
     @State private var viewModel: FeedViewModel
+    @State private var session: ReelSession
     @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
     init() {
@@ -29,12 +31,14 @@ struct VILLEApp: App {
             fatalError("VILLEApp: could not create the SwiftData container — \(error)")
         }
         _viewModel = State(initialValue: FeedViewModel(context: container.mainContext))
+        _session = State(initialValue: ReelSession(context: container.mainContext))
     }
 
     var body: some Scene {
         WindowGroup {
             ReelFeedView()
                 .environment(viewModel)
+                .environment(session)
                 // System, Light or Dark, picked in Settings.
                 .preferredColorScheme(appearance.colorScheme)
                 .tint(Color.primary)

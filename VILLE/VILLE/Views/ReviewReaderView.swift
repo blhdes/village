@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ReviewReaderView: View {
     let review: Review
-    let showPoster: Bool
+    /// The same poster the reel was showing.
+    let posterURL: URL?
 
     @Environment(\.dismiss) private var dismiss
 
@@ -17,7 +18,7 @@ struct ReviewReaderView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
-                    ReviewHeader(review: review, showPoster: showPoster)
+                    ReviewHeader(review: review, posterURL: posterURL)
                     ReviewTextView(blocks: ReviewHTML.blocks(for: review))
                         .textSelection(.enabled)
                     if let url = review.url {

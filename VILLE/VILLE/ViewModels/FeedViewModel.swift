@@ -4,7 +4,7 @@
 //
 //  Owns everything that changes the local library: refreshing members' RSS
 //  feeds, adding and removing members, and filling in TMDB art (through
-//  `FilmArtLoader`). Also keeps the session's `ReelQueue`.
+//  `FilmArtLoader`). What's on screen lives in `ReelSession`.
 //
 //  Views read reviews straight from SwiftData with `@Query`, so the feed
 //  looks the same online and offline.
@@ -29,15 +29,10 @@ final class FeedViewModel {
 
     // MARK: Observable state
 
-    private(set) var queue = ReelQueue()
     private(set) var isRefreshing = false
 
     /// Shown as a small banner when a refresh fails completely.
     var errorMessage: String?
-
-    /// Spoiler reviews the user chose to read. Kept for the session only, so
-    /// a review stays uncovered when it comes round again.
-    private(set) var revealedSpoilers: Set<String> = []
 
     // MARK: Dependencies
 
@@ -45,8 +40,7 @@ final class FeedViewModel {
     private let rss: RSSService
     private let artLoader: FilmArtLoader
 
-    private var hasRefreshedThisSession = false
-    private var currentIndex = 0
+    private var hasRefreshedSinceLaunch = false
 
     /// The single art load allowed at a time, and whether another was asked
     /// for while it ran.
@@ -59,31 +53,12 @@ final class FeedViewModel {
         self.artLoader = artLoader
     }
 
-    // MARK: Queue
-
-    func syncQueue(with reviewIDs: [String]) {
-        if reviewIDs.isEmpty { currentIndex = 0 }
-        queue.sync(with: reviewIDs, currentIndex: currentIndex)
-        queue.extendIfNeeded(currentIndex: currentIndex, reviewIDs: reviewIDs)
-    }
-
-    /// Called as the user swipes, so the next round is ready before they need it.
-    func didShowSlot(_ slotID: Int, reviewIDs: [String]) {
-        guard let index = queue.index(of: slotID) else { return }
-        currentIndex = index
-        queue.extendIfNeeded(currentIndex: index, reviewIDs: reviewIDs)
-    }
-
-    func revealSpoilers(for reviewID: String) {
-        revealedSpoilers.insert(reviewID)
-    }
-
     // MARK: Refresh
 
     /// Refreshes once per app launch; later calls do nothing.
     func refreshIfNeeded() async {
-        guard !hasRefreshedThisSession else { return }
-        hasRefreshedThisSession = true
+        guard !hasRefreshedSinceLaunch else { return }
+        hasRefreshedSinceLaunch = true
         await refreshAll()
     }
 

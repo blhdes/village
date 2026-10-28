@@ -2,8 +2,9 @@
 //  FilmArtLoader.swift
 //  VILLE
 //
-//  Fills in TMDB poster and backdrop paths for saved reviews that don't have
-//  them yet. Asks TMDB once per film: art already known from another review
+//  Fills in TMDB posters and backdrops for saved reviews that don't have
+//  them yet — including the galleries for reviews saved before galleries
+//  existed. Asks TMDB once per film: art already known from another review
 //  of the same film is reused without a request.
 //
 //  Writes into the reviews but doesn't save — the caller owns the save.
@@ -28,12 +29,12 @@ struct FilmArtLoader {
         let all = try context.fetch(FetchDescriptor<Review>())
 
         var known: [Int: FilmArt] = [:]
-        for review in all where review.artFetched {
+        for review in all where !review.needsArt {
             guard let id = review.tmdbID else { continue }
-            known[id] = FilmArt(posterPath: review.posterPath, backdropPath: review.backdropPath)
+            known[id] = FilmArt(posterPaths: review.posterPaths ?? [], backdropPaths: review.backdropPaths ?? [])
         }
 
-        let missingIDs = all.filter { !$0.artFetched }.compactMap(\.tmdbID)
+        let missingIDs = all.filter(\.needsArt).compactMap(\.tmdbID)
         let idsToFetch = Array(Set(missingIDs).subtracting(known.keys))
 
         batches: for start in stride(from: 0, to: idsToFetch.count, by: batchSize) {
@@ -55,11 +56,15 @@ struct FilmArtLoader {
 
         // Read again after the waits above: reviews may have been deleted (a
         // member removed) or saved (a member added) while TMDB answered.
-        let missing = try context.fetch(FetchDescriptor<Review>(predicate: #Predicate { !$0.artFetched }))
+        // Filtered here rather than in a predicate: SwiftData can't query
+        // inside the gallery arrays.
+        let missing = try context.fetch(FetchDescriptor<Review>()).filter(\.needsArt)
         for review in missing {
             guard let id = review.tmdbID, let art = known[id] else { continue }
-            review.posterPath = art.posterPath
-            review.backdropPath = art.backdropPath
+            review.posterPath = art.posterPaths.first
+            review.backdropPath = art.backdropPaths.first
+            review.posterPaths = art.posterPaths
+            review.backdropPaths = art.backdropPaths
             review.artFetched = true
         }
     }

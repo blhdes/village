@@ -1,0 +1,76 @@
+{
+  "fill": {
+    "solid": "srgb:0.96078,0.94118,0.92157,1.00000"
+  },
+  "fill-specializations": [
+    {
+      "value": {
+        "solid": "srgb:0.96078,0.94118,0.92157,1.00000"
+      }
+    },
+    {
+      "appearance": "dark",
+      "value": {
+        "solid": "srgb:0.09020,0.09020,0.09020,1.00000"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "Ink",
+      "layers": [
+        {
+          "image-name": "v.svg",
+          "name": "V",
+          "fill-specializations": [
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "srgb:0.96078,0.94118,0.92157,1.00000"
+              }
+            }
+          ]
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0.3
+      }
+    },
+    {
+      "name": "Plates",
+      "layers": [
+        {
+          "image-name": "plate-yellow.svg",
+          "name": "Yellow plate"
+        },
+        {
+          "image-name": "plate-blue.svg",
+          "name": "Blue plate"
+        },
+        {
+          "image-name": "plate-red.svg",
+          "name": "Red plate"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0.3
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}

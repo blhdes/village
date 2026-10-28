@@ -2,8 +2,8 @@
 //  SettingsView.swift
 //  VILLE
 //
-//  Look options (appearance, posters and backdrops on/off) and the
-//  attributions required by Letterboxd and TMDB.
+//  Look options (appearance, posters and backdrops), the session length,
+//  and the attributions required by Letterboxd and TMDB.
 //
 
 import SwiftUI
@@ -12,6 +12,8 @@ import SwiftUI
 enum SettingsKey {
     static let showPosters = "showPosters"
     static let showBackdrops = "showBackdrops"
+    static let alternativePosters = "alternativePosters"
+    static let sessionLength = "sessionLength"
     static let appearance = "appearance"
 }
 
@@ -20,6 +22,8 @@ struct SettingsView: View {
 
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
     @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = true
+    @AppStorage(SettingsKey.alternativePosters) private var alternativePosters = false
+    @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
     @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
     var body: some View {
@@ -37,11 +41,25 @@ struct SettingsView: View {
 
                 Section {
                     Toggle("Posters", isOn: $showPosters)
+                    Toggle("Alternative posters", isOn: $alternativePosters)
+                        .disabled(!showPosters)
                     Toggle("Backdrops", isOn: $showBackdrops)
                 } header: {
                     Text("Look")
                 } footer: {
-                    Text("Turn both off for text only.")
+                    Text("Alternative posters picks a different one from TMDB each time, like other countries' releases. Tap any poster to flip to the next. Turn posters and backdrops off for text only.")
+                }
+
+                Section {
+                    Picker("Reviews per session", selection: $sessionLength) {
+                        ForEach(SessionLength.options, id: \.self) { length in
+                            Text(verbatim: "\(length)").tag(length)
+                        }
+                    }
+                } header: {
+                    Text("Session")
+                } footer: {
+                    Text("The feed ends after this many reviews. Keep reading from the end card, or come back later for a new session.")
                 }
 
                 Section("About") {

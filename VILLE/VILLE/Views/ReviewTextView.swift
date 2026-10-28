@@ -3,7 +3,8 @@
 //  VILLE
 //
 //  Draws the blocks produced by `ReviewHTML`: paragraphs, indented quotes
-//  with a side rule, and bulleted or numbered list items.
+//  with a side rule, and bulleted or numbered list items. Links take the
+//  brand blue.
 //
 
 import SwiftUI
@@ -20,6 +21,7 @@ struct ReviewTextView: View {
         .font(.system(.body, design: .serif))
         .foregroundStyle(Color.primary.opacity(0.88))
         .lineSpacing(5)
+        .tint(Color.brandBlue)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 

@@ -2,58 +2,75 @@
 //  ReelQueue.swift
 //  VILLE
 //
-//  The order reels appear in. Each session starts with every saved review
-//  shuffled — a "round". No review repeats until the round is used up; then
-//  a fresh shuffled round is appended, so the feed never ends.
+//  The reels of the current visit, in order. A session holds as many
+//  reviews as Settings allows, chosen by `ReelSampler`; after the last one
+//  the feed shows its end card. "Keep reading" adds one more session.
 //
-//  Reviews that arrive mid-session (a refresh, a newly added member) are
-//  slipped in at random spots ahead of the current reel.
+//  Reviews that arrive mid-session (a refresh, a newly added member) compete
+//  for the upcoming reels. The reel on screen and the next one never change,
+//  so nothing moves under the reader's finger.
 //
 
 import Foundation
 
-/// One page in the feed. A review can appear in several slots across rounds,
-/// so each slot gets its own id for the scroll view.
+/// One page in the feed. A review can come back in a later session, so each
+/// slot gets its own id for the scroll view, plus the random numbers that
+/// pick this appearance's backdrop and poster.
 struct ReelSlot: Identifiable, Hashable {
     let id: Int
     let reviewID: String
+    let backdropPick: Int
+    let posterPick: Int
 }
 
 struct ReelQueue {
     private(set) var slots: [ReelSlot] = []
 
-    /// Reviews already placed in the latest round.
-    private var placedThisRound: Set<String> = []
+    /// Sessions in this visit: one, plus one per "Keep reading".
+    private var sessions = 1
+    private var knownIDs: Set<String> = []
     private var nextSlotID = 0
 
-    /// How close to the end the user gets before the next round is added.
-    private let lookahead = 3
-
-    /// Brings the queue in line with the reviews saved on the device.
-    mutating func sync(with reviewIDs: [String], currentIndex: Int) {
-        let available = Set(reviewIDs)
-
-        // Drop reviews that no longer exist (e.g. their member was removed).
-        slots.removeAll { !available.contains($0.reviewID) }
-        placedThisRound.formIntersection(available)
-
-        guard !slots.isEmpty else {
-            appendRound(reviewIDs)
-            return
-        }
-
-        let fresh = reviewIDs.filter { !placedThisRound.contains($0) }
-        let lowerBound = min(currentIndex + 1, slots.count)
-        for reviewID in fresh.shuffled() {
-            slots.insert(makeSlot(reviewID), at: Int.random(in: lowerBound...slots.count))
-            placedThisRound.insert(reviewID)
-        }
+    /// Replaces the reels with a fresh session.
+    mutating func start(length: Int, from candidates: [ReelCandidate]) {
+        slots = []
+        sessions = 1
+        knownIDs = Set(candidates.map(\.id))
+        append(ReelSampler.pick(length, from: candidates, after: nil))
     }
 
-    /// Adds another shuffled round once the user nears the end.
-    mutating func extendIfNeeded(currentIndex: Int, reviewIDs: [String]) {
-        guard currentIndex >= slots.count - lookahead else { return }
-        appendRound(reviewIDs)
+    /// Brings the queue in line with the saved reviews: drops deleted ones
+    /// and lets new arrivals into the upcoming reels. Once the end card is
+    /// showing, the session is over and new reviews wait for the next one.
+    mutating func sync(with candidates: [ReelCandidate], length: Int, currentIndex: Int, sessionEnded: Bool) {
+        let ids = Set(candidates.map(\.id))
+        let arrived = !ids.isSubset(of: knownIDs)
+        knownIDs = ids
+
+        let countBefore = slots.count
+        slots.removeAll { !ids.contains($0.reviewID) }
+        let removed = slots.count < countBefore
+
+        guard arrived || removed, !sessionEnded else { return }
+        replanUpcoming(length: length, from: candidates, currentIndex: currentIndex)
+    }
+
+    /// Applies a new session length to the reels not reached yet.
+    mutating func resize(to length: Int, from candidates: [ReelCandidate], currentIndex: Int, sessionEnded: Bool) {
+        guard !sessionEnded else { return }
+        replanUpcoming(length: length, from: candidates, currentIndex: currentIndex)
+    }
+
+    /// "Keep reading": room for one more session after this one.
+    mutating func extend(length: Int, from candidates: [ReelCandidate]) {
+        sessions += 1
+        let placed = Set(slots.map(\.reviewID))
+        var pool = candidates.filter { !placed.contains($0.id) }
+        // Everything was read during this visit: go round again.
+        if pool.isEmpty {
+            pool = candidates.filter { $0.id != slots.last?.reviewID }
+        }
+        append(ReelSampler.pick(length, from: pool, after: candidate(for: slots.last, in: candidates)))
     }
 
     func index(of slotID: Int) -> Int? {
@@ -62,23 +79,33 @@ struct ReelQueue {
 
     // MARK: Private
 
-    private mutating func appendRound(_ reviewIDs: [String]) {
-        guard !reviewIDs.isEmpty else { return }
+    /// Re-picks every reel after the next one, from the reviews not placed
+    /// before that point. If the session shrank past the current reel, it
+    /// now ends right after it.
+    private mutating func replanUpcoming(length: Int, from candidates: [ReelCandidate], currentIndex: Int) {
+        let capacity = length * sessions
+        let keep = min(currentIndex + 2, slots.count, max(capacity, currentIndex + 1))
+        slots.removeSubrange(keep...)
 
-        var round = reviewIDs.shuffled()
-        // Never show the same review twice in a row across the round boundary.
-        if round.count > 1, round.first == slots.last?.reviewID {
-            round.swapAt(0, Int.random(in: 1..<round.count))
-        }
-
-        for reviewID in round {
-            slots.append(makeSlot(reviewID))
-        }
-        placedThisRound = Set(round)
+        let placed = Set(slots.map(\.reviewID))
+        let pool = candidates.filter { !placed.contains($0.id) }
+        append(ReelSampler.pick(capacity - slots.count, from: pool, after: candidate(for: slots.last, in: candidates)))
     }
 
-    private mutating func makeSlot(_ reviewID: String) -> ReelSlot {
-        defer { nextSlotID += 1 }
-        return ReelSlot(id: nextSlotID, reviewID: reviewID)
+    private func candidate(for slot: ReelSlot?, in candidates: [ReelCandidate]) -> ReelCandidate? {
+        guard let slot else { return nil }
+        return candidates.first { $0.id == slot.reviewID }
+    }
+
+    private mutating func append(_ picked: [ReelCandidate]) {
+        for candidate in picked {
+            slots.append(ReelSlot(
+                id: nextSlotID,
+                reviewID: candidate.id,
+                backdropPick: Int.random(in: 0..<1_000),
+                posterPick: Int.random(in: 0..<1_000)
+            ))
+            nextSlotID += 1
+        }
     }
 }

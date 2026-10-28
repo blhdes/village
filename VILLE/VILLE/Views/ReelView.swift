@@ -7,16 +7,27 @@
 //  open the full reader. Every reel credits the author and links back to
 //  the original on Letterboxd.
 //
+//  The backdrop (and, with Alternative posters on, the poster) is picked
+//  per appearance by the slot, so a film looks different each time it
+//  comes round. Tapping the poster flips to the film's next one.
+//
 
 import SwiftUI
 
+/// The Settings → Look choices a reel needs.
+struct ReelLook: Equatable {
+    var showPoster: Bool
+    var showBackdrop: Bool
+    var alternativePosters: Bool
+}
+
 struct ReelView: View {
     let review: Review
-    let showPoster: Bool
-    let showBackdrop: Bool
+    let slot: ReelSlot
+    let look: ReelLook
     let insets: EdgeInsets
 
-    @Environment(FeedViewModel.self) private var viewModel
+    @Environment(ReelSession.self) private var session
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Lets the reader sheet zoom out of the "Read more" button.
@@ -25,19 +36,34 @@ struct ReelView: View {
     @State private var isReading = false
     @State private var contentHeight: CGFloat = 0
     @State private var boxHeight: CGFloat = 0
+    /// How many times the poster was tapped, each showing the next one.
+    @State private var posterTaps = 0
 
     private var isOverflowing: Bool { contentHeight > boxHeight + 1 }
 
     private var isSpoilerCovered: Bool {
-        review.containsSpoilers && !viewModel.revealedSpoilers.contains(review.id)
+        review.containsSpoilers && !session.revealedSpoilers.contains(review.id)
+    }
+
+    /// Official poster unless Alternative posters is on, then a random one.
+    private var posterURL: URL? {
+        guard look.showPoster else { return nil }
+        let first = look.alternativePosters ? slot.posterPick : 0
+        return review.posterURL(pick: first + posterTaps)
+    }
+
+    /// Tapping the poster flips to the next one, if the film has more.
+    private var posterTap: (() -> Void)? {
+        guard review.posterChoices.count > 1 else { return nil }
+        return { showNextPoster() }
     }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            ReelBackground(url: showBackdrop ? review.backdropURL : nil)
+            ReelBackground(url: look.showBackdrop ? review.backdropURL(pick: slot.backdropPick) : nil)
 
             VStack(alignment: .leading, spacing: 24) {
-                ReviewHeader(review: review, showPoster: showPoster)
+                ReviewHeader(review: review, posterURL: posterURL, onPosterTap: posterTap)
 
                 // The container stays put while the `if` swaps its content,
                 // so the spoiler glass can dissolve instead of just vanishing.
@@ -57,8 +83,15 @@ struct ReelView: View {
             .padding(.bottom, insets.bottom + 20)
         }
         .sheet(isPresented: $isReading) {
-            ReviewReaderView(review: review, showPoster: showPoster)
+            ReviewReaderView(review: review, posterURL: posterURL)
                 .navigationTransition(.zoom(sourceID: review.id, in: readerNamespace))
+        }
+        .sensoryFeedback(.selection, trigger: posterTaps)
+    }
+
+    private func showNextPoster() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            posterTaps += 1
         }
     }
 
@@ -104,7 +137,7 @@ struct ReelView: View {
     private var spoilerGate: some View {
         Button {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                viewModel.revealSpoilers(for: review.id)
+                session.revealSpoilers(for: review.id)
             }
         } label: {
             VStack(alignment: .leading, spacing: 14) {
@@ -136,6 +169,7 @@ struct ReelView: View {
 // MARK: - Background
 
 /// TMDB backdrop across the top of the screen, fading into the background.
+/// A different one of the film's backdrops each time it appears.
 private struct ReelBackground: View {
     let url: URL?
 

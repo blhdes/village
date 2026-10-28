@@ -51,9 +51,20 @@ final class Review {
     var posterPath: String?
     var backdropPath: String?
 
+    /// The film's TMDB galleries: posters (official first, then other
+    /// countries' and textless ones) and textless backdrops to rotate
+    /// through. Nil until fetched — older reviews fall back to the single
+    /// paths above until then.
+    var posterPaths: [String]?
+    var backdropPaths: [String]?
+
     /// True once TMDB has been asked for art, even if it had none — avoids
     /// asking again on every launch.
     var artFetched: Bool
+
+    /// When this review last appeared in the feed; nil if never. Sessions
+    /// show the reviews that have waited longest first.
+    var lastShownAt: Date?
 
     var fetchedAt: Date
 
@@ -74,7 +85,10 @@ final class Review {
         reviewHTML = parsed.reviewHTML
         posterPath = nil
         backdropPath = nil
+        posterPaths = nil
+        backdropPaths = nil
         artFetched = false
+        lastShownAt = nil
         fetchedAt = .now
     }
 
@@ -110,6 +124,35 @@ extension Review {
 
     var url: URL? { URL(string: link) }
 
-    var posterURL: URL? { TMDBService.imageURL(path: posterPath, size: "w342") }
-    var backdropURL: URL? { TMDBService.imageURL(path: backdropPath, size: "w1280") }
+    /// True until TMDB has been asked for this film's galleries.
+    var needsArt: Bool { !artFetched || posterPaths == nil }
+
+    /// Posters to choose from, official first.
+    var posterChoices: [String] {
+        if let posterPaths, !posterPaths.isEmpty { return posterPaths }
+        return posterPath.map { [$0] } ?? []
+    }
+
+    /// Backdrops to choose from.
+    var backdropChoices: [String] {
+        if let backdropPaths, !backdropPaths.isEmpty { return backdropPaths }
+        return backdropPath.map { [$0] } ?? []
+    }
+
+    /// One of the film's posters. `pick` is any number: it wraps around the
+    /// gallery, and 0 is always the official poster.
+    func posterURL(pick: Int) -> URL? {
+        Self.imageURL(in: posterChoices, pick: pick, size: "w342")
+    }
+
+    /// One of the film's backdrops, chosen the same way as `posterURL(pick:)`.
+    func backdropURL(pick: Int) -> URL? {
+        Self.imageURL(in: backdropChoices, pick: pick, size: "w1280")
+    }
+
+    private static func imageURL(in paths: [String], pick: Int, size: String) -> URL? {
+        guard !paths.isEmpty else { return nil }
+        let index = (pick % paths.count + paths.count) % paths.count
+        return TMDBService.imageURL(path: paths[index], size: size)
+    }
 }

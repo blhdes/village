@@ -3,15 +3,25 @@
 //  VILLE
 //
 //  Main screen: full-screen reviews you swipe through vertically, one per
-//  page, in the order kept by `ReelQueue`.
+//  page, in the order kept by `ReelSession`. The last page is the session's
+//  end card.
 //
 
 import SwiftUI
 import SwiftData
 
+/// The sheets the feed can open. `addPeople` opens the same screen as
+/// `members`, but from the empty-state button, so the sheet zooms out of the
+/// right place.
+enum FeedSheet: String, Identifiable {
+    case members, addPeople, settings
+    var id: String { rawValue }
+}
+
 struct ReelFeedView: View {
     @Environment(FeedViewModel.self) private var viewModel
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(ReelSession.self) private var session
+    @Environment(\.scenePhase) private var scenePhase
 
     /// Lets each sheet zoom out of the button that opened it.
     @Namespace private var sheetNamespace
@@ -21,16 +31,12 @@ struct ReelFeedView: View {
 
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
     @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = true
+    @AppStorage(SettingsKey.alternativePosters) private var alternativePosters = false
+    @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
 
-    @State private var currentSlotID: Int?
-    @State private var activeSheet: Sheet?
-
-    /// `addPeople` opens the same screen as `members`, but from the
-    /// empty-state button, so the sheet zooms out of the right place.
-    private enum Sheet: String, Identifiable {
-        case members, addPeople, settings
-        var id: String { rawValue }
-    }
+    /// The page on screen: a reel's slot id, or `ReelSession.endPageID`.
+    @State private var currentPageID: Int?
+    @State private var activeSheet: FeedSheet?
 
     private var reviewIDs: [String] { reviews.map(\.id) }
 
@@ -39,14 +45,16 @@ struct ReelFeedView: View {
             ZStack {
                 Color.reelBackground.ignoresSafeArea()
 
-                if viewModel.queue.slots.isEmpty {
+                if session.queue.slots.isEmpty {
                     emptyState
                 } else {
                     reels(insets: proxy.safeAreaInsets)
                 }
             }
         }
-        .overlay(alignment: .top) { topBar }
+        .overlay(alignment: .top) {
+            ReelTopBar(namespace: sheetNamespace) { activeSheet = $0 }
+        }
         .sheet(item: $activeSheet) { sheet in
             Group {
                 switch sheet {
@@ -57,102 +65,83 @@ struct ReelFeedView: View {
             .navigationTransition(.zoom(sourceID: sheet, in: sheetNamespace))
         }
         .task { await viewModel.refreshIfNeeded() }
-        .onChange(of: reviewIDs, initial: true) { _, ids in
-            viewModel.syncQueue(with: ids)
+        .onChange(of: reviewIDs, initial: true) {
+            session.sync(with: reviews, length: sessionLength)
         }
-        .onChange(of: currentSlotID) { _, slotID in
-            guard let slotID else { return }
-            viewModel.didShowSlot(slotID, reviewIDs: reviewIDs)
+        .onChange(of: sessionLength) { _, length in
+            session.resize(to: length, reviews: reviews)
         }
-        .sensoryFeedback(.selection, trigger: currentSlotID)
+        .onChange(of: currentPageID) { _, pageID in
+            guard let pageID else { return }
+            session.didShowPage(pageID, reviews: reviews)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            handle(phase)
+        }
+        // A firmer tap when the session ends.
+        .sensoryFeedback(trigger: currentPageID) { _, pageID in
+            pageID == ReelSession.endPageID ? .success : .selection
+        }
     }
 
     // MARK: Reels
 
     private func reels(insets: EdgeInsets) -> some View {
         let lookup = Dictionary(reviews.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        let look = ReelLook(showPoster: showPosters, showBackdrop: showBackdrops, alternativePosters: alternativePosters)
+        let slots = session.queue.slots
 
         return ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
-                ForEach(viewModel.queue.slots) { slot in
+                ForEach(slots) { slot in
                     Group {
                         if let review = lookup[slot.reviewID] {
-                            ReelView(
-                                review: review,
-                                showPoster: showPosters,
-                                showBackdrop: showBackdrops,
-                                insets: insets
-                            )
+                            ReelView(review: review, slot: slot, look: look, insets: insets)
                         } else {
                             Color.reelBackground
                         }
                     }
                     .containerRelativeFrame([.horizontal, .vertical])
                 }
+
+                SessionEndView(
+                    reviewCount: slots.count,
+                    memberCount: Set(slots.compactMap { lookup[$0.reviewID]?.username }).count,
+                    unreadCount: reviews.count(where: { $0.lastShownAt == nil }),
+                    onKeepReading: keepReading
+                )
+                .containerRelativeFrame([.horizontal, .vertical])
+                .id(ReelSession.endPageID)
             }
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.paging)
-        .scrollPosition(id: $currentSlotID)
+        .scrollPosition(id: $currentPageID)
         .scrollIndicators(.hidden)
         .ignoresSafeArea()
     }
 
-    // MARK: Top bar
-
-    private var topBar: some View {
-        HStack {
-            Text("VILLE")
-                .font(.system(.headline, design: .serif, weight: .bold))
-                .tracking(4)
-                .foregroundStyle(Color.primary.opacity(0.9))
-                .shadow(color: Color.reelBackground.opacity(0.6), radius: 8)
-
-            Spacer()
-
-            GlassEffectContainer(spacing: 8) {
-                HStack(spacing: 8) {
-                    barButton("person.2", label: "People") { activeSheet = .members }
-                        .matchedTransitionSource(id: Sheet.members, in: sheetNamespace)
-                    barButton("slider.horizontal.3", label: "Settings") { activeSheet = .settings }
-                        .matchedTransitionSource(id: Sheet.settings, in: sheetNamespace)
-                }
-            }
-        }
-        .padding(.horizontal, 20)
-        .overlay(alignment: .bottom) {
-            // Always on screen, so the banner's glass can form and dissolve
-            // inside it instead of sliding in.
-            GlassEffectContainer {
-                errorBanner
-            }
-            .offset(y: 52)
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.errorMessage)
+    /// The new session's reels take the end card's place; the card moves
+    /// down to follow them.
+    private func keepReading() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            guard let firstNew = session.keepReading(with: reviews, length: sessionLength) else { return }
+            currentPageID = firstNew
         }
     }
 
-    private func barButton(_ systemImage: String, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.body.weight(.medium))
-                .frame(width: 24, height: 24)
-        }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
-        .accessibilityLabel(label)
-    }
-
-    @ViewBuilder
-    private var errorBanner: some View {
-        if let message = viewModel.errorMessage {
-            Text(message)
-                .font(.footnote.weight(.medium))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                // Interactive: the glass reacts to touch, hinting it can be tapped away.
-                .glassEffect(.regular.tint(.red.opacity(0.4)).interactive(), in: .capsule)
-                .glassEffectTransition(reduceMotion ? .identity : .materialize)
-                .onTapGesture { viewModel.errorMessage = nil }
+    /// Back after a break: a new session from the top, and fresh feeds.
+    private func handle(_ phase: ScenePhase) {
+        switch phase {
+        case .background:
+            session.didLeave()
+        case .active:
+            guard session.didReturn() else { return }
+            session.startNew(with: reviews, length: sessionLength)
+            currentPageID = session.queue.slots.first?.id
+            Task { await viewModel.refreshAll() }
+        default:
+            break
         }
     }
 
@@ -168,8 +157,8 @@ struct ReelFeedView: View {
                 buttonTitle: "Add people"
             )
         } else if viewModel.isRefreshing {
-            VStack(spacing: 14) {
-                ProgressView()
+            VStack(spacing: 18) {
+                VILLEWordmark(size: 44, isPulsing: true)
                 Text("Fetching reviews…")
                     .font(.footnote)
                     .foregroundStyle(Color.primary.opacity(0.6))
@@ -197,7 +186,7 @@ struct ReelFeedView: View {
                 .multilineTextAlignment(.center)
             Button(buttonTitle) { activeSheet = .addPeople }
                 .buttonStyle(.glassProminent)
-                .matchedTransitionSource(id: Sheet.addPeople, in: sheetNamespace)
+                .matchedTransitionSource(id: FeedSheet.addPeople, in: sheetNamespace)
                 .padding(.top, 8)
         }
         .padding(.horizontal, 40)
@@ -211,6 +200,7 @@ struct ReelFeedView: View {
     )
     ReelFeedView()
         .environment(FeedViewModel(context: container.mainContext))
+        .environment(ReelSession(context: container.mainContext))
         .modelContainer(container)
         .preferredColorScheme(.dark)
 }

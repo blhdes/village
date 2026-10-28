@@ -5,8 +5,9 @@ A local-only iOS app for reading Letterboxd reviews as full-screen reels. No acc
 ## What it does
 
 - Save the Letterboxd usernames of people whose writing you like. No login: VILLE reads their public RSS feeds.
-- Swipe through their written reviews one per screen, in a random order that doesn't repeat until you've seen them all.
-- Each reel shows the review the way Letterboxd lays it out: poster, title, rating, and the full rich text. A TMDB backdrop sits behind it.
+- Swipe through their written reviews one per screen. Each session has an end: 20 reviews by default, then a "Fin" card. Unread reviews come first, members take turns, and nothing repeats back to back.
+- Each reel shows the review the way Letterboxd lays it out: poster, title, rating, and the full rich text. A TMDB backdrop sits behind it, a different one each time the film comes round.
+- See alternative posters from TMDB (other countries' releases, textless art): tap a poster to flip through them.
 - Turn posters or backdrops off for text only.
 - Share a review as a link to the original on Letterboxd.
 - Everything is saved on the device. Reviews stay after they drop out of the RSS feed, so your library grows over time.
@@ -41,11 +42,11 @@ Reels rebuild in progress (October 2026).
 - [x] Members: add/remove, saved on device
 - [x] Reviews-only RSS parsing with spoiler detection
 - [x] Rich review text (paragraphs, italics, bold, quotes, lists, links)
-- [x] Random session feed, repeats only after everything has been seen
-- [x] TMDB poster and backdrop, each toggleable
+- [x] Sessions with an end ("Fin" card), unread-first sampling with members taking turns
+- [x] TMDB poster and backdrop, each toggleable; rotating backdrops and alternative posters
 - [x] Share as a link
 - [x] Official Letterboxd and TMDB logos in Settings / "View on Letterboxd"
 - [x] Appearance: System / Light / Dark
-- [ ] App icon
+- [x] Brand: VILLE wordmark and app icon from the Village du Cinéma offset V
 - [ ] Email Letterboxd describing the app before release
 - [ ] App Store submission

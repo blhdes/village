@@ -16,9 +16,11 @@ It is the lighter stepping stone before the full social network (`../ville-du-ci
 
 - **No accounts, no server, no social layer.** No likes, comments or reactions. Everything lives on the device.
 - **Pure text.** Only written reviews. Lists and plain "watched" diary entries are never shown.
-- **Reels feed.** Each launch is a new session: all saved reviews are shuffled, and none repeats until every one has been seen. Then a new shuffled round starts. No "running low" warnings.
+- **Reels feed with an end.** A session holds a set number of reviews (Settings → Session: 10/20/30/50, default 20), then the feed ends on a "Fin" card. "Keep reading" adds another session, but only on purpose. Coming back after 30+ minutes away starts a new session and refreshes the feeds.
+- **Picking a session** (`ReelSampler`): never-shown reviews first, newest first; then the ones shown longest ago (`Review.lastShownAt`), with a little chance. Members take turns, so one prolific member can't fill a session. The same member or film never appears twice in a row when avoidable. Reviews that arrive mid-session can take the place of upcoming reels, never the one on screen or the next.
 - **Letterboxd-style review layout**: poster, title + year, "Review by", stars, like, rewatch, then the rich text (paragraphs, italics, bold, quotes, lists, links).
-- **TMDB art**: poster and backdrop per film, each switchable off in Settings.
+- **TMDB art**: a different textless backdrop each time a film appears. Posters show the official one, or with Alternative posters on, a random one from TMDB's gallery (other countries' releases, textless art); tapping a poster flips to the next. Posters and backdrops are each switchable off in Settings.
+- **Brand echo**: the Village du Cinéma mark (a serif V with yellow, blue and red plates out of register, from `../ville-du-cinema-mobile/` and `../ville-du-cinema-app/`) ties VILLE to its siblings. Used sparingly: the wordmark's V, the app icon, the Fin card, and the star/like/rewatch trio.
 - **Share = link to the original review on Letterboxd**, never the review text or an image of it.
 - **The library grows**: reviews stay saved after they drop out of the RSS window (RSS holds ~50 diary entries per member).
 
@@ -42,13 +44,13 @@ Checked 2026-10-21 against the "October 2026" Terms of Use.
 | Area | Choice |
 |---|---|
 | UI | SwiftUI only, iOS 26 (Liquid Glass) |
-| State | `@Observable` view model, shared through `.environment` |
+| State | `@Observable` `FeedViewModel` (the library) and `ReelSession` (what's on screen), shared through `.environment` |
 | Persistence | SwiftData, store name `VILLEReels` |
 | Networking | `URLSession` + `XMLParser`, zero third-party deps |
 | Concurrency | `async`/`await`; default actor isolation is `MainActor` |
 | Images | `AsyncImage` + enlarged `URLCache.shared` |
 
-**Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `FilmArtLoader` (via `TMDBService`) fills poster/backdrop paths → `ReelFeedView` reads reviews with `@Query` and orders them with `ReelQueue`.
+**Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `FilmArtLoader` (via `TMDBService`, one request per film with `append_to_response=images`) fills the poster and backdrop galleries → `ReelFeedView` reads reviews with `@Query` → `ReelSession` picks each session with `ReelSampler`, keeps it in a `ReelQueue`, and stamps `lastShownAt` on every review that appears.
 
 **Secrets:** `VILLE/VILLE/Secrets.swift` holds the TMDB v3 key and is gitignored. Template: `Secrets.example.swift` at the repo root.
 
@@ -58,7 +60,8 @@ Checked 2026-10-21 against the "October 2026" Terms of Use.
 
 ```
 VILLE/VILLE/
-├── VILLEApp.swift              # Entry point: SwiftData container, URLCache, view model
+├── VILLEApp.swift              # Entry point: SwiftData container, URLCache, view models
+├── AppIcon.icon/               # Icon Composer app icon (official Village V + 3 plates)
 ├── Secrets.swift               # (gitignored) TMDB key
 ├── Models/
 │   ├── Review.swift            # One written review + display helpers
@@ -66,20 +69,27 @@ VILLE/VILLE/
 ├── Services/
 │   ├── RSSService.swift        # Fetch + parse RSS, keep reviews only
 │   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
-│   ├── TMDBService.swift       # Poster + backdrop by TMDB id
+│   ├── TMDBService.swift       # Poster + backdrop galleries by TMDB id
 │   └── FilmArtLoader.swift     # Fills missing art, one TMDB request per film
 ├── ViewModels/
-│   ├── FeedViewModel.swift     # Refresh, members, triggers art loading
-│   └── ReelQueue.swift         # Session shuffle with no repeats per round
+│   ├── FeedViewModel.swift     # Library: refresh, members, triggers art loading
+│   ├── ReelSession.swift       # On screen: current session, spoilers, breaks
+│   ├── ReelQueue.swift         # The visit's reels: start, sync, keep reading
+│   └── ReelSampler.swift       # Which reviews make a session, and their order
 └── Views/
-    ├── ReelFeedView.swift      # Vertical paging feed + top bar + empty states
+    ├── Brand/
+    │   ├── OffsetPrint.swift   # Yellow/blue/red plates behind any content
+    │   └── VILLEWordmark.swift # The logo — change it here only
+    ├── ReelFeedView.swift      # Vertical paging feed + end card + empty states
+    ├── ReelTopBar.swift        # Wordmark, People/Settings buttons, error banner
+    ├── SessionEndView.swift    # "Fin" card at the end of a session
     ├── ReelView.swift          # One reel + its backdrop
     ├── ReviewHeader.swift      # Poster, title, rating (reel + reader)
     ├── ReviewActions.swift     # Share + View on Letterboxd (reel + reader)
     ├── ReviewTextView.swift    # Draws ReviewHTML blocks
     ├── ReviewReaderView.swift  # Full text of a long review
     ├── MembersView.swift       # Add/remove members
-    ├── SettingsView.swift      # Appearance, poster/backdrop toggles + attributions
+    ├── SettingsView.swift      # Appearance, look toggles, session length + attributions
     └── Appearance.swift        # System / Light / Dark choice
 ```
 
@@ -100,6 +110,8 @@ xcodebuild -project VILLE/VILLE.xcodeproj -scheme VILLE -destination 'generic/pl
 ## Style Rules (follow in all new code)
 
 - **Light, dark or system** (Settings → Appearance, default System). Reels sit on `Color.reelBackground` (pure black in dark, white in light). Never hardcode `.white`/`.black` for text or backgrounds — use `Color.primary` and `Color.reelBackground`. Masks may stay `.black` (only their opacity counts).
+- **Brand colors**: `Color.brandYellow`, `Color.brandBlue`, `Color.brandRed` (asset catalog, light variants deepened to read on white). Sparingly and with meaning: plates (`OffsetPrint`), stars (yellow), like and errors (red), rewatch and links (blue). Everything else stays `Color.primary`. `AccentColor` is the brand red.
+- **Logo**: the wordmark lives only in `VILLEWordmark` (system serif, no image). The app icon is `AppIcon.icon` — edit it in Icon Composer. Its V is the official path from `../ville-du-cinema-mobile/assets/icon.svg`, copied unchanged; only placement and plate offsets differ. Never redraw it.
 - **Liquid Glass** for controls: `.buttonStyle(.glass)`, `.glassEffect()`, `GlassEffectContainer`.
 - **Animations**: `.spring(response: 0.4, dampingFraction: 0.8)` as default.
 - **Haptics** on meaningful interactions (`.sensoryFeedback`).

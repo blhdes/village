@@ -17,6 +17,10 @@ struct ReelView: View {
     let insets: EdgeInsets
 
     @Environment(FeedViewModel.self) private var viewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Lets the reader sheet zoom out of the "Read more" button.
+    @Namespace private var readerNamespace
 
     @State private var isReading = false
     @State private var contentHeight: CGFloat = 0
@@ -35,11 +39,15 @@ struct ReelView: View {
             VStack(alignment: .leading, spacing: 24) {
                 ReviewHeader(review: review, showPoster: showPoster)
 
-                if isSpoilerCovered {
-                    spoilerGate
-                    Spacer(minLength: 0)
-                } else {
-                    reviewBody
+                // The container stays put while the `if` swaps its content,
+                // so the spoiler glass can dissolve instead of just vanishing.
+                GlassEffectContainer {
+                    if isSpoilerCovered {
+                        spoilerGate
+                            .frame(maxHeight: .infinity, alignment: .top)
+                    } else {
+                        reviewBody
+                    }
                 }
 
                 actions
@@ -50,6 +58,7 @@ struct ReelView: View {
         }
         .sheet(isPresented: $isReading) {
             ReviewReaderView(review: review, showPoster: showPoster)
+                .navigationTransition(.zoom(sourceID: review.id, in: readerNamespace))
         }
     }
 
@@ -82,26 +91,36 @@ struct ReelView: View {
                     Button("Read more") { isReading = true }
                         .font(.subheadline.weight(.semibold))
                         .buttonStyle(.glass)
+                        .matchedTransitionSource(id: review.id, in: readerNamespace)
                 }
             }
             .contentShape(.rect)
             .onTapGesture { if isOverflowing { isReading = true } }
     }
 
+    /// One glass shield — tap anywhere on it to reveal. No glass button
+    /// inside it: glass can't refract other glass, so it would look muddy.
+    /// The glass dissolves as the review appears (a plain fade with Reduce Motion).
     private var spoilerGate: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Label("This review may contain spoilers", systemImage: "eye.slash")
-                .font(.subheadline.weight(.medium))
-            Button("Show review") {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    viewModel.revealSpoilers(for: review.id)
-                }
+        Button {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                viewModel.revealSpoilers(for: review.id)
             }
-            .buttonStyle(.glass)
+        } label: {
+            VStack(alignment: .leading, spacing: 14) {
+                Label("This review may contain spoilers", systemImage: "eye.slash")
+                    .font(.subheadline.weight(.medium))
+                Text("Show review")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.primary.opacity(0.6))
+            }
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect(cornerRadius: 20))
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .glassEffect(.regular, in: .rect(cornerRadius: 20))
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 20))
+        .glassEffectTransition(reduceMotion ? .identity : .materialize)
     }
 
     // MARK: Actions

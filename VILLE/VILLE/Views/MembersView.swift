@@ -64,8 +64,8 @@ struct MembersView: View {
             .navigationTitle("People")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) { dismiss() }
                 }
             }
             .sensoryFeedback(.success, trigger: addedCount)

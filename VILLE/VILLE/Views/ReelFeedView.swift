@@ -11,6 +11,10 @@ import SwiftData
 
 struct ReelFeedView: View {
     @Environment(FeedViewModel.self) private var viewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Lets each sheet zoom out of the button that opened it.
+    @Namespace private var sheetNamespace
 
     @Query private var reviews: [Review]
     @Query private var members: [FollowedUser]
@@ -21,8 +25,10 @@ struct ReelFeedView: View {
     @State private var currentSlotID: Int?
     @State private var activeSheet: Sheet?
 
+    /// `addPeople` opens the same screen as `members`, but from the
+    /// empty-state button, so the sheet zooms out of the right place.
     private enum Sheet: String, Identifiable {
-        case members, settings
+        case members, addPeople, settings
         var id: String { rawValue }
     }
 
@@ -42,10 +48,13 @@ struct ReelFeedView: View {
         }
         .overlay(alignment: .top) { topBar }
         .sheet(item: $activeSheet) { sheet in
-            switch sheet {
-            case .members: MembersView()
-            case .settings: SettingsView()
+            Group {
+                switch sheet {
+                case .members, .addPeople: MembersView()
+                case .settings: SettingsView()
+                }
             }
+            .navigationTransition(.zoom(sourceID: sheet, in: sheetNamespace))
         }
         .task { await viewModel.refreshIfNeeded() }
         .onChange(of: reviewIDs, initial: true) { _, ids in
@@ -104,15 +113,21 @@ struct ReelFeedView: View {
             GlassEffectContainer(spacing: 8) {
                 HStack(spacing: 8) {
                     barButton("person.2", label: "People") { activeSheet = .members }
+                        .matchedTransitionSource(id: Sheet.members, in: sheetNamespace)
                     barButton("slider.horizontal.3", label: "Settings") { activeSheet = .settings }
+                        .matchedTransitionSource(id: Sheet.settings, in: sheetNamespace)
                 }
             }
         }
         .padding(.horizontal, 20)
         .overlay(alignment: .bottom) {
-            errorBanner
-                .offset(y: 52)
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.errorMessage)
+            // Always on screen, so the banner's glass can form and dissolve
+            // inside it instead of sliding in.
+            GlassEffectContainer {
+                errorBanner
+            }
+            .offset(y: 52)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.errorMessage)
         }
     }
 
@@ -134,9 +149,10 @@ struct ReelFeedView: View {
                 .font(.footnote.weight(.medium))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .glassEffect(.regular.tint(.red.opacity(0.4)), in: .capsule)
+                // Interactive: the glass reacts to touch, hinting it can be tapped away.
+                .glassEffect(.regular.tint(.red.opacity(0.4)).interactive(), in: .capsule)
+                .glassEffectTransition(reduceMotion ? .identity : .materialize)
                 .onTapGesture { viewModel.errorMessage = nil }
-                .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
 
@@ -179,8 +195,9 @@ struct ReelFeedView: View {
                 .font(.subheadline)
                 .foregroundStyle(Color.primary.opacity(0.6))
                 .multilineTextAlignment(.center)
-            Button(buttonTitle) { activeSheet = .members }
+            Button(buttonTitle) { activeSheet = .addPeople }
                 .buttonStyle(.glassProminent)
+                .matchedTransitionSource(id: Sheet.addPeople, in: sheetNamespace)
                 .padding(.top, 8)
         }
         .padding(.horizontal, 40)

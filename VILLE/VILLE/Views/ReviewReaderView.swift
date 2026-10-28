@@ -29,8 +29,8 @@ struct ReviewReaderView: View {
             }
             .scrollIndicators(.hidden)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) { dismiss() }
                 }
             }
         }

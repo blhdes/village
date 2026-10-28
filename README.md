@@ -5,6 +5,7 @@ A local-only iOS app for reading Letterboxd reviews as full-screen reels. No acc
 ## What it does
 
 - Save the Letterboxd usernames of people whose writing you like. No login: VILLE reads their public RSS feeds.
+- Not sure who to follow? Until you follow 10 people, the People screen suggests critics, writers, filmmakers and creators who post reviews often.
 - Swipe through their written reviews one per screen. Each session has an end: 20 reviews by default, then a "Fin" card. Unread reviews come first, members take turns, and nothing repeats back to back.
 - Each reel shows the review the way Letterboxd lays it out: poster, title, rating, and the full rich text. A TMDB backdrop sits behind it, a different one each time the film comes round.
 - See alternative posters from TMDB (other countries' releases, textless art): tap a poster to flip through them.
@@ -22,6 +23,7 @@ VILLE is the lighter sibling of [ville-du-cinema-mobile](https://github.com/blhd
 
 - Data comes only from Letterboxd's public RSS feeds, the route Letterboxd offers instead of its private API. VILLE never scrapes Letterboxd pages.
 - Reviews belong to their authors. Every reel credits the author and links to the original.
+- Suggestions are a short hand-picked list of usernames. Nothing is fetched from a suggested member until you add them.
 - VILLE is not affiliated with or endorsed by Letterboxd.
 - This product uses the TMDB API but is not endorsed or certified by TMDB.
 
@@ -40,6 +42,7 @@ SwiftUI + SwiftData + `@Observable`, `URLSession` + `XMLParser`, no third-party 
 Reels rebuild in progress (October 2026).
 
 - [x] Members: add/remove, saved on device
+- [x] Suggested members (100 hand-picked, checked for recent reviews) until you follow 10
 - [x] Reviews-only RSS parsing with spoiler detection
 - [x] Rich review text (paragraphs, italics, bold, quotes, lists, links)
 - [x] Sessions with an end ("Fin" card), unread-first sampling with members taking turns

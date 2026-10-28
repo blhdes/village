@@ -21,6 +21,7 @@ It is the lighter stepping stone before the full social network (`../ville-du-ci
 - **Letterboxd-style review layout**: poster, title + year, "Review by", stars, like, rewatch, then the rich text (paragraphs, italics, bold, quotes, lists, links).
 - **TMDB art**: a different textless backdrop each time a film appears. Posters show the official one, or with Alternative posters on, a random one from TMDB's gallery (other countries' releases, textless art); tapping a poster flips to the next. Posters and backdrops are each switchable off in Settings.
 - **Brand echo**: the Village du Cinéma mark (a serif V with yellow, blue and red plates out of register, from `../ville-du-cinema-mobile/` and `../ville-du-cinema-app/`) ties VILLE to its siblings. Used sparingly: the wordmark's V, the app icon, the Fin card, and the star/like/rewatch trio.
+- **Suggestions to start**: the People screen shows 5 random members from `SuggestedMember` (100 hand-picked critics, writers, filmmakers and creators who post written reviews often) until the user follows 10. Adding one swaps in someone new; shuffle shows others. English writers are suggested to everyone, others only to readers whose iPhone uses that language.
 - **Share = link to the original review on Letterboxd**, never the review text or an image of it.
 - **The library grows**: reviews stay saved after they drop out of the RSS window (RSS holds ~50 diary entries per member).
 
@@ -32,7 +33,7 @@ Checked 2026-10-21 against the "October 2026" Terms of Use.
 
 - **RSS only.** Never fetch or parse Letterboxd HTML pages (clause 6.11 bans scraping). The RSS feed is the route Letterboxd offers on letterboxd.com/api-beta.
 - **No exporting others' content** (6.8): sharing sends the Letterboxd URL only.
-- **No index of a "significant portion"** (6.8): only reviews from members the user added, stored locally. No bundled or suggested member catalogs.
+- **No index of a "significant portion"** (6.8 bans "creating… an index of any significant portion of the Service content"): only reviews from members the user added, stored locally. The one bundled list is `SuggestedMember`: about 100 hand-picked usernames and display names (out of 30M+ members), never reviews, and nothing is fetched until the user adds someone. Never scrape or import member lists, never pre-fetch suggested members' feeds, and don't grow it into a directory. Re-check the list against RSS before each release (2026-10-28 last).
 - **No competing business** (6.9): keep the app free, credit the author on every reel, and always link back to the original.
 - **Logo** (19): only when linking to Letterboxd, only the official file from their Brand page, never implying a partnership. Never redraw it.
 - Letterboxd has not answered our email (sent March 2026). Write again before release.
@@ -65,7 +66,8 @@ VILLE/VILLE/
 ├── Secrets.swift               # (gitignored) TMDB key
 ├── Models/
 │   ├── Review.swift            # One written review + display helpers
-│   └── FollowedUser.swift      # A saved Letterboxd member
+│   ├── FollowedUser.swift      # A saved Letterboxd member
+│   └── SuggestedMember.swift   # Hand-picked members offered on the People screen
 ├── Services/
 │   ├── RSSService.swift        # Fetch + parse RSS, keep reviews only
 │   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
@@ -89,6 +91,7 @@ VILLE/VILLE/
     ├── ReviewTextView.swift    # Draws ReviewHTML blocks
     ├── ReviewReaderView.swift  # Full text of a long review
     ├── MembersView.swift       # Add/remove members
+    ├── SuggestedMembersSection.swift # MembersView's "Suggested" section
     ├── SettingsView.swift      # Appearance, look toggles, session length + attributions
     └── Appearance.swift        # System / Light / Dark choice
 ```

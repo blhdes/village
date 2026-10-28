@@ -3,7 +3,8 @@
 //  VILLE
 //
 //  Add and remove the Letterboxd members whose reviews fill the feed.
-//  Saved only on this device.
+//  Saved only on this device. Until the user follows a few people, a
+//  "Suggested" section offers some to start with.
 //
 
 import SwiftUI
@@ -47,6 +48,12 @@ struct MembersView: View {
                         Text(addError).foregroundStyle(.red)
                     } else {
                         Text("Only public reviews from Letterboxd RSS feeds are shown.")
+                    }
+                }
+
+                if members.count < SuggestedMember.enoughMembers {
+                    SuggestedMembersSection(following: Set(members.map(\.username))) {
+                        addedCount += 1
                     }
                 }
 

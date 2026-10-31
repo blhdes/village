@@ -16,10 +16,11 @@ VERSION_ID="7712a8d8-4ee9-4ffc-a6ed-f4f282b1d949"   # from: asc versions list --
 
 COPYRIGHT="2026 Alejandro Gómez Urrea"
 PRIMARY_CATEGORY="ENTERTAINMENT"
-SECONDARY_CATEGORY=""                    # optional, e.g. LIFESTYLE
+SECONDARY_CATEGORY="LIFESTYLE"           # Ale's choice, 2026-10-31
 
-# DECIDE: the in-app Google search (tap a film title) opens Safari inside the app.
-UNRESTRICTED_WEB_ACCESS="DECIDE"         # true or false
+# The in-app Google search (tap a film title) opens Safari inside the app, so the honest answer
+# is yes (Ale's choice, 2026-10-31). It raises the age rating.
+UNRESTRICTED_WEB_ACCESS="true"
 
 # App Review contact. Apple only shows it to the review team. The repo is public, so the
 # email and phone live in store/contact.env (gitignored), e.g.:

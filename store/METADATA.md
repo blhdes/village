@@ -59,7 +59,7 @@ The Spanish version says **the app is in English** (the interface isn't translat
 |---|---|---|
 | Copyright | `2026 Alejandro Gómez Urrea` | ready |
 | Primary category | **Entertainment** (same as IMDb; Letterboxd adds it as its second) | ready |
-| Secondary category | None, or **Lifestyle** | your choice |
+| Secondary category | **Lifestyle** | ready |
 | Price | Free (Letterboxd ToS 6.9) | ready |
 | Availability | Every country **except China mainland**: new apps there need an ICP filing number | ready |
 | Support URL | `https://blhdes.github.io/village/` (GitHub Pages, from `store/site/`, published with `store/publish-site.sh`) | ready |
@@ -84,7 +84,7 @@ The reviews are written by other people about any kind of film, so answer honest
 - Profanity or crude humor, mature/suggestive themes, sexual content (in text), horror/fear themes, alcohol/drug references: **Infrequent/Mild**
 - Violence: **Infrequent/Mild** (described in text)
 - User-generated content: **yes**. It's read-only and only from members the reader chooses, who can be removed at any time.
-- **Unrestricted web access: 👉 your decision.** Tapping a title opens a Google search in Safari inside the app, and from there you can browse anywhere. The honest answer is probably "yes", which raises the rating. If you'd rather avoid that, the alternative is opening those searches in the Safari app outside VILLE. Reading would then leave the app, which goes against the vision.
+- **Unrestricted web access: yes** (your choice, 2026-10-31). Tapping a title opens a Google search in Safari inside the app, and from there you can browse anywhere. It raises the rating: recent sources put web access at 16+ in the 2025 system, older ones at 18+. App Store Connect shows the final rating once the answers are sent.
 
 For reference (iTunes data, 2026-10-31): Letterboxd is rated 17+ (old system), IMDb 12+.
 

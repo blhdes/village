@@ -21,7 +21,7 @@
 | Minimum iOS | 26.2 |
 | Version (build) | 1.0 (1) |
 | Price | Free (Letterboxd ToS 6.9: no competing business) |
-| Category | Entertainment (proposed) |
+| Category | Entertainment, secondary Lifestyle |
 | Privacy label | Data Not Collected (proposed) |
 | Privacy policy URL | ✅ https://blhdes.github.io/village/privacy.html |
 | Support URL | ✅ https://blhdes.github.io/village/ |
@@ -39,6 +39,8 @@
 - 2026-10-31: China mainland left out of availability (new apps there need an ICP filing number).
 - 2026-10-31: Listing copy approved as written in `store/METADATA.md`.
 - 2026-10-31: Support and privacy pages on GitHub Pages (this repo is public), served from a `gh-pages` branch that holds only `store/site/`. Public contact: your personal Gmail (your choice, knowing it's public).
+- 2026-10-31: Secondary category Lifestyle. Age rating: unrestricted web access **yes** (in-app Safari search stays, the rating goes up, probably 16+).
+- 2026-10-31: The pages' favicon, home-screen icon and link-preview image are the real app icon, exported from `AppIcon.icon` with Icon Composer's `ictool` (never redrawn).
 
 ## 1. Foundations
 
@@ -92,7 +94,7 @@
 1. **Letterboxd rights (Guideline 5.2.2 + "Content Rights").** VILLE shows other members' reviews from their public RSS feeds. RSS is the route Letterboxd offers (letterboxd.com/api-beta), and every reel credits the author and links back. Our March 2026 email is still unanswered. Write again before submitting and record the answer here.
 2. **Trademark.** Never "Letterboxd" in the name, subtitle or keywords (Guidelines 2.3.7 and 5.2.1, Letterboxd ToS 19). The description says it factually, plus "VILLE is not affiliated with Letterboxd".
 3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. This is explained in the review notes.
-4. **Age rating: unrestricted web access.** Tapping a title opens a Google search in Safari inside the app. Answering "yes" is the honest reading and raises the rating. The alternative is to open those searches outside the app. 👉 Your call.
+4. **Age rating: unrestricted web access.** Decided 2026-10-31: answer "yes" (Safari inside the app reaches any site). The rating goes up, probably to 16+.
 5. **Art in screenshots.** TMDB art is fine in the app, not in marketing. Plan: posters off, backdrops from frames of public-domain films.
 6. **The Spanish listing describes an English app.** It says so. If the app gets localized (`/swift-localize`), remove that line.
 7. **iPhone Duo.** Screenshots required from April 2027 for iOS 27.1+ SDK builds.
@@ -104,3 +106,4 @@
 - 2026-10-31: Agreements accepted (you). Registered `agu.VILLE`, created the `ville.` record (6829207754). Project set to iPhone only and portrait, export-compliance key and privacy manifest added, Release build OK. Commit `89c2067`.
 - 2026-10-31: API key connected to `asc` (profile Ale). Listing copy en/es written and validated. Privacy and support pages drafted. `apply-store-setup.sh` + review notes ready (dry run only, nothing sent). Screenshot plan, demo content and template done. Pending list in the vault: `Areas/Claude/Skills/Docs/app-store-release.md`.
 - 2026-10-31: Copy approved. Branch pushed. Support and privacy pages published on GitHub Pages (`store/publish-site.sh`, `gh-pages` branch), URLs added to `store/metadata/`.
+- 2026-10-31: Lifestyle + web access "yes" set in `apply-store-setup.sh`. Pages got the app icon as favicon, home-screen icon and link-preview image.

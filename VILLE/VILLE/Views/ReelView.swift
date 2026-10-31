@@ -29,9 +29,10 @@ struct ReelView: View {
     let insets: EdgeInsets
 
     @Environment(ReelSession.self) private var session
+    @Environment(FeedViewModel.self) private var viewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// Lets the reader sheet zoom out of the "Read more" button.
+    /// Lets the reader sheet zoom out of the "Continue reading" button.
     @Namespace private var readerNamespace
 
     @State private var isReading = false
@@ -63,6 +64,19 @@ struct ReelView: View {
         return { showNextPoster() }
     }
 
+    /// The poster the next tap will show, fetched ahead so the flip is instant.
+    private var nextPosterURL: URL? {
+        guard posterTap != nil, look.showPoster else { return nil }
+        let first = look.alternativePosters ? slot.posterPick : 0
+        return review.posterURL(pick: first + posterTaps + 1)
+    }
+
+    /// TMDB hasn't answered for this film yet (a member was just added, or
+    /// new reviews came in): the poster's place shows a skeleton meanwhile.
+    private var isPosterPending: Bool {
+        look.showPoster && review.needsArt && viewModel.isLoadingArt
+    }
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             ReelBackground(
@@ -71,7 +85,13 @@ struct ReelView: View {
             )
 
             VStack(alignment: .leading, spacing: 20) {
-                ReviewHeader(review: review, posterURL: posterURL, showRating: look.showRating, onPosterTap: posterTap)
+                ReviewHeader(
+                    review: review,
+                    posterURL: posterURL,
+                    isPosterPending: isPosterPending,
+                    showRating: look.showRating,
+                    onPosterTap: posterTap
+                )
 
                 EditorialRule()
 
@@ -97,6 +117,9 @@ struct ReelView: View {
                 .navigationTransition(.zoom(sourceID: review.id, in: readerNamespace))
         }
         .sensoryFeedback(.selection, trigger: posterTaps)
+        .onChange(of: nextPosterURL, initial: true) { _, url in
+            PosterImageCache.shared.prefetch(url)
+        }
     }
 
     private func showNextPoster() {

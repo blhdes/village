@@ -204,6 +204,10 @@ final class FeedViewModel {
 
     // MARK: TMDB art
 
+    /// True while TMDB art is being looked up, so reels can hold the
+    /// poster's place with a skeleton instead of leaving a gap.
+    var isLoadingArt: Bool { artTask != nil }
+
     /// Starts filling in missing art without waiting for it, so adding a
     /// member finishes as soon as their reviews are saved. Only one load runs
     /// at a time; a call made meanwhile adds one more pass afterwards, for

@@ -50,7 +50,7 @@ Checked 2026-10-21 against the "October 2026" Terms of Use.
 | Persistence | SwiftData, store name `VILLEReels` |
 | Networking | `URLSession` + `XMLParser`, zero third-party deps |
 | Concurrency | `async`/`await`; default actor isolation is `MainActor` |
-| Images | `AsyncImage` + enlarged `URLCache.shared` |
+| Images | Backdrops: `AsyncImage`. Posters: `PosterImageCache` (decoded in memory, the next tap's poster fetched ahead). Both over an enlarged `URLCache.shared` |
 
 **Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `FilmArtLoader` (via `TMDBService`, one request per film with `append_to_response=images`) fills the poster and backdrop galleries → `ReelFeedView` reads reviews with `@Query` → `ReelSession` picks each session with `ReelSampler`, keeps it in a `ReelQueue`, and stamps `lastShownAt` on every review that appears.
 
@@ -73,7 +73,8 @@ VILLE/VILLE/
 │   ├── RSSService.swift        # Fetch + parse RSS, keep reviews only
 │   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
 │   ├── TMDBService.swift       # Poster + backdrop galleries by TMDB id
-│   └── FilmArtLoader.swift     # Fills missing art, one TMDB request per film
+│   ├── FilmArtLoader.swift     # Fills missing art, one TMDB request per film
+│   └── PosterImageCache.swift  # Decoded posters in memory + prefetch
 ├── ViewModels/
 │   ├── FeedViewModel.swift     # Library: refresh, members, triggers art loading
 │   ├── ReelSession.swift       # On screen: current session, spoilers, breaks
@@ -90,6 +91,7 @@ VILLE/VILLE/
     ├── ReelView.swift          # One reel: header, text, spoiler gate, actions
     ├── ReelBackground.swift    # The reel's backdrop and its legibility fade
     ├── ReviewHeader.swift      # Poster, byline, title, rating, dateline (reel + reader)
+    ├── PosterImage.swift       # Crossfading poster + LoadingSkeleton
     ├── ReviewActions.swift     # Share + View on Letterboxd (reel + reader)
     ├── ReviewTextView.swift    # Draws ReviewHTML blocks
     ├── ReviewReaderView.swift  # Full text of a long review
@@ -123,6 +125,7 @@ xcodebuild -project VILLE/VILLE.xcodeproj -scheme VILLE -destination 'generic/pl
 - **Animations**: `.spring(response: 0.4, dampingFraction: 0.8)` as default.
 - **Haptics** on meaningful interactions (`.sensoryFeedback`).
 - **Typography — editorial, like the wordmark** (pieces in `Views/Brand/Editorial.swift`): system serif carries the voice (review text, titles, bylines, names, button labels inside the content); italic for secondary voice ("Review by", "Continue reading", "Keep reading", notes). Meta lines (dates, small notes) use `datelineStyle()`: spaced capitals. `EditorialRule` (a short hairline) separates a header from its text. `EditorialHeadline` ends on the red full stop: big moments only (empty states), so the dot keeps its meaning. Sheet titles use `editorialTitle(_:)`. Prefer type and hairlines over icons and boxes.
+- **Loading**: review text is always local; only art arrives later (TMDB lookups after a member is added, image downloads). Anything still on its way keeps its place with `LoadingSkeleton`, a quiet tile that breathes at the wordmark dot's pace: never an empty gap, a flat gray box or a layout jump. Show the skeleton only while something is really loading (`FeedViewModel.isLoadingArt`, a download in flight); a failed load gets a plain tile.
 - **Reveal actions are one-way** (e.g. spoilers): no collapse toggle.
 - **No UIKit** unless genuinely unavoidable. **No third-party deps** without explicit approval.
 - **Never swallow errors** — log with `print` and context, or rethrow.

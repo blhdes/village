@@ -17,6 +17,9 @@ struct ReviewHeader: View {
     let review: Review
     /// The poster to show; nil hides it (posters off, or none on TMDB).
     let posterURL: URL?
+    /// TMDB is still looking the film up: a skeleton holds the poster's
+    /// place, so the text doesn't jump sideways when the poster arrives.
+    var isPosterPending = false
     /// Shows the stars, like and rewatch marks (Settings → Stars and likes).
     var showRating = true
     /// Flips to the film's next poster; nil when it only has one.
@@ -27,15 +30,9 @@ struct ReviewHeader: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
-            if let posterURL {
-                // A fixed frame, so old and new posters crossfade in place.
-                ZStack {
-                    poster(posterURL)
-                        .id(posterURL)
-                        .transition(.opacity)
-                }
-                .frame(width: 84, height: 126)
-                .shadow(color: .black.opacity(0.3), radius: 10, y: 5)
+            if posterURL != nil || isPosterPending {
+                poster
+                    .shadow(color: .black.opacity(0.3), radius: 10, y: 5)
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -88,16 +85,11 @@ struct ReviewHeader: View {
         .font(.subheadline)
     }
 
+    /// A fixed frame, so old and new posters (and the skeleton) crossfade in place.
     @ViewBuilder
-    private func poster(_ url: URL) -> some View {
-        let image = AsyncImage(url: url, transaction: Transaction(animation: .easeOut(duration: 0.25))) { phase in
-            if let image = phase.image {
-                image.resizable().scaledToFill()
-            } else {
-                Color.primary.opacity(0.06)
-            }
-        }
-        .frame(width: 84, height: 126)
+    private var poster: some View {
+        let image = PosterImage(url: posterURL)
+            .frame(width: 84, height: 126)
         .clipShape(.rect(cornerRadius: posterCorner))
         .overlay {
             RoundedRectangle(cornerRadius: posterCorner).strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5)

@@ -14,6 +14,8 @@ import SwiftUI
 struct ReviewActions: View {
     let review: Review
     let url: URL
+    /// The poster on screen (nil with posters off): a new bookmark keeps it.
+    let posterPick: Int?
 
     @Environment(FeedViewModel.self) private var viewModel
 
@@ -87,7 +89,7 @@ struct ReviewActions: View {
     private var bookmarkButton: some View {
         Button {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                viewModel.toggleBookmark(review)
+                viewModel.toggleBookmark(review, posterPick: posterPick)
             }
             bookmarkTaps += 1
         } label: {

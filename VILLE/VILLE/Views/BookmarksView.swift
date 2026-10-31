@@ -7,7 +7,8 @@
 //  after its member is removed. Tapping a row opens every bookmark on one
 //  page that scrolls from review to review, starting at that one
 //  (`BookmarksReader`). The bookmark under a review is the only way to
-//  take it off.
+//  take it off. Each bookmark keeps its own poster: the one on screen
+//  when it was made, or the last one picked on the page.
 //
 
 import SwiftUI
@@ -48,9 +49,9 @@ struct BookmarksView: View {
         .editorialTitle("Bookmarks")
     }
 
-    /// The official poster, unless posters are off in Settings.
+    /// The bookmark's own poster, unless posters are off in Settings.
     private func posterURL(for review: Review) -> URL? {
-        showPosters ? review.posterURL(pick: 0) : nil
+        showPosters ? review.posterURL(pick: review.bookmarkPosterPick) : nil
     }
 
     private func row(_ review: Review) -> some View {
@@ -108,6 +109,7 @@ private struct BookmarksReader: View {
     @State private var reviews: [Review]
     @State private var position: ScrollPosition
 
+    @Environment(FeedViewModel.self) private var viewModel
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
     @AppStorage(SettingsKey.showRatings) private var showRatings = true
 
@@ -124,9 +126,9 @@ private struct BookmarksReader: View {
                 ForEach(reviews) { review in
                     ReviewReader(
                         review: review,
-                        // The official poster, as in the list.
-                        posterURL: showPosters ? review.posterURL(pick: 0) : nil,
-                        showRating: showRatings
+                        posterPick: showPosters ? review.bookmarkPosterPick : nil,
+                        showRating: showRatings,
+                        onPosterTap: posterTap(for: review)
                     )
                 }
             }
@@ -135,5 +137,16 @@ private struct BookmarksReader: View {
         .scrollPosition($position, anchor: .top)
         .scrollIndicators(.hidden)
         .background(Color.reelBackground)
+    }
+
+    /// Tapping the poster flips to the film's next one, and the bookmark
+    /// keeps it. Nil when the film has only one.
+    private func posterTap(for review: Review) -> (() -> Void)? {
+        guard review.posterChoices.count > 1 else { return nil }
+        return {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                viewModel.showNextPoster(of: review)
+            }
+        }
     }
 }

@@ -72,6 +72,11 @@ final class Review {
     /// is removed (they then leave the feed but stay in Bookmarks).
     var bookmarkedAt: Date?
 
+    /// The poster a bookmark shows, as its place in `posterChoices`: the
+    /// one on screen when the review was bookmarked (with posters on), or
+    /// the last one picked in Bookmarks. Nil: the official one.
+    var bookmarkPosterIndex: Int?
+
     var fetchedAt: Date
 
     init(from parsed: ParsedReview) {
@@ -96,6 +101,7 @@ final class Review {
         artFetched = false
         lastShownAt = nil
         bookmarkedAt = nil
+        bookmarkPosterIndex = nil
         fetchedAt = .now
     }
 
@@ -169,9 +175,24 @@ extension Review {
         Self.imageURL(in: backdropChoices, pick: pick, size: "w1280")
     }
 
+    /// Where `pick` lands in the poster gallery, the way `posterURL(pick:)`
+    /// wraps it. Saved as this number, a bookmark keeps the same poster
+    /// even if the rest of the gallery arrives later. Nil without posters.
+    func posterIndex(pick: Int) -> Int? {
+        Self.index(of: pick, in: posterChoices.count)
+    }
+
+    /// The poster a bookmark shows, ready for `posterURL(pick:)`.
+    var bookmarkPosterPick: Int { bookmarkPosterIndex ?? 0 }
+
     private static func imageURL(in paths: [String], pick: Int, size: String) -> URL? {
-        guard !paths.isEmpty else { return nil }
-        let index = (pick % paths.count + paths.count) % paths.count
+        guard let index = index(of: pick, in: paths.count) else { return nil }
         return TMDBService.imageURL(path: paths[index], size: size)
+    }
+
+    /// Any number, wrapped around a gallery of `count` images.
+    private static func index(of pick: Int, in count: Int) -> Int? {
+        guard count > 0 else { return nil }
+        return (pick % count + count) % count
     }
 }

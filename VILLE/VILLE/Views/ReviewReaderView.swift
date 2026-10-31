@@ -12,8 +12,8 @@ import SwiftUI
 /// The sheet opened from a reel.
 struct ReviewReaderView: View {
     let review: Review
-    /// The same poster the reel was showing.
-    let posterURL: URL?
+    /// The poster the reel was showing (nil with posters off).
+    let posterPick: Int?
     /// Settings → Stars and likes, as on the reel.
     var showRating = true
 
@@ -22,7 +22,7 @@ struct ReviewReaderView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                ReviewReader(review: review, posterURL: posterURL, showRating: showRating)
+                ReviewReader(review: review, posterPick: posterPick, showRating: showRating)
             }
             .scrollIndicators(.hidden)
             .background(Color.reelBackground)
@@ -43,8 +43,12 @@ struct ReviewReaderView: View {
 /// read after watching the film).
 struct ReviewReader: View {
     let review: Review
-    let posterURL: URL?
+    /// The poster to show (nil with posters off). A bookmark made here
+    /// keeps it.
+    let posterPick: Int?
     var showRating = true
+    /// Flips to the film's next poster; nil where the poster stays put.
+    var onPosterTap: (() -> Void)? = nil
 
     @Environment(ReviewTranslator.self) private var translator
     @Environment(ReelSession.self) private var session
@@ -53,9 +57,20 @@ struct ReviewReader: View {
         review.containsSpoilers && !session.revealedSpoilers.contains(review.id)
     }
 
+    /// The poster the next tap will show, fetched ahead so the flip is instant.
+    private var nextPosterURL: URL? {
+        guard onPosterTap != nil, let posterPick else { return nil }
+        return review.posterURL(pick: posterPick + 1)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            ReviewHeader(review: review, posterURL: posterURL, showRating: showRating)
+            ReviewHeader(
+                review: review,
+                posterURL: posterPick.flatMap { review.posterURL(pick: $0) },
+                showRating: showRating,
+                onPosterTap: onPosterTap
+            )
             // The container stays while the gate goes, so its glass can dissolve.
             GlassEffectContainer {
                 if isSpoilerCovered {
@@ -66,10 +81,14 @@ struct ReviewReader: View {
                 }
             }
             if let url = review.url {
-                ReviewActions(review: review, url: url)
+                ReviewActions(review: review, url: url, posterPick: posterPick)
             }
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
+        .sensoryFeedback(.selection, trigger: posterPick)
+        .onChange(of: nextPosterURL, initial: true) { _, url in
+            PosterImageCache.shared.prefetch(url)
+        }
     }
 }

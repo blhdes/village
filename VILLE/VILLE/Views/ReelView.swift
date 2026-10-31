@@ -46,11 +46,17 @@ struct ReelView: View {
         review.containsSpoilers && !session.revealedSpoilers.contains(review.id)
     }
 
-    /// Official poster unless Alternative posters is on, then a random one.
-    private var posterURL: URL? {
+    /// The poster on screen: the official one unless Alternative posters is
+    /// on (then a random one), moved on by each tap. Nil with posters off.
+    /// A bookmark made here keeps it.
+    private var posterPick: Int? {
         guard look.showPoster else { return nil }
         let first = look.alternativePosters ? slot.posterPick : 0
-        return review.posterURL(pick: first + posterTaps)
+        return first + posterTaps
+    }
+
+    private var posterURL: URL? {
+        posterPick.flatMap { review.posterURL(pick: $0) }
     }
 
     /// Tapping the poster flips to the next one, if the film has more.
@@ -61,9 +67,8 @@ struct ReelView: View {
 
     /// The poster the next tap will show, fetched ahead so the flip is instant.
     private var nextPosterURL: URL? {
-        guard posterTap != nil, look.showPoster else { return nil }
-        let first = look.alternativePosters ? slot.posterPick : 0
-        return review.posterURL(pick: first + posterTaps + 1)
+        guard posterTap != nil, let posterPick else { return nil }
+        return review.posterURL(pick: posterPick + 1)
     }
 
     /// TMDB hasn't answered for this film yet (a member was just added, or
@@ -108,7 +113,7 @@ struct ReelView: View {
             .padding(.bottom, insets.bottom + 20)
         }
         .sheet(isPresented: $isReading) {
-            ReviewReaderView(review: review, posterURL: posterURL, showRating: look.showRating)
+            ReviewReaderView(review: review, posterPick: posterPick, showRating: look.showRating)
                 .navigationTransition(.zoom(sourceID: review.id, in: readerNamespace))
         }
         .sensoryFeedback(.selection, trigger: posterTaps)
@@ -128,7 +133,7 @@ struct ReelView: View {
     @ViewBuilder
     private var actions: some View {
         if let url = review.url {
-            ReviewActions(review: review, url: url)
+            ReviewActions(review: review, url: url, posterPick: posterPick)
         }
     }
 }

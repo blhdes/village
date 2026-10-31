@@ -170,9 +170,23 @@ final class FeedViewModel {
 
     // MARK: Bookmarks
 
-    /// Bookmarks the review, or takes its bookmark off.
-    func toggleBookmark(_ review: Review) {
-        review.bookmarkedAt = review.isBookmarked ? nil : .now
+    /// Bookmarks the review, or takes its bookmark off. A new bookmark
+    /// keeps the poster on screen (`posterPick`, nil with posters off).
+    /// Taking it off leaves the poster as it was, so the review doesn't
+    /// change on the Bookmarks page while it's being read there.
+    func toggleBookmark(_ review: Review, posterPick: Int?) {
+        if review.isBookmarked {
+            review.bookmarkedAt = nil
+        } else {
+            review.bookmarkedAt = .now
+            review.bookmarkPosterIndex = posterPick.flatMap { review.posterIndex(pick: $0) }
+        }
+        save()
+    }
+
+    /// Moves a bookmark on to the film's next poster, and keeps that one.
+    func showNextPoster(of review: Review) {
+        review.bookmarkPosterIndex = review.posterIndex(pick: review.bookmarkPosterPick + 1)
         save()
     }
 

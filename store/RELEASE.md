@@ -40,6 +40,7 @@
 - 2026-10-31: Listing copy approved as written in `store/METADATA.md`.
 - 2026-10-31: Support and privacy pages on GitHub Pages (this repo is public), served from a `gh-pages` branch that holds only `store/site/`. Public contact: your personal Gmail (your choice, knowing it's public).
 - 2026-10-31: Secondary category Lifestyle. Age rating: unrestricted web access **yes** (in-app Safari search stays, the rating goes up, probably 16+).
+- 2026-10-31: Screenshot art: frames of public-domain films (your choice), posters off. Not text only.
 - 2026-10-31: App Review contact: your personal email and phone, saved in `store/contact.env` (gitignored, never in git).
 - 2026-10-31: The pages' favicon, home-screen icon and link-preview image are the real app icon, exported from `AppIcon.icon` with Icon Composer's `ictool` (never redrawn).
 
@@ -96,7 +97,7 @@
 2. **Trademark.** Never "Letterboxd" in the name, subtitle or keywords (Guidelines 2.3.7 and 5.2.1, Letterboxd ToS 19). The description says it factually, plus "VILLE is not affiliated with Letterboxd".
 3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. This is explained in the review notes.
 4. **Age rating: unrestricted web access.** Decided 2026-10-31: answer "yes" (Safari inside the app reaches any site). The rating goes up, probably to 16+.
-5. **Art in screenshots.** TMDB art is fine in the app, not in marketing. Plan: posters off, backdrops from frames of public-domain films.
+5. **Art in screenshots.** TMDB art is fine in the app, not in marketing. Decided 2026-10-31: posters off, backdrops from frames of public-domain films.
 6. **The Spanish listing describes an English app.** It says so. If the app gets localized (`/swift-localize`), remove that line.
 7. **iPhone Duo.** Screenshots required from April 2027 for iOS 27.1+ SDK builds.
 8. **Name reservation.** Upload a first TestFlight build once the app runs.
@@ -111,3 +112,4 @@
 - 2026-10-31: Contact saved in `store/contact.env`. `apply-store-setup.sh --go` sent everything the API can set. `asc validate`: 35 → 3 blocking (content rights, screenshots, build).
 - 2026-10-31: App Privacy published: Data Not Collected.
 - 2026-10-31: Follow-up email sent to Letterboxd (api@letterboxd.com, same thread as January).
+- 2026-10-31: Screenshots will use public-domain film frames.

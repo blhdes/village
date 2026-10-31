@@ -40,6 +40,7 @@
 - 2026-10-31: Listing copy approved as written in `store/METADATA.md`.
 - 2026-10-31: Support and privacy pages on GitHub Pages (this repo is public), served from a `gh-pages` branch that holds only `store/site/`. Public contact: your personal Gmail (your choice, knowing it's public).
 - 2026-10-31: Secondary category Lifestyle. Age rating: unrestricted web access **yes** (in-app Safari search stays, the rating goes up, probably 16+).
+- 2026-10-31: App Review contact: your personal email and phone, saved in `store/contact.env` (gitignored, never in git).
 - 2026-10-31: The pages' favicon, home-screen icon and link-preview image are the real app icon, exported from `AppIcon.icon` with Icon Composer's `ictool` (never redrawn).
 
 ## 1. Foundations

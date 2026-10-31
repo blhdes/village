@@ -49,7 +49,7 @@ The full text is in `store/metadata/version/1.0/<locale>.json` (en 1,938 charact
 
 In running text the app is called **VILLE**, as in Settings → About. "ville." with its full stop reads as the end of a sentence in the middle of a paragraph, so it stays for the name and the logo.
 
-The Spanish version says **the app is in English** (the interface isn't translated yet). If we localize it later (`/swift-localize`), remove that line.
+The app is localized (2026-10-31: en, es, de, fr, it, ja, pt-BR, zh-Hans), so the Spanish version no longer says the app is in English.
 
 ---
 

@@ -65,6 +65,7 @@ VILLE/VILLE/
 ├── VILLEApp.swift              # Entry point: SwiftData container, URLCache, view models
 ├── AppIcon.icon/               # Icon Composer app icon ("v." in Source Serif 4 Italic)
 ├── Secrets.swift               # (gitignored) TMDB key
+├── PrivacyInfo.xcprivacy       # Privacy manifest: UserDefaults (CA92.1), no tracking, nothing collected
 ├── Models/
 │   ├── Review.swift            # One written review + display helpers
 │   ├── FollowedUser.swift      # A saved Letterboxd member
@@ -112,6 +113,12 @@ Build-check from the terminal (never boot the simulator — testing happens on a
 ```
 xcodebuild -project VILLE/VILLE.xcodeproj -scheme VILLE -destination 'generic/platform=iOS' build CODE_SIGNING_ALLOWED=NO
 ```
+
+---
+
+## Release
+
+Publishing follows the global `app-store-release` skill. Its state for VILLE lives in `store/RELEASE.md` (IDs, decisions, phase checklists, risks): read it first. App Store Connect record: `ville.` (Apple ID 6829207754), bundle `agu.VILLE`, iPhone only, portrait. Never put "Letterboxd" in the store name, subtitle or keywords.
 
 ---
 

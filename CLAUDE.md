@@ -94,6 +94,7 @@ VILLE/VILLE/
     ├── ReelTopBar.swift        # Wordmark, People/Settings buttons, pull-to-refresh dot, error banner
     ├── SessionEndView.swift    # "Fin" card at the end of a session
     ├── ReelView.swift          # One reel: header, text, spoiler gate, actions
+    ├── ReelTextBox.swift       # A reel's text: fade + "Continue reading" when cut off
     ├── ReelBackground.swift    # The reel's backdrop and its legibility fade
     ├── ReviewHeader.swift      # Poster, byline, title, rating, dateline (reel + reader)
     ├── PosterImage.swift       # Crossfading poster + LoadingSkeleton

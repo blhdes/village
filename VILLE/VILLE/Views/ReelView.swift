@@ -3,9 +3,9 @@
 //  VILLE
 //
 //  One full-screen review, laid out like a Letterboxd review page: film
-//  header, "Review by", rating, then the text. Long reviews fade out and
-//  open the full reader. Every reel credits the author and links back to
-//  the original on Letterboxd.
+//  header, "Review by", rating, then the text (`ReelTextBox`: long reviews
+//  fade out and open the full reader). Every reel credits the author and
+//  links back to the original on Letterboxd.
 //
 //  The backdrop (and, with Alternative posters on, the poster) is picked
 //  per appearance by the slot, so a film looks different each time it
@@ -30,19 +30,14 @@ struct ReelView: View {
 
     @Environment(ReelSession.self) private var session
     @Environment(FeedViewModel.self) private var viewModel
-    @Environment(ReviewTranslator.self) private var translator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Lets the reader sheet zoom out of the "Continue reading" button.
     @Namespace private var readerNamespace
 
     @State private var isReading = false
-    @State private var contentHeight: CGFloat = 0
-    @State private var boxHeight: CGFloat = 0
     /// How many times the poster was tapped, each showing the next one.
     @State private var posterTaps = 0
-
-    private var isOverflowing: Bool { contentHeight > boxHeight + 1 }
 
     /// Where the header starts, below the top bar. The backdrop's fade is
     /// measured from here, so it always clears the text.
@@ -101,7 +96,9 @@ struct ReelView: View {
                         spoilerGate
                             .frame(maxHeight: .infinity, alignment: .top)
                     } else {
-                        reviewBody
+                        ReelTextBox(review: review, readerNamespace: readerNamespace) {
+                            isReading = true
+                        }
                     }
                 }
 
@@ -127,47 +124,7 @@ struct ReelView: View {
         }
     }
 
-    // MARK: Body
-
-    /// The text fills the space between header and actions. If it's taller
-    /// than that space, it fades out and a "Continue reading" button appears.
-    private var reviewBody: some View {
-        ReviewTextView(blocks: translator.blocks(for: review))
-            .fixedSize(horizontal: false, vertical: true)
-            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
-            // minHeight: 0 lets the box stay smaller than the text, so long
-            // reviews get clipped instead of pushing the buttons off screen.
-            .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
-            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { boxHeight = $0 }
-            .clipped()
-            .mask {
-                LinearGradient(
-                    stops: [
-                        .init(color: .black, location: 0),
-                        .init(color: .black, location: isOverflowing ? 0.75 : 1),
-                        .init(color: isOverflowing ? .clear : .black, location: 1),
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            }
-            .overlay(alignment: .bottomLeading) {
-                if isOverflowing {
-                    Button("Continue reading") { isReading = true }
-                        .font(.system(.subheadline, design: .serif, weight: .medium).italic())
-                        .buttonStyle(.glass)
-                        .matchedTransitionSource(id: review.id, in: readerNamespace)
-                }
-            }
-            .contentShape(.rect)
-            // Tapping a cut-off review opens the reader. Only switched on
-            // when the text is cut off, so links in a short review keep
-            // their own tap (the reader has them all).
-            .gesture(
-                TapGesture().onEnded { isReading = true },
-                including: isOverflowing ? .all : .subviews
-            )
-    }
+    // MARK: Spoilers
 
     /// One glass shield — tap anywhere on it to reveal. No glass button
     /// inside it: glass can't refract other glass, so it would look muddy.

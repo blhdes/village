@@ -57,7 +57,7 @@
 ## 2. Project readiness
 
 - ✅ `audit.sh` has no ❌ (2026-10-31)
-- ✅ Privacy manifest `VILLE/VILLE/PrivacyInfo.xcprivacy`: UserDefaults `CA92.1`, no tracking, no collected data
+- ✅ Privacy manifest `VILLE/VILLE/PrivacyInfo.xcprivacy`: UserDefaults `CA92.1`, file sizes `C617.1` (Settings → Storage, added 2026-10-31), no tracking, no collected data
 - ✅ Export compliance key
 - ✅ iPhone only (`TARGETED_DEVICE_FAMILY = 1`), portrait
 - ✅ Release build compiles (Xcode 27.2, generic iOS, unsigned)

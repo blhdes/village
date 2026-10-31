@@ -5,7 +5,7 @@
 //  Posters decoded and kept in memory, so a poster already seen (or fetched
 //  ahead, like the one the next tap will show) appears at once, with no
 //  loading state in between. Downloads go through URLSession, so the
-//  enlarged URLCache still keeps them on disk between launches.
+//  shared URLCache (`LocalStorage`) still keeps them on disk between launches.
 //
 
 import Foundation
@@ -42,6 +42,12 @@ final class PosterImageCache {
             memory.setObject(loaded, forKey: url as NSURL)
         }
         return loaded?.image
+    }
+
+    /// Forgets every decoded poster (Settings → Storage → Clear images).
+    /// Posters already on screen keep their own copy.
+    func removeAll() {
+        memory.removeAllObjects()
     }
 
     /// Starts loading without waiting for it.

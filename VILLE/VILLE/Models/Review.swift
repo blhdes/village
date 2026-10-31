@@ -5,8 +5,9 @@
 //  SwiftData model for a single written Letterboxd review.
 //
 //  Only real reviews are stored — lists and plain "watched" diary entries are
-//  dropped by `RSSService`. Reviews are never deleted when they fall out of a
-//  member's RSS window, so the local library keeps growing over time.
+//  dropped by `RSSService`. Reviews stay saved after they fall out of a
+//  member's RSS window, so the local library grows over time, up to the
+//  limit `LibraryTrimmer` keeps it to. Bookmarked reviews are always kept.
 //
 
 import Foundation
@@ -66,6 +67,11 @@ final class Review {
     /// show the reviews that have waited longest first.
     var lastShownAt: Date?
 
+    /// When the reader bookmarked this review; nil if they didn't.
+    /// Bookmarked reviews are never trimmed, and stay after their member
+    /// is removed (they then leave the feed but stay in Bookmarks).
+    var bookmarkedAt: Date?
+
     var fetchedAt: Date
 
     init(from parsed: ParsedReview) {
@@ -89,6 +95,7 @@ final class Review {
         backdropPaths = nil
         artFetched = false
         lastShownAt = nil
+        bookmarkedAt = nil
         fetchedAt = .now
     }
 
@@ -123,6 +130,8 @@ extension Review {
     }
 
     var url: URL? { URL(string: link) }
+
+    var isBookmarked: Bool { bookmarkedAt != nil }
 
     /// A web search for the film ("Title 2026 film"), opened from its title
     /// in the in-app browser, as the mobile app does. The year tells

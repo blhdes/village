@@ -24,10 +24,11 @@ It is the lighter stepping stone before the full social network (`../ville-du-ci
 - **Brand echo**: the Village plates (`OffsetPrint`) appear only on the Fin card, VILLE's one nod to its siblings. Brand colors otherwise live only in the red dot, links (blue) and errors (red).
 - **Suggestions to start**: the People screen shows 5 random members from `SuggestedMember` (100 hand-picked critics, writers, filmmakers and creators who post written reviews often) until the user follows 10. Adding one swaps in someone new; shuffle shows others. English writers are suggested to everyone, others only to readers whose iPhone uses that language.
 - **Share = link to the original review on Letterboxd**, never the review text or an image of it.
+- **Bookmarks**: the bookmark under a review (next to Share) keeps it on the device (`Review.bookmarkedAt`), with no account or sync. They open from one quiet row in People (`BookmarksView`), newest bookmark first; swipe to take one off. A bookmark is never trimmed and stays after its member is removed: it leaves the feed (which only shows followed members) but stays in Bookmarks. A spoiler review bookmarked unrevealed stays covered in the reader (`SpoilerGate`), so it can wait until after the film.
 - **Selectable text**: the review text can be long-pressed and copied, on the reel and in the reader (iOS 27: any stretch of a paragraph; iOS 26: the whole paragraph). Selection stays inside one paragraph, because each block is its own `Text`.
 - **One-tap translation** (like X's translate button): when a review isn't in the reader's language, a note under its dateline offers "Translate from English". The reader's language is the first of `Locale.preferredLanguages` that Translation supports (not `Locale.current`, which only knows VILLE's interface languages): VILLE's own language when one is picked for it in iOS Settings, else the iPhone's, so a Catalan iPhone with Spanish second reads in Spanish. The note and the credit are written out per source language (`ReviewTranslation.offer`/`credit`), never a "from %@" template, because French says "de l'anglais" but "du japonais", German "aus dem Englischen", Italian "dallo spagnolo". One tap swaps the text in place; the note then reads "Translated from English · Show original", a translator's credit as a book prints it. Everything runs on the device: `NaturalLanguage` detects the language, Apple's Translation framework translates (Apple Intelligence's models when available, else the downloadable Translate languages, which the system offers to download on first use). Each block is translated on its own, so quotes and lists keep their shape; from iOS 26.4 italics, bold and links survive too. Translations live in memory until the app quits, shared by the reel and the reader, and are never saved or shared. "Show original" is a view switch, not a reveal, so it doesn't break the one-way reveal rule.
 - **Eight languages**: English (source), Spanish, German, French, Italian, Japanese, Portuguese (Brazil), Simplified Chinese, all in `Localizable.xcstrings`. Settings → Language shows the current one and opens VILLE's page in iOS Settings to pick another (Apple's per-app language). No in-app picker: it could only apply after a manual restart, and system sheets wouldn't follow it. Reviews always stay as written unless translated.
-- **The library grows**: reviews stay saved after they drop out of the RSS window (RSS holds ~50 diary entries per member).
+- **The library grows, up to a limit**: reviews stay saved after they drop out of the RSS window (RSS holds ~50 diary entries per member), but each member keeps only their newest 100 (`LibraryTrimmer`, run once per launch before the first session, so no reel on screen disappears), plus bookmarks. Downloads (posters, backdrops, TMDB and RSS answers) share one `URLCache` capped at 150 MB in Caches, which iOS can also clear. Settings → Storage shows both sizes and can clear the images.
 
 ---
 
@@ -53,7 +54,7 @@ Checked 2026-10-21 against the "October 2026" Terms of Use.
 | Persistence | SwiftData, store name `VILLEReels` |
 | Networking | `URLSession` + `XMLParser`, zero third-party deps |
 | Concurrency | `async`/`await`; default actor isolation is `MainActor` |
-| Images | Backdrops: `AsyncImage`. Posters: `PosterImageCache` (decoded in memory, the next tap's poster fetched ahead). Both over an enlarged `URLCache.shared` |
+| Images | Backdrops: `AsyncImage`. Posters: `PosterImageCache` (decoded in memory, the next tap's poster fetched ahead). Both over `URLCache.shared`, set up and capped by `LocalStorage` |
 
 **Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `FilmArtLoader` (via `TMDBService`, one request per film with `append_to_response=images`) fills the poster and backdrop galleries → `ReelFeedView` reads reviews with `@Query` → `ReelSession` picks each session with `ReelSampler`, keeps it in a `ReelQueue`, and stamps `lastShownAt` on every review that appears. Translation: `TranslationNote` (in `ReviewHeader`) gets a session from `.translationTask` → `ReviewTranslator` → `ReviewTranslation` → the reel and reader draw `translator.blocks(for:)`.
 
@@ -68,7 +69,7 @@ VILLE/VILLE/
 ├── VILLEApp.swift              # Entry point: SwiftData container, URLCache, view models
 ├── AppIcon.icon/               # Icon Composer app icon ("v." in Source Serif 4 Italic)
 ├── Secrets.swift               # (gitignored) TMDB key
-├── PrivacyInfo.xcprivacy       # Privacy manifest: UserDefaults (CA92.1), no tracking, nothing collected
+├── PrivacyInfo.xcprivacy       # Privacy manifest: UserDefaults (CA92.1), file sizes (C617.1), no tracking, nothing collected
 ├── Localizable.xcstrings       # Every interface string in the 8 languages
 ├── InfoPlist.xcstrings         # Bundle name (not translated)
 ├── Models/
@@ -80,6 +81,8 @@ VILLE/VILLE/
 │   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
 │   ├── TMDBService.swift       # Poster + backdrop galleries by TMDB id
 │   ├── FilmArtLoader.swift     # Fills missing art, one TMDB request per film
+│   ├── LibraryTrimmer.swift    # Keeps each member's newest 100 reviews + bookmarks
+│   ├── LocalStorage.swift      # Download cache limit, sizes on disk, clear images
 │   ├── ReviewTranslation.swift # Detects a review's language, translates its blocks (on device), "Translate from…" sentences
 │   └── PosterImageCache.swift  # Decoded posters in memory + prefetch
 ├── ViewModels/
@@ -97,17 +100,20 @@ VILLE/VILLE/
     ├── ReelTopBar.swift        # Wordmark, People/Settings buttons, pull-to-refresh dot, error banner
     ├── SessionEndView.swift    # "Fin" card at the end of a session
     ├── ReelView.swift          # One reel: header, text, spoiler gate, actions
+    ├── SpoilerGate.swift       # Glass shield over spoilers, tap to reveal (reel + reader)
     ├── ReelTextBox.swift       # A reel's text: fade + "Continue reading" when cut off
     ├── ReelBackground.swift    # The reel's backdrop and its legibility fade
     ├── ReviewHeader.swift      # Poster, byline, title, rating, dateline (reel + reader)
     ├── PosterImage.swift       # Crossfading poster + LoadingSkeleton
     ├── TranslationNote.swift   # "Translate from English" under the dateline
-    ├── ReviewActions.swift     # Share + View on Letterboxd (reel + reader)
+    ├── ReviewActions.swift     # Share + View on Letterboxd + bookmark (reel + reader)
     ├── ReviewTextView.swift    # Draws ReviewHTML blocks
-    ├── ReviewReaderView.swift  # Full text of a long review
-    ├── MembersView.swift       # Add/remove members
+    ├── ReviewReaderView.swift  # Full text of a review: sheet from a reel, page from Bookmarks
+    ├── MembersView.swift       # Add/remove members, Bookmarks row
+    ├── BookmarksView.swift     # Bookmarked reviews, opened from People
     ├── SuggestedMembersSection.swift # MembersView's "Suggested" section
-    ├── SettingsView.swift      # Appearance, language, look toggles, session length + attributions
+    ├── SettingsView.swift      # Appearance, language, look toggles, session length, storage + attributions
+    ├── StorageSection.swift    # Settings → Storage: sizes, limits, clear images
     └── Appearance.swift        # System / Light / Dark choice
 ```
 

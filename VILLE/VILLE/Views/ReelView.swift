@@ -30,7 +30,6 @@ struct ReelView: View {
 
     @Environment(ReelSession.self) private var session
     @Environment(FeedViewModel.self) private var viewModel
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Lets the reader sheet zoom out of the "Continue reading" button.
     @Namespace private var readerNamespace
@@ -93,7 +92,7 @@ struct ReelView: View {
                 // so the spoiler glass can dissolve instead of just vanishing.
                 GlassEffectContainer {
                     if isSpoilerCovered {
-                        spoilerGate
+                        SpoilerGate(reviewID: review.id)
                             .frame(maxHeight: .infinity, alignment: .top)
                     } else {
                         ReelTextBox(review: review, readerNamespace: readerNamespace) {
@@ -122,33 +121,6 @@ struct ReelView: View {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             posterTaps += 1
         }
-    }
-
-    // MARK: Spoilers
-
-    /// One glass shield — tap anywhere on it to reveal. No glass button
-    /// inside it: glass can't refract other glass, so it would look muddy.
-    /// The glass dissolves as the review appears (a plain fade with Reduce Motion).
-    private var spoilerGate: some View {
-        Button {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                session.revealSpoilers(for: review.id)
-            }
-        } label: {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("This review may contain spoilers.")
-                    .font(.system(.body, design: .serif).italic())
-                Text("Tap to show it")
-                    .datelineStyle()
-                    .foregroundStyle(Color.primary.opacity(0.6))
-            }
-            .padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(.rect(cornerRadius: 20))
-        }
-        .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 20))
-        .glassEffectTransition(reduceMotion ? .identity : .materialize)
     }
 
     // MARK: Actions

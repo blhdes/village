@@ -3,8 +3,8 @@
 //  VILLE
 //
 //  Look options (appearance, posters, backdrops, stars and likes), the
-//  language, the session length, and the attributions required by
-//  Letterboxd and TMDB.
+//  language, the session length, storage (`StorageSection`), and the
+//  attributions required by Letterboxd and TMDB.
 //
 
 import SwiftUI
@@ -83,6 +83,8 @@ struct SettingsView: View {
                 } footer: {
                     Text("The feed ends after this many reviews. Keep reading from the end card, or come back later for a new session.")
                 }
+
+                StorageSection()
 
                 Section("About") {
                     Text("Reviews come from members' public Letterboxd RSS feeds and belong to their authors. VILLE is not affiliated with or endorsed by Letterboxd.")

@@ -4,17 +4,26 @@
 //
 //  Add and remove the Letterboxd members whose reviews fill the feed.
 //  Saved only on this device. Until the user follows a few people, a
-//  "Suggested" section offers some to start with.
+//  "Suggested" section offers some to start with. Bookmarks open from here
+//  too: one quiet row, the user's own corner of the library.
 //
 
 import SwiftUI
 import SwiftData
+
+/// Screens pushed from People. By value, like the reviews pushed from
+/// Bookmarks: mixing view links and value links in one stack can pop the
+/// Bookmarks list when a review opens.
+private enum PeopleRoute: Hashable {
+    case bookmarks
+}
 
 struct MembersView: View {
     @Environment(FeedViewModel.self) private var viewModel
     @Environment(\.dismiss) private var dismiss
 
     @Query(sort: \FollowedUser.addedAt, order: .reverse) private var members: [FollowedUser]
+    @Query(filter: #Predicate<Review> { $0.bookmarkedAt != nil }) private var bookmarks: [Review]
 
     @State private var input = ""
     @State private var isAdding = false
@@ -57,6 +66,19 @@ struct MembersView: View {
                     }
                 }
 
+                Section {
+                    NavigationLink(value: PeopleRoute.bookmarks) {
+                        LabeledContent {
+                            if !bookmarks.isEmpty {
+                                Text(bookmarks.count, format: .number)
+                            }
+                        } label: {
+                            Text("Bookmarks")
+                                .font(.system(.body, design: .serif))
+                        }
+                    }
+                }
+
                 if !members.isEmpty {
                     Section("Following") {
                         ForEach(members) { member in
@@ -67,6 +89,9 @@ struct MembersView: View {
                         }
                     }
                 }
+            }
+            .navigationDestination(for: PeopleRoute.self) { _ in
+                BookmarksView()
             }
             .editorialTitle("People")
             .toolbar {

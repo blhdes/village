@@ -21,6 +21,16 @@
 				<string>CA92.1</string>
 			</array>
 		</dict>
+		<!-- Settings → Storage reads the size of VILLE's own database files.
+		     C617.1 = size or other metadata of files inside the app container. -->
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

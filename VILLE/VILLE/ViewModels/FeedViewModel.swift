@@ -3,7 +3,8 @@
 //  VILLE
 //
 //  Owns everything that changes the local library: refreshing members' RSS
-//  feeds, adding and removing members, and filling in TMDB art (through
+//  feeds, adding and removing members, bookmarks, trimming old reviews
+//  (through `LibraryTrimmer`) and filling in TMDB art (through
 //  `FilmArtLoader`). What's on screen lives in `ReelSession`.
 //
 //  Views read reviews straight from SwiftData with `@Query`, so the feed
@@ -39,6 +40,7 @@ final class FeedViewModel {
     private let context: ModelContext
     private let rss: RSSService
     private let artLoader: FilmArtLoader
+    private let trimmer = LibraryTrimmer()
 
     private var hasRefreshedSinceLaunch = false
 
@@ -136,18 +138,43 @@ final class FeedViewModel {
         loadMissingArt()
     }
 
-    /// Removes members together with every review saved from them.
+    /// Removes members together with every review saved from them, except
+    /// the bookmarked ones: those stay in Bookmarks, out of the feed.
     func removeMembers(_ members: [FollowedUser]) {
         for member in members {
             let username = member.username
             do {
-                try context.delete(model: Review.self, where: #Predicate { $0.username == username })
+                try context.delete(model: Review.self, where: #Predicate { $0.username == username && $0.bookmarkedAt == nil })
             } catch {
                 print("FeedViewModel: could not delete reviews for \(username) — \(error)")
             }
             context.delete(member)
         }
         save()
+    }
+
+    // MARK: Bookmarks
+
+    /// Bookmarks the review, or takes its bookmark off.
+    func toggleBookmark(_ review: Review) {
+        review.bookmarkedAt = review.isBookmarked ? nil : .now
+        save()
+    }
+
+    // MARK: Library size
+
+    /// Deletes the reviews past `LibraryTrimmer`'s limit. Call once at
+    /// launch, before the feed picks a session: a review on screen must
+    /// never be deleted under the reader.
+    func trimLibrary() {
+        do {
+            let deleted = try trimmer.trim(in: context)
+            guard deleted > 0 else { return }
+            print("FeedViewModel: trimmed \(deleted) old reviews from the library")
+            save()
+        } catch {
+            print("FeedViewModel: could not trim the library — \(error)")
+        }
     }
 
     // MARK: Persistence

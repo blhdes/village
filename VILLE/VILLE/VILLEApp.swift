@@ -2,9 +2,10 @@
 //  VILLEApp.swift
 //  VILLE
 //
-//  App entry point. Sets up SwiftData, a larger image cache for posters and
-//  backdrops, the shared `FeedViewModel` (the library), `ReelSession`
-//  (what's on screen) and `ReviewTranslator` (reviews shown translated).
+//  App entry point. Sets up SwiftData, the download cache for posters and
+//  backdrops (`LocalStorage`), the shared `FeedViewModel` (the library),
+//  `ReelSession` (what's on screen) and `ReviewTranslator` (reviews shown
+//  translated). Trims the library once per launch.
 //
 
 import SwiftUI
@@ -19,9 +20,8 @@ struct VILLEApp: App {
     @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
     init() {
-        // AsyncImage goes through URLSession.shared — a bigger cache keeps
-        // TMDB art around between launches and offline.
-        URLCache.shared = URLCache(memoryCapacity: 50_000_000, diskCapacity: 300_000_000)
+        // Keeps TMDB art around between launches and offline, up to a limit.
+        LocalStorage.configureDownloadCache()
 
         do {
             // A new store name: the reels model doesn't match the old scaffold's
@@ -31,7 +31,11 @@ struct VILLEApp: App {
         } catch {
             fatalError("VILLEApp: could not create the SwiftData container — \(error)")
         }
-        _viewModel = State(initialValue: FeedViewModel(context: container.mainContext))
+        let viewModel = FeedViewModel(context: container.mainContext)
+        // Here, before the first session is picked, so no reel on screen
+        // can disappear.
+        viewModel.trimLibrary()
+        _viewModel = State(initialValue: viewModel)
         _session = State(initialValue: ReelSession(context: container.mainContext))
     }
 

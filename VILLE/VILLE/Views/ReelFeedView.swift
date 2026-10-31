@@ -26,7 +26,8 @@ struct ReelFeedView: View {
     /// Lets each sheet zoom out of the button that opened it.
     @Namespace private var sheetNamespace
 
-    @Query private var reviews: [Review]
+    /// Every saved review, including bookmarks from members removed since.
+    @Query private var library: [Review]
     @Query private var members: [FollowedUser]
 
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
@@ -47,6 +48,13 @@ struct ReelFeedView: View {
     private static let pullThreshold: CGFloat = 80
 
     private var pullProgress: CGFloat { min(pullDistance / Self.pullThreshold, 1) }
+
+    /// What the feed can show: reviews by the members followed now. A
+    /// bookmark from someone removed stays in Bookmarks, not here.
+    private var reviews: [Review] {
+        let followed = Set(members.map(\.username))
+        return library.filter { followed.contains($0.username) }
+    }
 
     private var reviewIDs: [String] { reviews.map(\.id) }
 

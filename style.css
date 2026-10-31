@@ -1,0 +1,105 @@
+/* VILLE support site: the app's editorial voice on the web.
+   Serif text, italic secondary voice, a red full stop, plenty of space. */
+
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --secondary: rgba(17, 17, 17, 0.62);
+  --red: #d7263d;   /* BrandRed, light */
+  --blue: #2a7c9f;  /* BrandBlue, light: links */
+  --rule: rgba(17, 17, 17, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --text: #f2f2f2;
+    --secondary: rgba(242, 242, 242, 0.62);
+    --red: #e5475d;  /* BrandRed, dark */
+    --blue: #3b95bc; /* BrandBlue, dark */
+    --rule: rgba(242, 242, 242, 0.14);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+main {
+  max-width: 38rem;
+  margin: 0 auto;
+  padding: 3.5rem 1rem 5rem;
+}
+
+.wordmark {
+  display: inline-block;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--text);
+  text-decoration: none;
+  margin-bottom: 2.5rem;
+}
+
+.dot { color: var(--red); }
+
+h1 {
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+h2 {
+  font-weight: 400;
+  font-size: 1.3rem;
+  margin: 2.5rem 0 0.5rem;
+}
+
+.dateline {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin: 0 0 2rem;
+}
+
+.lede {
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--secondary);
+}
+
+em, .note { color: var(--secondary); }
+
+a { color: var(--blue); }
+
+ul { padding-left: 1.2rem; }
+li { margin: 0.35rem 0; }
+
+dt { margin-top: 1.4rem; font-style: italic; }
+dd { margin: 0.25rem 0 0; }
+
+.language {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--rule);
+}
+
+footer {
+  margin-top: 4rem;
+  font-size: 0.85rem;
+  color: var(--secondary);
+}
+
+footer a { color: inherit; }

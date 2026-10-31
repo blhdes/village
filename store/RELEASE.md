@@ -102,6 +102,7 @@
 7. **iPhone Duo.** Screenshots required from April 2027 for iOS 27.1+ SDK builds.
 8. **Name reservation.** Upload a first TestFlight build once the app runs.
 9. **Public repo.** Contact details go in `store/contact.env` (gitignored). No UDIDs or keys in git.
+10. **Copy and translate (added 2026-10-31).** Review text can be selected and copied, and translated into the iPhone's language with Apple's Translation framework, on the device. Nothing is stored, synced or sent, and Share stays a link, so App Privacy ("Data Not Collected") and the privacy page stay true. If Letterboxd answers the email thread, check they're fine with on-device translation (it works like Safari's Translate on their site).
 
 ## Log
 

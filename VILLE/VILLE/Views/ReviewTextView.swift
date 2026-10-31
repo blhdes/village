@@ -4,7 +4,8 @@
 //
 //  Draws the blocks produced by `ReviewHTML`: paragraphs, indented quotes
 //  with a side rule, and bulleted or numbered list items. Links take the
-//  brand blue and open in Safari inside the app.
+//  brand blue and open in Safari inside the app. The text can be selected
+//  and copied (sharing stays a link to the original, see `ReviewActions`).
 //
 
 import SwiftUI
@@ -22,6 +23,9 @@ struct ReviewTextView: View {
         .foregroundStyle(Color.primary.opacity(0.88))
         .lineSpacing(5)
         .tint(Color.brandBlue)
+        // Long-press to copy. From iOS 27 the handles pick any stretch of a
+        // paragraph; on iOS 26 the menu copies the whole paragraph.
+        .textSelection(.enabled)
         // Links open in Safari inside the app, so reading continues after.
         .environment(\.openURL, .inAppBrowser)
         .frame(maxWidth: .infinity, alignment: .leading)

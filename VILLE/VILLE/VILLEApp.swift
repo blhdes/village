@@ -3,8 +3,8 @@
 //  VILLE
 //
 //  App entry point. Sets up SwiftData, a larger image cache for posters and
-//  backdrops, the shared `FeedViewModel` (the library) and `ReelSession`
-//  (what's on screen).
+//  backdrops, the shared `FeedViewModel` (the library), `ReelSession`
+//  (what's on screen) and `ReviewTranslator` (reviews shown translated).
 //
 
 import SwiftUI
@@ -15,6 +15,7 @@ struct VILLEApp: App {
     private let container: ModelContainer
     @State private var viewModel: FeedViewModel
     @State private var session: ReelSession
+    @State private var translator = ReviewTranslator()
     @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
     init() {
@@ -39,6 +40,10 @@ struct VILLEApp: App {
             ReelFeedView()
                 .environment(viewModel)
                 .environment(session)
+                .environment(translator)
+                // Which languages this iPhone can translate, so reviews in
+                // other languages can offer "Translate from…".
+                .task { await translator.loadSupportedLanguages() }
                 // System, Light or Dark, picked in Settings.
                 .preferredColorScheme(appearance.colorScheme)
                 .tint(Color.primary)

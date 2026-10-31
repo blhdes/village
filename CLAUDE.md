@@ -24,6 +24,8 @@ It is the lighter stepping stone before the full social network (`../ville-du-ci
 - **Brand echo**: the Village plates (`OffsetPrint`) appear only on the Fin card, VILLE's one nod to its siblings. Brand colors otherwise live only in the red dot, links (blue) and errors (red).
 - **Suggestions to start**: the People screen shows 5 random members from `SuggestedMember` (100 hand-picked critics, writers, filmmakers and creators who post written reviews often) until the user follows 10. Adding one swaps in someone new; shuffle shows others. English writers are suggested to everyone, others only to readers whose iPhone uses that language.
 - **Share = link to the original review on Letterboxd**, never the review text or an image of it.
+- **Selectable text**: the review text can be long-pressed and copied, on the reel and in the reader (iOS 27: any stretch of a paragraph; iOS 26: the whole paragraph). Selection stays inside one paragraph, because each block is its own `Text`.
+- **One-tap translation** (like X's translate button): when a review isn't in the iPhone's language (`Locale.preferredLanguages.first`, not the app's), a note under its dateline offers "Translate from English". One tap swaps the text in place; the note then reads "Translated from English · Show original", a translator's credit as a book prints it. Everything runs on the device: `NaturalLanguage` detects the language, Apple's Translation framework translates (Apple Intelligence's models when available, else the downloadable Translate languages, which the system offers to download on first use). Each block is translated on its own, so quotes and lists keep their shape; from iOS 26.4 italics, bold and links survive too. Translations live in memory until the app quits, shared by the reel and the reader, and are never saved or shared. "Show original" is a view switch, not a reveal, so it doesn't break the one-way reveal rule.
 - **The library grows**: reviews stay saved after they drop out of the RSS window (RSS holds ~50 diary entries per member).
 
 ---
@@ -33,7 +35,7 @@ It is the lighter stepping stone before the full social network (`../ville-du-ci
 Checked 2026-10-21 against the "October 2026" Terms of Use.
 
 - **RSS only.** Never fetch or parse Letterboxd HTML pages (clause 6.11 bans scraping). The RSS feed is the route Letterboxd offers on letterboxd.com/api-beta.
-- **No exporting others' content** (6.8): sharing sends the Letterboxd URL only.
+- **No exporting others' content** (6.8): sharing sends the Letterboxd URL only. Copying and translating are the reader's own, on the device, like selecting text or "Translate" in Safari on letterboxd.com: translations are never stored, synced or sent anywhere, and Share never carries them.
 - **No index of a "significant portion"** (6.8 bans "creating… an index of any significant portion of the Service content"): only reviews from members the user added, stored locally. The one bundled list is `SuggestedMember`: about 100 hand-picked usernames and display names (out of 30M+ members), never reviews, and nothing is fetched until the user adds someone. Never scrape or import member lists, never pre-fetch suggested members' feeds, and don't grow it into a directory. Re-check the list against RSS before each release (2026-10-28 last).
 - **No competing business** (6.9): keep the app free, credit the author on every reel, and always link back to the original.
 - **Logo** (19): only when linking to Letterboxd, only the official file from their Brand page, never implying a partnership. Never redraw it.
@@ -46,13 +48,13 @@ Checked 2026-10-21 against the "October 2026" Terms of Use.
 | Area | Choice |
 |---|---|
 | UI | SwiftUI only, iOS 26 (Liquid Glass) |
-| State | `@Observable` `FeedViewModel` (the library) and `ReelSession` (what's on screen), shared through `.environment` |
+| State | `@Observable` `FeedViewModel` (the library), `ReelSession` (what's on screen) and `ReviewTranslator` (reviews shown translated), shared through `.environment` |
 | Persistence | SwiftData, store name `VILLEReels` |
 | Networking | `URLSession` + `XMLParser`, zero third-party deps |
 | Concurrency | `async`/`await`; default actor isolation is `MainActor` |
 | Images | Backdrops: `AsyncImage`. Posters: `PosterImageCache` (decoded in memory, the next tap's poster fetched ahead). Both over an enlarged `URLCache.shared` |
 
-**Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `FilmArtLoader` (via `TMDBService`, one request per film with `append_to_response=images`) fills the poster and backdrop galleries → `ReelFeedView` reads reviews with `@Query` → `ReelSession` picks each session with `ReelSampler`, keeps it in a `ReelQueue`, and stamps `lastShownAt` on every review that appears.
+**Data flow:** `RSSService` (Letterboxd RSS) → `FeedViewModel` upserts `Review`s into SwiftData → `FilmArtLoader` (via `TMDBService`, one request per film with `append_to_response=images`) fills the poster and backdrop galleries → `ReelFeedView` reads reviews with `@Query` → `ReelSession` picks each session with `ReelSampler`, keeps it in a `ReelQueue`, and stamps `lastShownAt` on every review that appears. Translation: `TranslationNote` (in `ReviewHeader`) gets a session from `.translationTask` → `ReviewTranslator` → `ReviewTranslation` → the reel and reader draw `translator.blocks(for:)`.
 
 **Secrets:** `VILLE/VILLE/Secrets.swift` holds the TMDB v3 key and is gitignored. Template: `Secrets.example.swift` at the repo root.
 
@@ -75,12 +77,14 @@ VILLE/VILLE/
 │   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
 │   ├── TMDBService.swift       # Poster + backdrop galleries by TMDB id
 │   ├── FilmArtLoader.swift     # Fills missing art, one TMDB request per film
+│   ├── ReviewTranslation.swift # Detects a review's language, translates its blocks (on device)
 │   └── PosterImageCache.swift  # Decoded posters in memory + prefetch
 ├── ViewModels/
 │   ├── FeedViewModel.swift     # Library: refresh, members, triggers art loading
 │   ├── ReelSession.swift       # On screen: current session, spoilers, breaks
 │   ├── ReelQueue.swift         # The visit's reels: start, sync, keep reading
-│   └── ReelSampler.swift       # Which reviews make a session, and their order
+│   ├── ReelSampler.swift       # Which reviews make a session, and their order
+│   └── ReviewTranslator.swift  # Which reviews show translated (memory only)
 └── Views/
     ├── Brand/
     │   ├── Editorial.swift     # Headline with red dot, dateline, sheet title
@@ -93,6 +97,7 @@ VILLE/VILLE/
     ├── ReelBackground.swift    # The reel's backdrop and its legibility fade
     ├── ReviewHeader.swift      # Poster, byline, title, rating, dateline (reel + reader)
     ├── PosterImage.swift       # Crossfading poster + LoadingSkeleton
+    ├── TranslationNote.swift   # "Translate from English" under the dateline
     ├── ReviewActions.swift     # Share + View on Letterboxd (reel + reader)
     ├── ReviewTextView.swift    # Draws ReviewHTML blocks
     ├── ReviewReaderView.swift  # Full text of a long review

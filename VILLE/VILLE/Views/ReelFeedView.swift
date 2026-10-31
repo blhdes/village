@@ -251,6 +251,7 @@ struct ReelFeedView: View {
     ReelFeedView()
         .environment(FeedViewModel(context: container.mainContext))
         .environment(ReelSession(context: container.mainContext))
+        .environment(ReviewTranslator())
         .modelContainer(container)
         .preferredColorScheme(.dark)
 }

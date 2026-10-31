@@ -30,6 +30,7 @@ struct ReelView: View {
 
     @Environment(ReelSession.self) private var session
     @Environment(FeedViewModel.self) private var viewModel
+    @Environment(ReviewTranslator.self) private var translator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Lets the reader sheet zoom out of the "Continue reading" button.
@@ -131,7 +132,7 @@ struct ReelView: View {
     /// The text fills the space between header and actions. If it's taller
     /// than that space, it fades out and a "Continue reading" button appears.
     private var reviewBody: some View {
-        ReviewTextView(blocks: ReviewHTML.blocks(for: review))
+        ReviewTextView(blocks: translator.blocks(for: review))
             .fixedSize(horizontal: false, vertical: true)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
             // minHeight: 0 lets the box stay smaller than the text, so long

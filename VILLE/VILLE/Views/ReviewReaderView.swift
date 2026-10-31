@@ -15,14 +15,15 @@ struct ReviewReaderView: View {
     var showRating = true
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(ReviewTranslator.self) private var translator
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     ReviewHeader(review: review, posterURL: posterURL, showRating: showRating)
-                    ReviewTextView(blocks: ReviewHTML.blocks(for: review))
-                        .textSelection(.enabled)
+                    // Translated if the reel was (or the header's note is tapped here).
+                    ReviewTextView(blocks: translator.blocks(for: review))
                     if let url = review.url {
                         ReviewActions(review: review, url: url)
                     }

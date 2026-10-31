@@ -18,7 +18,7 @@ struct ReelTopBar: View {
 
     var body: some View {
         HStack {
-            // The plates drift in and out of register while feeds refresh.
+            // The red dot breathes while feeds refresh.
             VILLEWordmark(isPulsing: viewModel.isRefreshing)
                 .shadow(color: Color.reelBackground.opacity(0.6), radius: 8)
 

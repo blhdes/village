@@ -42,19 +42,19 @@
       }
     },
     {
-      "name": "Plates",
+      "name": "Dot",
       "layers": [
         {
-          "image-name": "plate-yellow.svg",
-          "name": "Yellow plate"
-        },
-        {
-          "image-name": "plate-blue.svg",
-          "name": "Blue plate"
-        },
-        {
-          "image-name": "plate-red.svg",
-          "name": "Red plate"
+          "image-name": "dot.svg",
+          "name": "Red dot",
+          "fill-specializations": [
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "srgb:0.89804,0.27843,0.36471,1.00000"
+              }
+            }
+          ]
         }
       ],
       "shadow": {

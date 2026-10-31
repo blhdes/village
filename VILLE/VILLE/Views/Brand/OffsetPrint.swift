@@ -2,9 +2,10 @@
 //  OffsetPrint.swift
 //  VILLE
 //
-//  The Village du Cinéma print look, shared with the app icon: the content
-//  in the primary color, with yellow, blue and red copies peeking out behind
-//  it, like print plates slightly out of register.
+//  The Village du Cinéma print look: the content in the primary color, with
+//  yellow, blue and red copies peeking out behind it, like print plates
+//  slightly out of register. Kept for the "Fin" card only, VILLE's one nod
+//  to its sibling apps.
 //
 
 import SwiftUI

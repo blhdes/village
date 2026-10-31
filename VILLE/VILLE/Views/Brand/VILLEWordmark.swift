@@ -2,53 +2,46 @@
 //  VILLEWordmark.swift
 //  VILLE
 //
-//  VILLE's wordmark: heavy serif capitals whose V carries the yellow, blue
-//  and red plates of the Village du Cinéma icon. Change the logo here and
-//  it changes everywhere it's used (top bar, loading screen).
+//  VILLE's wordmark: "ville." in a light serif italic, ending on a red full
+//  stop, the only touch of color. A full stop because the feed has an end,
+//  like the "Fin" card. Change the logo here and it changes everywhere it's
+//  used (top bar, loading screen).
 //
 
 import SwiftUI
 
 struct VILLEWordmark: View {
     /// Point size of the letters.
-    var size: CGFloat = 24
-    /// Moves the V's plates in and out of register, e.g. while refreshing.
+    var size: CGFloat = 28
+    /// Makes the red dot breathe, e.g. while refreshing.
     var isPulsing = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: tracking) {
-            PhaseAnimator(plateSpreads) { spread in
-                OffsetPrint(step: size * 0.065 * spread) {
-                    letters("V")
-                }
-            } animation: { _ in
-                .easeInOut(duration: 0.7)
-            }
-            // A fresh animator when pulsing starts or stops, so the plates
-            // settle back into place instead of breathing forever.
-            .id(isPulsing)
-
-            letters("ILLE")
-                .tracking(tracking)
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            Text(verbatim: "ville")
                 .foregroundStyle(Color.primary)
+
+            PhaseAnimator(dotOpacities) { opacity in
+                Text(verbatim: ".")
+                    .foregroundStyle(Color.brandRed)
+                    .opacity(opacity)
+            } animation: { _ in
+                .easeInOut(duration: 0.8)
+            }
+            // A fresh animator when pulsing starts or stops, so the dot
+            // settles back to full color instead of breathing forever.
+            .id(isPulsing)
         }
+        .font(.system(size: size, weight: .regular, design: .serif).italic())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "VILLE"))
     }
 
-    /// How far the plates sit from the V, as a share of the full offset.
-    private var plateSpreads: [CGFloat] {
+    /// The dot's opacity steps: it fades in and out only while pulsing.
+    private var dotOpacities: [Double] {
         isPulsing && !reduceMotion ? [1, 0.2] : [1]
-    }
-
-    /// Slightly tight letter spacing, scaled with the size.
-    private var tracking: CGFloat { -size * 0.016 }
-
-    private func letters(_ text: String) -> Text {
-        Text(verbatim: text)
-            .font(.system(size: size, weight: .black, design: .serif))
     }
 }
 

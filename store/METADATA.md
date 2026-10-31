@@ -76,7 +76,7 @@ The Spanish version says **the app is in English** (the interface isn't translat
 ### Content rights
 
 "Does your app contain, show or access third-party content?" → **Yes** (other people's reviews from Letterboxd RSS, film images from TMDB).
-"Do you have the necessary rights?" → **depends on Letterboxd's answer** (RELEASE.md → Risks 1). Write to them again before submitting.
+"Do you have the necessary rights?" → **depends on Letterboxd's answer** (RELEASE.md → Risks 1). Follow-up sent 2026-10-31, waiting for an answer.
 
 ### Age rating (questionnaire, 2025 system: 4+ / 9+ / 13+ / 16+ / 18+)
 

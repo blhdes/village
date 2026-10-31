@@ -66,10 +66,10 @@
 - ✅ Copy written in `store/metadata/` (en-US, es-ES) and approved (2026-10-31), including the support and privacy URLs. `asc metadata validate` → 0 errors. Not sent yet.
 - ✅ Privacy policy and support pages online at https://blhdes.github.io/village/ (2026-10-31). To change them: edit `store/site/`, commit, `bash store/publish-site.sh`
 - ✅ `store/apply-store-setup.sh --go` sent (2026-10-31, your OK): copy en/es with support and privacy URLs, categories, copyright, manual release, free price, availability without China, age rating, App Review contact and notes. Every call succeeded. Re-run it after changing any of those files.
-- ⬜ App Privacy "Data Not Collected" (Chrome, not in the API)
+- ✅ App Privacy "Data Not Collected" published in App Store Connect (2026-10-31, Chrome)
 - ⬜ Content rights (after Letterboxd answers)
 
-`asc validate` (2026-10-31): 3 blocking items left: content rights (waits for Letterboxd; never answer "does not use third-party content", which `asc` suggests), screenshots, build. Plus App Privacy, which the API can't check.
+`asc validate` (2026-10-31): 3 blocking items left: content rights (waits for Letterboxd; never answer "does not use third-party content", which `asc` suggests), screenshots, build. App Privacy is published (the API can't check it, so `asc` still shows an info line).
 
 ## 4. Screenshots
 
@@ -92,7 +92,7 @@
 
 ## Risks and open questions
 
-1. **Letterboxd rights (Guideline 5.2.2 + "Content Rights").** VILLE shows other members' reviews from their public RSS feeds. RSS is the route Letterboxd offers (letterboxd.com/api-beta), and every reel credits the author and links back. Our March 2026 email is still unanswered. Write again before submitting and record the answer here.
+1. **Letterboxd rights (Guideline 5.2.2 + "Content Rights").** VILLE shows other members' reviews from their public RSS feeds. RSS is the route Letterboxd offers (letterboxd.com/api-beta), and every reel credits the author and links back. Emails to api@letterboxd.com, one thread: 2026-01-09 (API access for a web app, never answered) and 2026-10-31 (follow-up describing VILLE and its RSS use, asking for a written OK for Apple's content rights question). You expect no answer. Record any answer here.
 2. **Trademark.** Never "Letterboxd" in the name, subtitle or keywords (Guidelines 2.3.7 and 5.2.1, Letterboxd ToS 19). The description says it factually, plus "VILLE is not affiliated with Letterboxd".
 3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. This is explained in the review notes.
 4. **Age rating: unrestricted web access.** Decided 2026-10-31: answer "yes" (Safari inside the app reaches any site). The rating goes up, probably to 16+.
@@ -109,3 +109,5 @@
 - 2026-10-31: Copy approved. Branch pushed. Support and privacy pages published on GitHub Pages (`store/publish-site.sh`, `gh-pages` branch), URLs added to `store/metadata/`.
 - 2026-10-31: Lifestyle + web access "yes" set in `apply-store-setup.sh`. Pages got the app icon as favicon, home-screen icon and link-preview image.
 - 2026-10-31: Contact saved in `store/contact.env`. `apply-store-setup.sh --go` sent everything the API can set. `asc validate`: 35 → 3 blocking (content rights, screenshots, build).
+- 2026-10-31: App Privacy published: Data Not Collected.
+- 2026-10-31: Follow-up email sent to Letterboxd (api@letterboxd.com, same thread as January).

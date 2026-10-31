@@ -37,7 +37,7 @@ Checked 2026-10-21 against the "October 2026" Terms of Use.
 - **No index of a "significant portion"** (6.8 bans "creating… an index of any significant portion of the Service content"): only reviews from members the user added, stored locally. The one bundled list is `SuggestedMember`: about 100 hand-picked usernames and display names (out of 30M+ members), never reviews, and nothing is fetched until the user adds someone. Never scrape or import member lists, never pre-fetch suggested members' feeds, and don't grow it into a directory. Re-check the list against RSS before each release (2026-10-28 last).
 - **No competing business** (6.9): keep the app free, credit the author on every reel, and always link back to the original.
 - **Logo** (19): only when linking to Letterboxd, only the official file from their Brand page, never implying a partnership. Never redraw it.
-- Letterboxd has not answered our email (sent March 2026). Write again before release.
+- Letterboxd emails, both to api@letterboxd.com in one thread: 2026-01-09 (API access for a web app, unanswered) and 2026-10-31 (follow-up about VILLE using RSS, asking for a written OK). Record their answer in `store/RELEASE.md`.
 
 ---
 

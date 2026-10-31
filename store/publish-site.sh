@@ -16,7 +16,7 @@ BRANCH="gh-pages"
 WORKTREE="$(mktemp -d)/site"
 trap 'git worktree remove --force "$WORKTREE" >/dev/null 2>&1 || true' EXIT
 
-if grep -rq "{{" "$SITE_DIR"; then
+if grep -rIq "{{" "$SITE_DIR"; then   # -I skips images, whose bytes can contain "{{"
   echo "❌ $SITE_DIR still has {{placeholders}}. Fill them before publishing." >&2
   exit 1
 fi

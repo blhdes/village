@@ -5,9 +5,9 @@
 //  Poster, byline, title, year and the author's rating at the top of a
 //  review, set like a magazine header: a serif byline, a serif headline and
 //  a dateline in spaced capitals. Used by both the reel and the full reader.
-//  Stars, like and rewatch wear the yellow, red and blue of the Village du
-//  Cinéma plates (the stars in `starYellow`, deepened in light mode so they
-//  read on white), and can be hidden in Settings → Stars and likes.
+//  Stars, like and rewatch are set like type, in the text color: symbols on
+//  the serif line's baseline, the font's own "½", middle dots between them,
+//  as a printed film guide would. Hideable in Settings → Stars and likes.
 //
 
 import SwiftUI
@@ -49,7 +49,7 @@ struct ReviewHeader: View {
                 // "Rewatched" stays here even with the rating hidden.
                 Text(review.watchedLabel)
                     .datelineStyle()
-                    .foregroundStyle(Color.primary.opacity(0.65))
+                    .foregroundStyle(Color.primary.opacity(0.75))
             }
             // No halos: on a reel the backdrop fades out before the rating,
             // so the text sits straight on the page (see ReelBackground).
@@ -78,32 +78,55 @@ struct ReviewHeader: View {
 
     /// "Review by" in italic, the author upright, both serif.
     private var byline: some View {
-        Text("\(Text("Review by").italic().foregroundStyle(Color.primary.opacity(0.7))) \(Text(review.authorName).fontWeight(.semibold))")
+        Text("\(Text("Review by").italic().foregroundStyle(Color.primary.opacity(0.8))) \(Text(review.authorName).fontWeight(.semibold))")
             .font(.system(.subheadline, design: .serif))
     }
 
     private var hasRatingMarks: Bool {
-        !review.stars.isEmpty || review.liked || review.isRewatch
+        review.starRating != nil || review.liked || review.isRewatch
     }
 
+    /// "★★★½ · ♥ · ↻" set as one serif line in the text color. The symbols
+    /// sit on the baseline at a small scale, so they read as type, not icons.
     private var ratingRow: some View {
-        HStack(spacing: 8) {
-            if !review.stars.isEmpty {
-                Text(review.stars)
-                    .foregroundStyle(Color.starYellow)
+        HStack(alignment: .firstTextBaseline, spacing: 7) {
+            if let stars = review.starRating {
+                starMarks(full: stars.full, half: stars.half)
             }
             if review.liked {
+                if review.starRating != nil { separator }
                 Image(systemName: "heart.fill")
-                    .foregroundStyle(Color.brandRed)
                     .accessibilityLabel("Liked")
             }
             if review.isRewatch {
+                if review.starRating != nil || review.liked { separator }
                 Image(systemName: "arrow.trianglehead.2.clockwise")
-                    .foregroundStyle(Color.brandBlue)
                     .accessibilityLabel("Rewatch")
             }
         }
-        .font(.subheadline)
+        .font(.system(.subheadline, design: .serif))
+        .imageScale(.small)
+    }
+
+    /// Whole stars set close like letters, then the serif's own "½".
+    private func starMarks(full: Int, half: Bool) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 1.5) {
+            ForEach(0..<full, id: \.self) { _ in
+                Image(systemName: "star.fill")
+            }
+            if half {
+                Text(verbatim: "½")
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("\(Double(full) + (half ? 0.5 : 0), format: .number) stars"))
+    }
+
+    /// The middle dot between marks, quieter than the marks themselves.
+    private var separator: some View {
+        Text(verbatim: "·")
+            .foregroundStyle(Color.primary.opacity(0.6))
+            .accessibilityHidden(true)
     }
 
     /// A fixed frame, so old and new posters (and the skeleton) crossfade in place.

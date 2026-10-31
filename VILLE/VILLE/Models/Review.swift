@@ -108,12 +108,12 @@ final class Review {
 // MARK: - Display helpers
 
 extension Review {
-    /// "★★★½" — empty when unrated.
-    var stars: String {
-        guard let rating, rating > 0 else { return "" }
+    /// The rating as whole stars plus an optional half (3.5 → 3 and a
+    /// half), nil when unrated.
+    var starRating: (full: Int, half: Bool)? {
+        guard let rating, rating > 0 else { return nil }
         let full = Int(rating)
-        let half = rating - Double(full) >= 0.5
-        return String(repeating: "★", count: full) + (half ? "½" : "")
+        return (full, rating - Double(full) >= 0.5)
     }
 
     /// "Watched Oct 14, 2026", falling back to the publish date.

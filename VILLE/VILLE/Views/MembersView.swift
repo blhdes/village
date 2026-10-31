@@ -68,8 +68,7 @@ struct MembersView: View {
                     }
                 }
             }
-            .navigationTitle("People")
-            .navigationBarTitleDisplayMode(.inline)
+            .editorialTitle("People")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(role: .close) { dismiss() }
@@ -83,6 +82,7 @@ struct MembersView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(member.displayName)
+                    .font(.system(.body, design: .serif))
                 Text("@\(member.username)")
                     .font(.caption)
                     .foregroundStyle(.secondary)

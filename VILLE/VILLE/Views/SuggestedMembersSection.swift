@@ -65,6 +65,7 @@ struct SuggestedMembersSection: View {
         return HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(suggestion.displayName)
+                    .font(.system(.body, design: .serif))
                 Text("@\(suggestion.username)")
                     .font(.caption)
                     .foregroundStyle(.secondary)

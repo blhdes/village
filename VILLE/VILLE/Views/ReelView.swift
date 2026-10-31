@@ -19,6 +19,7 @@ struct ReelLook: Equatable {
     var showPoster: Bool
     var showBackdrop: Bool
     var alternativePosters: Bool
+    var showRating: Bool
 }
 
 struct ReelView: View {
@@ -41,6 +42,10 @@ struct ReelView: View {
 
     private var isOverflowing: Bool { contentHeight > boxHeight + 1 }
 
+    /// Where the header starts, below the top bar. The backdrop's fade is
+    /// measured from here, so it always clears the text.
+    private var headerTop: CGFloat { insets.top + 64 }
+
     private var isSpoilerCovered: Bool {
         review.containsSpoilers && !session.revealedSpoilers.contains(review.id)
     }
@@ -60,10 +65,15 @@ struct ReelView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            ReelBackground(url: look.showBackdrop ? review.backdropURL(pick: slot.backdropPick) : nil)
+            ReelBackground(
+                url: look.showBackdrop ? review.backdropURL(pick: slot.backdropPick) : nil,
+                headerTop: headerTop
+            )
 
-            VStack(alignment: .leading, spacing: 24) {
-                ReviewHeader(review: review, posterURL: posterURL, onPosterTap: posterTap)
+            VStack(alignment: .leading, spacing: 20) {
+                ReviewHeader(review: review, posterURL: posterURL, showRating: look.showRating, onPosterTap: posterTap)
+
+                EditorialRule()
 
                 // The container stays put while the `if` swaps its content,
                 // so the spoiler glass can dissolve instead of just vanishing.
@@ -79,11 +89,11 @@ struct ReelView: View {
                 actions
             }
             .padding(.horizontal, 24)
-            .padding(.top, insets.top + 64)
+            .padding(.top, headerTop)
             .padding(.bottom, insets.bottom + 20)
         }
         .sheet(isPresented: $isReading) {
-            ReviewReaderView(review: review, posterURL: posterURL)
+            ReviewReaderView(review: review, posterURL: posterURL, showRating: look.showRating)
                 .navigationTransition(.zoom(sourceID: review.id, in: readerNamespace))
         }
         .sensoryFeedback(.selection, trigger: posterTaps)
@@ -98,7 +108,7 @@ struct ReelView: View {
     // MARK: Body
 
     /// The text fills the space between header and actions. If it's taller
-    /// than that space, it fades out and a "Read more" button appears.
+    /// than that space, it fades out and a "Continue reading" button appears.
     private var reviewBody: some View {
         ReviewTextView(blocks: ReviewHTML.blocks(for: review))
             .fixedSize(horizontal: false, vertical: true)
@@ -121,8 +131,8 @@ struct ReelView: View {
             }
             .overlay(alignment: .bottomLeading) {
                 if isOverflowing {
-                    Button("Read more") { isReading = true }
-                        .font(.subheadline.weight(.semibold))
+                    Button("Continue reading") { isReading = true }
+                        .font(.system(.subheadline, design: .serif, weight: .medium).italic())
                         .buttonStyle(.glass)
                         .matchedTransitionSource(id: review.id, in: readerNamespace)
                 }
@@ -140,11 +150,11 @@ struct ReelView: View {
                 session.revealSpoilers(for: review.id)
             }
         } label: {
-            VStack(alignment: .leading, spacing: 14) {
-                Label("This review may contain spoilers", systemImage: "eye.slash")
-                    .font(.subheadline.weight(.medium))
-                Text("Show review")
-                    .font(.subheadline.weight(.semibold))
+            VStack(alignment: .leading, spacing: 12) {
+                Text("This review may contain spoilers.")
+                    .font(.system(.body, design: .serif).italic())
+                Text("Tap to show it")
+                    .datelineStyle()
                     .foregroundStyle(Color.primary.opacity(0.6))
             }
             .padding(20)
@@ -163,48 +173,5 @@ struct ReelView: View {
         if let url = review.url {
             ReviewActions(review: review, url: url)
         }
-    }
-}
-
-// MARK: - Background
-
-/// TMDB backdrop across the top of the screen, fading into the background.
-/// A different one of the film's backdrops each time it appears.
-///
-/// The wash and the fade are set for legibility: even on a white frame in
-/// dark mode (or a black one in light mode) the small header text keeps
-/// 4.5:1 contrast, and the image is mostly gone where the review starts.
-private struct ReelBackground: View {
-    let url: URL?
-
-    var body: some View {
-        ZStack(alignment: .top) {
-            Color.reelBackground
-
-            if let url {
-                GeometryReader { proxy in
-                    AsyncImage(url: url, transaction: Transaction(animation: .easeOut(duration: 0.4))) { phase in
-                        if let image = phase.image {
-                            image.resizable().scaledToFill()
-                        }
-                    }
-                    .frame(width: proxy.size.width, height: proxy.size.height * 0.55)
-                    .clipped()
-                    .overlay(Color.reelBackground.opacity(0.55))
-                    .mask {
-                        LinearGradient(
-                            stops: [
-                                .init(color: .black, location: 0),
-                                .init(color: .black.opacity(0.9), location: 0.4),
-                                .init(color: .clear, location: 1),
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    }
-                }
-            }
-        }
-        .ignoresSafeArea()
     }
 }

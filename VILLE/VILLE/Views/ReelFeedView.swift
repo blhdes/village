@@ -32,6 +32,7 @@ struct ReelFeedView: View {
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
     @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = true
     @AppStorage(SettingsKey.alternativePosters) private var alternativePosters = false
+    @AppStorage(SettingsKey.showRatings) private var showRatings = true
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
 
     /// The page on screen: a reel's slot id, or `ReelSession.endPageID`.
@@ -88,7 +89,12 @@ struct ReelFeedView: View {
 
     private func reels(insets: EdgeInsets) -> some View {
         let lookup = Dictionary(reviews.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
-        let look = ReelLook(showPoster: showPosters, showBackdrop: showBackdrops, alternativePosters: alternativePosters)
+        let look = ReelLook(
+            showPoster: showPosters,
+            showBackdrop: showBackdrops,
+            alternativePosters: alternativePosters,
+            showRating: showRatings
+        )
         let slots = session.queue.slots
 
         return ScrollView(.vertical) {
@@ -151,7 +157,6 @@ struct ReelFeedView: View {
     private var emptyState: some View {
         if members.isEmpty {
             emptyMessage(
-                icon: "text.quote",
                 title: "Reviews, one at a time",
                 message: "Add the Letterboxd members whose writing you want to read.",
                 buttonTitle: "Add people"
@@ -160,12 +165,11 @@ struct ReelFeedView: View {
             VStack(spacing: 18) {
                 VILLEWordmark(size: 44, isPulsing: true)
                 Text("Fetching reviews…")
-                    .font(.footnote)
+                    .datelineStyle()
                     .foregroundStyle(Color.primary.opacity(0.6))
             }
         } else {
             emptyMessage(
-                icon: "text.page.slash",
                 title: "No written reviews yet",
                 message: "The people you follow haven't posted reviews recently. Add more people to fill your feed.",
                 buttonTitle: "Add people"
@@ -173,16 +177,14 @@ struct ReelFeedView: View {
         }
     }
 
-    private func emptyMessage(icon: String, title: String, message: String, buttonTitle: String) -> some View {
-        VStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.system(size: 44, weight: .ultraLight))
-                .foregroundStyle(Color.primary.opacity(0.5))
-            Text(title)
-                .font(.system(.title2, design: .serif, weight: .semibold))
+    /// A headline with the red full stop, a line of serif text and one button.
+    private func emptyMessage(title: LocalizedStringKey, message: LocalizedStringKey, buttonTitle: LocalizedStringKey) -> some View {
+        VStack(spacing: 14) {
+            EditorialHeadline(text: title)
+                .multilineTextAlignment(.center)
             Text(message)
-                .font(.subheadline)
-                .foregroundStyle(Color.primary.opacity(0.6))
+                .font(.system(.body, design: .serif))
+                .foregroundStyle(Color.primary.opacity(0.65))
                 .multilineTextAlignment(.center)
             Button(buttonTitle) { activeSheet = .addPeople }
                 .buttonStyle(.glassProminent)

@@ -31,10 +31,11 @@ struct ReviewTextView: View {
         case .paragraph(let text):
             Text(text)
         case .quote(let text):
-            HStack(spacing: 14) {
-                Capsule()
+            HStack(spacing: 16) {
+                // A hairline, like a printed pull quote's rule.
+                Rectangle()
                     .fill(Color.primary.opacity(0.3))
-                    .frame(width: 2)
+                    .frame(width: 1)
                 Text(text)
                     .italic()
                     .foregroundStyle(Color.primary.opacity(0.7))

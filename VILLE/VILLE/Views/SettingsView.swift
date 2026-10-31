@@ -2,7 +2,7 @@
 //  SettingsView.swift
 //  VILLE
 //
-//  Look options (appearance, posters and backdrops), the session length,
+//  Look options (appearance, posters, backdrops, stars and likes), the session length,
 //  and the attributions required by Letterboxd and TMDB.
 //
 
@@ -13,6 +13,7 @@ enum SettingsKey {
     static let showPosters = "showPosters"
     static let showBackdrops = "showBackdrops"
     static let alternativePosters = "alternativePosters"
+    static let showRatings = "showRatings"
     static let sessionLength = "sessionLength"
     static let appearance = "appearance"
 }
@@ -23,6 +24,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
     @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = true
     @AppStorage(SettingsKey.alternativePosters) private var alternativePosters = false
+    @AppStorage(SettingsKey.showRatings) private var showRatings = true
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
     @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
@@ -44,10 +46,11 @@ struct SettingsView: View {
                     Toggle("Alternative posters", isOn: $alternativePosters)
                         .disabled(!showPosters)
                     Toggle("Backdrops", isOn: $showBackdrops)
+                    Toggle("Stars and likes", isOn: $showRatings)
                 } header: {
                     Text("Look")
                 } footer: {
-                    Text("Alternative posters picks a different one from TMDB each time, like other countries' releases. Tap any poster to flip to the next. Turn posters and backdrops off for text only.")
+                    Text("Alternative posters picks a different one from TMDB each time, like other countries' releases. Tap any poster to flip to the next. Turn posters and backdrops off for text only, and stars and likes off to read the words before the verdict.")
                 }
 
                 Section {
@@ -77,8 +80,7 @@ struct SettingsView: View {
                 }
                 .font(.footnote)
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .editorialTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(role: .close) { dismiss() }

@@ -22,7 +22,7 @@ struct ReviewActions: View {
                 buttons(shareTitle: true)
                 buttons(shareTitle: false)
             }
-            .font(.subheadline.weight(.medium))
+            .font(.system(.subheadline, design: .serif, weight: .medium))
             .buttonStyle(.glass)
         }
     }

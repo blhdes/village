@@ -20,7 +20,6 @@ struct ReelTopBar: View {
         HStack {
             // The red dot breathes while feeds refresh.
             VILLEWordmark(isPulsing: viewModel.isRefreshing)
-                .shadow(color: Color.reelBackground.opacity(0.6), radius: 8)
 
             Spacer()
 

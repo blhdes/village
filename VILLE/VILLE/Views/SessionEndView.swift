@@ -29,13 +29,13 @@ struct SessionEndView: View {
                 Text("^[\(reviewCount) review](inflect: true) by ^[\(memberCount) member](inflect: true).")
                     .font(.system(.title3, design: .serif))
                 Text(nextTime)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.primary.opacity(0.6))
+                    .font(.system(.subheadline, design: .serif).italic())
+                    .foregroundStyle(Color.primary.opacity(0.65))
             }
             .multilineTextAlignment(.center)
 
             Button("Keep reading", action: onKeepReading)
-                .font(.subheadline.weight(.semibold))
+                .font(.system(.subheadline, design: .serif, weight: .medium).italic())
                 .buttonStyle(.glass)
                 .padding(.top, 8)
         }

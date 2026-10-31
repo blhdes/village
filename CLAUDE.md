@@ -18,7 +18,7 @@ It is the lighter stepping stone before the full social network (`../ville-du-ci
 - **Pure text.** Only written reviews. Lists and plain "watched" diary entries are never shown.
 - **Reels feed with an end.** A session holds a set number of reviews (Settings → Session: 10/20/30/50, default 20), then the feed ends on a "Fin" card. "Keep reading" adds another session, but only on purpose. Coming back after 30+ minutes away starts a new session and refreshes the feeds.
 - **Picking a session** (`ReelSampler`): never-shown reviews first, newest first; then the ones shown longest ago (`Review.lastShownAt`), with a little chance. Members take turns, so one prolific member can't fill a session. The same member or film never appears twice in a row when avoidable. Reviews that arrive mid-session can take the place of upcoming reels, never the one on screen or the next.
-- **Letterboxd-style review layout**: poster, title + year, "Review by", stars, like, rewatch, then the rich text (paragraphs, italics, bold, quotes, lists, links).
+- **Letterboxd-style review layout**: poster, "Review by", title + year, stars, like, rewatch (hideable: Settings → Stars and likes, on by default, to read the words before the verdict), the watched date, then the rich text (paragraphs, italics, bold, quotes, lists, links).
 - **TMDB art**: a different textless backdrop each time a film appears. Posters show the official one, or with Alternative posters on, a random one from TMDB's gallery (other countries' releases, textless art); tapping a poster flips to the next. Posters and backdrops are each switchable off in Settings.
 - **Own identity, minimal**: VILLE must look clearly different from `../ville-du-cinema-mobile/` (also headed to the App Store), whose mark is a bold serif V with yellow, blue and red plates out of register. VILLE is the lighter synthesis, so its mark is plainer: a light serif italic in lowercase ending on a red full stop ("ville." in the app, "v." on the icon). The full stop says the feed has an end. No plates in the wordmark or icon.
 - **Brand echo**: the Village plates (`OffsetPrint`) appear only on the Fin card, VILLE's one nod to its siblings. Brand colors otherwise live in the red dot and the star/like/rewatch trio.
@@ -81,13 +81,15 @@ VILLE/VILLE/
 │   └── ReelSampler.swift       # Which reviews make a session, and their order
 └── Views/
     ├── Brand/
+    │   ├── Editorial.swift     # Headline with red dot, dateline, rule, sheet title
     │   ├── OffsetPrint.swift   # Yellow/blue/red plates (Fin card only)
     │   └── VILLEWordmark.swift # The logo — change it here only
     ├── ReelFeedView.swift      # Vertical paging feed + end card + empty states
     ├── ReelTopBar.swift        # Wordmark, People/Settings buttons, error banner
     ├── SessionEndView.swift    # "Fin" card at the end of a session
-    ├── ReelView.swift          # One reel + its backdrop
-    ├── ReviewHeader.swift      # Poster, title, rating (reel + reader)
+    ├── ReelView.swift          # One reel: header, text, spoiler gate, actions
+    ├── ReelBackground.swift    # The reel's backdrop and its legibility fade
+    ├── ReviewHeader.swift      # Poster, byline, title, rating, dateline (reel + reader)
     ├── ReviewActions.swift     # Share + View on Letterboxd (reel + reader)
     ├── ReviewTextView.swift    # Draws ReviewHTML blocks
     ├── ReviewReaderView.swift  # Full text of a long review
@@ -114,13 +116,13 @@ xcodebuild -project VILLE/VILLE.xcodeproj -scheme VILLE -destination 'generic/pl
 ## Style Rules (follow in all new code)
 
 - **Light, dark or system** (Settings → Appearance, default System). Reels sit on `Color.reelBackground` (pure black in dark, white in light). Never hardcode `.white`/`.black` for text or backgrounds — use `Color.primary` and `Color.reelBackground`. Masks may stay `.black` (only their opacity counts).
-- **Brand colors**: `Color.brandYellow`, `Color.brandBlue`, `Color.brandRed` (asset catalog, light variants deepened to read on white). Sparingly and with meaning: the wordmark's dot (red), plates (`OffsetPrint`, Fin card only), stars (`Color.starYellow`: brand yellow in dark mode, a deeper gold in light mode, because no bright yellow reaches 3:1 on white), like and errors (red), rewatch and links (blue). Everything else stays `Color.primary`. `AccentColor` is the brand red.
-- **Legibility** (WCAG contrast, worst case = a white frame behind dark mode or a black one behind light mode): small text ≥ 4.5:1, large text and icons ≥ 3:1. Keep the backdrop wash and fade in `ReelBackground` and the halo in `ReviewHeader`; secondary text no lighter than `Color.primary.opacity(0.6)`. Controls must survive the largest non-accessibility text size (e.g. `ViewThatFits` in `ReviewActions`).
+- **Brand colors**: `Color.brandYellow`, `Color.brandBlue`, `Color.brandRed` (asset catalog, light variants deepened to read on white). Sparingly and with meaning: the red full stop (wordmark and `EditorialHeadline`), plates (`OffsetPrint`, Fin card only), stars (`Color.starYellow`: brand yellow in dark mode, a deeper gold in light mode, because no bright yellow reaches 3:1 on white), like and errors (red), rewatch and links (blue). Everything else stays `Color.primary`. `AccentColor` is the brand red.
+- **Legibility** (WCAG contrast, worst case = a white frame behind dark mode or a black one behind light mode): small text ≥ 4.5:1, large text and icons ≥ 3:1. No halos, glows or outlines around text: legibility comes from `ReelBackground`, whose image is sharp behind the top bar, then blurs and fades out across the header (measured in points from the header's top) so it's all but gone by the rating row. Re-check the numbers if you change the fade, the wash or the header layout; secondary text no lighter than `Color.primary.opacity(0.6)`. Controls must survive the largest non-accessibility text size (e.g. `ViewThatFits` in `ReviewActions`).
 - **Logo**: the wordmark lives only in `VILLEWordmark`: "ville" in system serif italic, regular weight, plus a `Color.brandRed` full stop that breathes while refreshing (no image). The app icon is `AppIcon.icon` — edit it in Icon Composer. Its `v.svg` and `dot.svg` are the "v" and "." outlines of **Source Serif 4 Italic** (SIL OFL, wght 400, opsz 60), exported unchanged; never redraw them. Apple's New York can't be used in the icon (its license allows UI mock-ups only, not artwork), so Source Serif 4 stands in: its italic v is the closest open match.
 - **Liquid Glass** for controls: `.buttonStyle(.glass)`, `.glassEffect()`, `GlassEffectContainer`.
 - **Animations**: `.spring(response: 0.4, dampingFraction: 0.8)` as default.
 - **Haptics** on meaningful interactions (`.sensoryFeedback`).
-- **Typography**: system serif for review text and titles.
+- **Typography — editorial, like the wordmark** (pieces in `Views/Brand/Editorial.swift`): system serif carries the voice (review text, titles, bylines, names, button labels inside the content); italic for secondary voice ("Review by", "Continue reading", "Keep reading", notes). Meta lines (dates, small notes) use `datelineStyle()`: spaced capitals. `EditorialRule` (a short hairline) separates a header from its text. `EditorialHeadline` ends on the red full stop: big moments only (empty states), so the dot keeps its meaning. Sheet titles use `editorialTitle(_:)`. Prefer type and hairlines over icons and boxes.
 - **Reveal actions are one-way** (e.g. spoilers): no collapse toggle.
 - **No UIKit** unless genuinely unavoidable. **No third-party deps** without explicit approval.
 - **Never swallow errors** — log with `print` and context, or rethrow.

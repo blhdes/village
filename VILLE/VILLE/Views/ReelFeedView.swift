@@ -4,7 +4,8 @@
 //
 //  Main screen: full-screen reviews you swipe through vertically, one per
 //  page, in the order kept by `ReelSession`. The last page is the session's
-//  end card.
+//  end card. Pulling the first reel down refreshes the feeds
+//  (PullToRefresh.swift).
 //
 
 import SwiftUI
@@ -39,15 +40,14 @@ struct ReelFeedView: View {
     /// The page on screen: a reel's slot id, or `ReelSession.endPageID`.
     @State private var currentPageID: Int?
     @State private var activeSheet: FeedSheet?
-    /// How far the first reel is pulled down past the top, in points.
-    @State private var pullDistance: CGFloat = 0
-    /// A pull-to-refresh is running: the top bar's red dot breathes.
-    @State private var isPullRefreshing = false
+    /// The pull-to-refresh, shared with the top bar's dot.
+    @State private var pull = PullToRefreshState()
+    /// Where the top bar ends, from the top of the screen.
+    @State private var topBarBottom: CGFloat = 0
 
-    /// How far to pull before letting go refreshes.
-    private static let pullThreshold: CGFloat = 80
-
-    private var pullProgress: CGFloat { min(pullDistance / Self.pullThreshold, 1) }
+    /// The pull-to-refresh strip: down to just below the top bar, so while
+    /// refreshing the dot breathes on the plain page, clear of the reel.
+    private var pullHeight: CGFloat { max(topBarBottom + 12, 80) }
 
     /// What the feed can show: reviews by the members followed now. A
     /// bookmark from someone removed stays in Bookmarks, not here.
@@ -71,11 +71,8 @@ struct ReelFeedView: View {
             }
         }
         .overlay(alignment: .top) {
-            ReelTopBar(
-                namespace: sheetNamespace,
-                pullProgress: pullProgress,
-                isPullRefreshing: isPullRefreshing
-            ) { activeSheet = $0 }
+            ReelTopBar(namespace: sheetNamespace, pull: pull) { activeSheet = $0 }
+                .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { topBarBottom = $0 }
         }
         .sheet(item: $activeSheet) { sheet in
             Group {
@@ -99,10 +96,6 @@ struct ReelFeedView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             handle(phase)
-        }
-        // A refresh that was already running when the pull came in ends here.
-        .onChange(of: viewModel.isRefreshing) { _, refreshing in
-            if !refreshing { isPullRefreshing = false }
         }
         // A firmer tap when the session ends.
         .sensoryFeedback(trigger: currentPageID) { _, pageID in
@@ -145,41 +138,15 @@ struct ReelFeedView: View {
                 .id(ReelSession.endPageID)
             }
             .scrollTargetLayout()
+            // While a pull refresh runs, the reels wait below the strip.
+            .pullToRefreshHold(pull, height: pullHeight)
         }
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $currentPageID)
         .scrollIndicators(.hidden)
         .ignoresSafeArea()
-        // Pull-to-refresh, built by hand so the brand's red dot can stand in
-        // for the system spinner. Only a pull past the top of the first reel
-        // counts: everywhere else this stays 0 and nothing redraws.
-        .onScrollGeometryChange(for: CGFloat.self) { geometry in
-            max(0, -(geometry.contentOffset.y + geometry.contentInsets.top))
-        } action: { _, pull in
-            pullDistance = pull
-        }
-        .onScrollPhaseChange { oldPhase, newPhase in
-            // Letting go far enough down refreshes; a fling back up doesn't.
-            guard oldPhase == .interacting, newPhase != .interacting,
-                  pullDistance >= Self.pullThreshold else { return }
-            startPullRefresh()
-        }
-        .sensoryFeedback(trigger: pullProgress >= 1) { _, isArmed in
-            isArmed && !isPullRefreshing ? .impact(weight: .light) : nil
-        }
-        .accessibilityAction(named: "Refresh") { startPullRefresh() }
-    }
-
-    /// Fetches every feed again; the top bar's red dot breathes until the
-    /// new reviews are in. They join upcoming reels, never the one on screen.
-    private func startPullRefresh() {
-        guard !isPullRefreshing else { return }
-        isPullRefreshing = true
-        Task {
+        .pullToRefresh($pull, height: pullHeight) {
             await viewModel.refreshAll()
-            // If a refresh was already running, this call returned at once;
-            // the dot then waits for it (see the isRefreshing onChange).
-            if !viewModel.isRefreshing { isPullRefreshing = false }
         }
     }
 

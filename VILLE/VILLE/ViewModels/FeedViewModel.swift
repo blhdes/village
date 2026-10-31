@@ -30,7 +30,8 @@ final class FeedViewModel {
 
     // MARK: Observable state
 
-    private(set) var isRefreshing = false
+    /// True while feeds are being fetched: a red dot breathes.
+    var isRefreshing: Bool { refreshTask != nil }
 
     /// Shown as a small banner when a refresh fails completely.
     var errorMessage: String?
@@ -43,6 +44,10 @@ final class FeedViewModel {
     private let trimmer = LibraryTrimmer()
 
     private var hasRefreshedSinceLaunch = false
+
+    /// The refresh running now, if any. A refresh asked for meanwhile waits
+    /// for it instead of starting another.
+    private var refreshTask: Task<Void, Never>?
 
     /// The single art load allowed at a time, and whether another was asked
     /// for while it ran.
@@ -64,13 +69,23 @@ final class FeedViewModel {
         await refreshAll()
     }
 
+    /// Fetches every member's feed. If a refresh is already running (the
+    /// one at launch, say), waits for it instead, so a pull-to-refresh ends
+    /// when the new reviews are really in.
+    func refreshAll() async {
+        if let running = refreshTask {
+            await running.value
+            return
+        }
+        let task = Task { await fetchAllFeeds() }
+        refreshTask = task
+        await task.value
+        refreshTask = nil
+    }
+
     /// Fetches every member's feed in parallel. One failing member doesn't
     /// stop the rest; the banner only appears if every member failed.
-    func refreshAll() async {
-        guard !isRefreshing else { return }
-        isRefreshing = true
-        defer { isRefreshing = false }
-
+    private func fetchAllFeeds() async {
         let members: [FollowedUser]
         do {
             members = try context.fetch(FetchDescriptor<FollowedUser>())

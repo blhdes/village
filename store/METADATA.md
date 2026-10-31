@@ -2,7 +2,7 @@
 
 The files `asc` pushes live in `store/metadata/`, and they're the source of truth. This page explains them and adds the answers App Store Connect asks for outside those files. Nothing here has been sent to App Store Connect yet.
 
-Status: **draft, waiting for your OK** (2026-10-31). `asc metadata validate --dir store/metadata` → 0 errors.
+Status: **approved** (2026-10-31), not sent yet. `asc metadata validate --dir store/metadata` → 0 errors.
 
 ---
 
@@ -62,8 +62,8 @@ The Spanish version says **the app is in English** (the interface isn't translat
 | Secondary category | None, or **Lifestyle** | your choice |
 | Price | Free (Letterboxd ToS 6.9) | ready |
 | Availability | Every country **except China mainland**: new apps there need an ICP filing number | ready |
-| Support URL | e.g. `https://blhdes.github.io/village/support.html` (draft in `store/site/`) | 👉 hosting to decide |
-| Privacy policy URL | e.g. `https://blhdes.github.io/village/privacy.html` (draft in `store/site/`) | 👉 hosting to decide |
+| Support URL | `https://blhdes.github.io/village/` (GitHub Pages, from `store/site/`, published with `store/publish-site.sh`) | ready |
+| Privacy policy URL | `https://blhdes.github.io/village/privacy.html` (same) | ready |
 | Marketing URL | None for now | |
 
 ### App Privacy (the "nutrition label")

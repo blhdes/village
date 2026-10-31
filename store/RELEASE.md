@@ -23,8 +23,9 @@
 | Price | Free (Letterboxd ToS 6.9: no competing business) |
 | Category | Entertainment (proposed) |
 | Privacy label | Data Not Collected (proposed) |
-| Privacy policy URL | ⬜ draft in `store/site/privacy.html`, not online |
-| Support URL | ⬜ draft in `store/site/index.html`, not online |
+| Privacy policy URL | ✅ https://blhdes.github.io/village/privacy.html |
+| Support URL | ✅ https://blhdes.github.io/village/ |
+| Pages | GitHub Pages, `gh-pages` branch, built from `store/site/` by `bash store/publish-site.sh` |
 
 ## Decisions
 
@@ -36,6 +37,8 @@
 - 2026-10-31: **No "Letterboxd" in the name, subtitle or keywords** (Risks 2). Name with a descriptive suffix instead, e.g. `ville. Film Review Reader`. No long dashes in any copy (your call).
 - 2026-10-31: In prose the app is called VILLE, as in Settings → About. "ville." stays for the name and the logo.
 - 2026-10-31: China mainland left out of availability (new apps there need an ICP filing number).
+- 2026-10-31: Listing copy approved as written in `store/METADATA.md`.
+- 2026-10-31: Support and privacy pages on GitHub Pages (this repo is public), served from a `gh-pages` branch that holds only `store/site/`. Public contact: your personal Gmail (your choice, knowing it's public).
 
 ## 1. Foundations
 
@@ -57,8 +60,8 @@
 
 ## 3. Product page
 
-- ⏳ Copy written in `store/metadata/` (en-US, es-ES), `asc metadata validate` → 0 errors. 👉 Your review: `store/METADATA.md`
-- ⏳ Privacy policy and support pages drafted in `store/site/` (VILLE style, light and dark, English + Spanish). 👉 Pick hosting and a public contact email (`{{CONTACT_EMAIL}}` placeholders)
+- ✅ Copy written in `store/metadata/` (en-US, es-ES) and approved (2026-10-31), including the support and privacy URLs. `asc metadata validate` → 0 errors. Not sent yet.
+- ✅ Privacy policy and support pages online at https://blhdes.github.io/village/ (2026-10-31). To change them: edit `store/site/`, commit, `bash store/publish-site.sh`
 - ⏳ `store/apply-store-setup.sh`: one command for copy, category, copyright, manual release, free price, availability, age rating and review notes. Dry run checked. 👉 Fill the DECIDE values, then `--go` after your OK
 - ⬜ App Privacy "Data Not Collected" (Chrome, not in the API)
 - ⬜ Content rights (after Letterboxd answers)
@@ -100,3 +103,4 @@
 
 - 2026-10-31: Agreements accepted (you). Registered `agu.VILLE`, created the `ville.` record (6829207754). Project set to iPhone only and portrait, export-compliance key and privacy manifest added, Release build OK. Commit `89c2067`.
 - 2026-10-31: API key connected to `asc` (profile Ale). Listing copy en/es written and validated. Privacy and support pages drafted. `apply-store-setup.sh` + review notes ready (dry run only, nothing sent). Screenshot plan, demo content and template done. Pending list in the vault: `Areas/Claude/Skills/Docs/app-store-release.md`.
+- 2026-10-31: Copy approved. Branch pushed. Support and privacy pages published on GitHub Pages (`store/publish-site.sh`, `gh-pages` branch), URLs added to `store/metadata/`.

@@ -44,7 +44,7 @@ skip() { printf '\n== %s\n  (skipped: %s)\n' "$1" "$2"; }
 
 $GO && echo "Sending to App Store Connect…" || echo "Dry run. Nothing is sent. Re-run with --go after the OK."
 
-section "Product page text (name, subtitle, description, keywords, promo) for en-US and es-ES"
+section "Product page text (name, subtitle, description, keywords, promo, support and privacy URLs) for en-US and es-ES"
 asc metadata validate --dir store/metadata >/dev/null
 if $GO; then
   run asc metadata apply --app "$APP_ID" --version "$VERSION" --dir store/metadata
@@ -96,7 +96,6 @@ else
 fi
 
 skip "Content rights (uses third-party content)" "waits for Letterboxd's answer (RELEASE.md, Risks 1). Then: asc apps content-rights edit --app $APP_ID --uses-third-party-content true"
-skip "Support and privacy policy URLs" "the pages in store/site/ aren't online yet"
 skip "App Privacy (Data Not Collected)" "not in the public API: set it in App Store Connect → App Privacy, in Chrome"
 skip "Screenshots" "phase 4"
 skip "Build" "phase 5"

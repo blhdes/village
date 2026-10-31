@@ -3,8 +3,8 @@
 //  VILLE
 //
 //  The full text of a review. `ReviewReaderView` is the sheet a reel's
-//  "Continue reading" opens; `ReviewReader` is the page inside it, also
-//  opened from People → Bookmarks.
+//  "Continue reading" opens; `ReviewReader` is the review inside it, also
+//  shown one after another on the Bookmarks page (`BookmarksReader`).
 //
 
 import SwiftUI
@@ -21,20 +21,26 @@ struct ReviewReaderView: View {
 
     var body: some View {
         NavigationStack {
-            ReviewReader(review: review, posterURL: posterURL, showRating: showRating)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) { dismiss() }
-                    }
+            ScrollView {
+                ReviewReader(review: review, posterURL: posterURL, showRating: showRating)
+            }
+            .scrollIndicators(.hidden)
+            .background(Color.reelBackground)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) { dismiss() }
                 }
+            }
         }
         .presentationBackground(Color.reelBackground)
     }
 }
 
-/// Header, full text and actions, scrolling. A review that may contain
-/// spoilers stays covered until it's revealed (a bookmark can be made
-/// before that, to read after watching the film).
+/// Header, full text and actions, with the page's margins. It doesn't
+/// scroll by itself: the sheet above scrolls one review, the Bookmarks
+/// page all of them in a row. A review that may contain spoilers stays
+/// covered until it's revealed (a bookmark can be made before that, to
+/// read after watching the film).
 struct ReviewReader: View {
     let review: Review
     let posterURL: URL?
@@ -48,26 +54,22 @@ struct ReviewReader: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                ReviewHeader(review: review, posterURL: posterURL, showRating: showRating)
-                // The container stays while the gate goes, so its glass can dissolve.
-                GlassEffectContainer {
-                    if isSpoilerCovered {
-                        SpoilerGate(reviewID: review.id)
-                    } else {
-                        // Translated if the reel was (or the header's note is tapped here).
-                        ReviewTextView(blocks: translator.blocks(for: review))
-                    }
-                }
-                if let url = review.url {
-                    ReviewActions(review: review, url: url)
+        VStack(alignment: .leading, spacing: 24) {
+            ReviewHeader(review: review, posterURL: posterURL, showRating: showRating)
+            // The container stays while the gate goes, so its glass can dissolve.
+            GlassEffectContainer {
+                if isSpoilerCovered {
+                    SpoilerGate(reviewID: review.id)
+                } else {
+                    // Translated if the reel was (or the header's note is tapped here).
+                    ReviewTextView(blocks: translator.blocks(for: review))
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            if let url = review.url {
+                ReviewActions(review: review, url: url)
+            }
         }
-        .scrollIndicators(.hidden)
-        .background(Color.reelBackground)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 16)
     }
 }

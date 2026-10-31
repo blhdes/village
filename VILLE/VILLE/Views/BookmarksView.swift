@@ -4,17 +4,21 @@
 //
 //  The reviews the reader bookmarked, newest bookmark first, opened from
 //  People. Kept only on this iPhone, and never trimmed. A bookmark stays
-//  after its member is removed. Tapping a row opens the full reader;
-//  swiping takes the bookmark off.
+//  after its member is removed. Tapping a row opens every bookmark on one
+//  page that scrolls from review to review, starting at that one
+//  (`BookmarksReader`). The bookmark under a review is the only way to
+//  take it off.
 //
 
 import SwiftUI
 import SwiftData
 
-struct BookmarksView: View {
-    @Environment(FeedViewModel.self) private var viewModel
-    @Environment(\.modelContext) private var modelContext
+/// The bookmark a row opens.
+private struct BookmarkRoute: Hashable {
+    let reviewID: String
+}
 
+struct BookmarksView: View {
     @Query(
         filter: #Predicate<Review> { $0.bookmarkedAt != nil },
         sort: [SortDescriptor(\Review.bookmarkedAt, order: .reverse)]
@@ -22,22 +26,14 @@ struct BookmarksView: View {
     private var bookmarks: [Review]
 
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
-    @AppStorage(SettingsKey.showRatings) private var showRatings = true
 
     var body: some View {
         List {
             ForEach(bookmarks) { review in
-                // By id, not by view: taking the bookmark off inside the
-                // reader drops this row, and the reader must stay open.
-                NavigationLink(value: review.persistentModelID) {
+                // By value, not by view: taking a bookmark off on the page
+                // drops its row here, and the page must stay open.
+                NavigationLink(value: BookmarkRoute(reviewID: review.id)) {
                     row(review)
-                }
-                .swipeActions {
-                    Button(role: .destructive) {
-                        viewModel.toggleBookmark(review)
-                    } label: {
-                        Label("Remove bookmark", systemImage: "bookmark.slash")
-                    }
                 }
             }
         }
@@ -46,10 +42,8 @@ struct BookmarksView: View {
                 emptyState
             }
         }
-        .navigationDestination(for: PersistentIdentifier.self) { id in
-            if let review = modelContext.model(for: id) as? Review {
-                ReviewReader(review: review, posterURL: posterURL(for: review), showRating: showRatings)
-            }
+        .navigationDestination(for: BookmarkRoute.self) { route in
+            BookmarksReader(bookmarks: bookmarks, startID: route.reviewID)
         }
         .editorialTitle("Bookmarks")
     }
@@ -100,5 +94,46 @@ struct BookmarksView: View {
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 40)
+    }
+}
+
+/// Every bookmark in full on one page, in the list's order: it opens at
+/// the review that was tapped, with the newer bookmarks above and the
+/// older ones below.
+private struct BookmarksReader: View {
+    /// The bookmarks as they were when the page opened. Taking one off here
+    /// leaves the review in place with an empty bookmark (a second tap puts
+    /// it back); only the list drops it. Without this copy the review being
+    /// read would vanish from under the reader.
+    @State private var reviews: [Review]
+    @State private var position: ScrollPosition
+
+    @AppStorage(SettingsKey.showPosters) private var showPosters = true
+    @AppStorage(SettingsKey.showRatings) private var showRatings = true
+
+    init(bookmarks: [Review], startID: String) {
+        _reviews = State(initialValue: bookmarks)
+        _position = State(initialValue: ScrollPosition(id: startID, anchor: .top))
+    }
+
+    var body: some View {
+        ScrollView {
+            // Space alone separates one review's buttons from the next
+            // poster: 32 here plus each review's own margins.
+            LazyVStack(alignment: .leading, spacing: 32) {
+                ForEach(reviews) { review in
+                    ReviewReader(
+                        review: review,
+                        // The official poster, as in the list.
+                        posterURL: showPosters ? review.posterURL(pick: 0) : nil,
+                        showRating: showRatings
+                    )
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollPosition($position, anchor: .top)
+        .scrollIndicators(.hidden)
+        .background(Color.reelBackground)
     }
 }

@@ -4,8 +4,8 @@
 //
 //  The small typographic pieces that give VILLE its printed, editorial
 //  feel, echoing the "ville." wordmark: serif italic headlines ending on a
-//  red full stop, datelines in spaced capitals, a short rule between a
-//  header and its text, and sheet titles in serif italic.
+//  red full stop, datelines in spaced capitals, and sheet titles in serif
+//  italic.
 //
 
 import SwiftUI
@@ -19,16 +19,6 @@ struct EditorialHeadline: View {
     var body: some View {
         Text("\(Text(text))\(Text(verbatim: ".").foregroundStyle(Color.brandRed))")
             .font(font.italic())
-    }
-}
-
-/// A short hairline between a header and its text, like a column rule.
-struct EditorialRule: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color.primary.opacity(0.3))
-            .frame(width: 28, height: 1)
-            .accessibilityHidden(true)
     }
 }
 
@@ -59,7 +49,6 @@ extension View {
 #Preview {
     VStack(alignment: .leading, spacing: 20) {
         EditorialHeadline(text: "Reviews, one at a time")
-        EditorialRule()
         Text(verbatim: "Watched Oct 14, 2026")
             .datelineStyle()
             .foregroundStyle(Color.primary.opacity(0.65))

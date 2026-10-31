@@ -38,6 +38,15 @@ struct ReelFeedView: View {
     /// The page on screen: a reel's slot id, or `ReelSession.endPageID`.
     @State private var currentPageID: Int?
     @State private var activeSheet: FeedSheet?
+    /// How far the first reel is pulled down past the top, in points.
+    @State private var pullDistance: CGFloat = 0
+    /// A pull-to-refresh is running: the top bar's red dot breathes.
+    @State private var isPullRefreshing = false
+
+    /// How far to pull before letting go refreshes.
+    private static let pullThreshold: CGFloat = 80
+
+    private var pullProgress: CGFloat { min(pullDistance / Self.pullThreshold, 1) }
 
     private var reviewIDs: [String] { reviews.map(\.id) }
 
@@ -54,7 +63,11 @@ struct ReelFeedView: View {
             }
         }
         .overlay(alignment: .top) {
-            ReelTopBar(namespace: sheetNamespace) { activeSheet = $0 }
+            ReelTopBar(
+                namespace: sheetNamespace,
+                pullProgress: pullProgress,
+                isPullRefreshing: isPullRefreshing
+            ) { activeSheet = $0 }
         }
         .sheet(item: $activeSheet) { sheet in
             Group {
@@ -78,6 +91,10 @@ struct ReelFeedView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             handle(phase)
+        }
+        // A refresh that was already running when the pull came in ends here.
+        .onChange(of: viewModel.isRefreshing) { _, refreshing in
+            if !refreshing { isPullRefreshing = false }
         }
         // A firmer tap when the session ends.
         .sensoryFeedback(trigger: currentPageID) { _, pageID in
@@ -125,6 +142,37 @@ struct ReelFeedView: View {
         .scrollPosition(id: $currentPageID)
         .scrollIndicators(.hidden)
         .ignoresSafeArea()
+        // Pull-to-refresh, built by hand so the brand's red dot can stand in
+        // for the system spinner. Only a pull past the top of the first reel
+        // counts: everywhere else this stays 0 and nothing redraws.
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            max(0, -(geometry.contentOffset.y + geometry.contentInsets.top))
+        } action: { _, pull in
+            pullDistance = pull
+        }
+        .onScrollPhaseChange { oldPhase, newPhase in
+            // Letting go far enough down refreshes; a fling back up doesn't.
+            guard oldPhase == .interacting, newPhase != .interacting,
+                  pullDistance >= Self.pullThreshold else { return }
+            startPullRefresh()
+        }
+        .sensoryFeedback(trigger: pullProgress >= 1) { _, isArmed in
+            isArmed && !isPullRefreshing ? .impact(weight: .light) : nil
+        }
+        .accessibilityAction(named: "Refresh") { startPullRefresh() }
+    }
+
+    /// Fetches every feed again; the top bar's red dot breathes until the
+    /// new reviews are in. They join upcoming reels, never the one on screen.
+    private func startPullRefresh() {
+        guard !isPullRefreshing else { return }
+        isPullRefreshing = true
+        Task {
+            await viewModel.refreshAll()
+            // If a refresh was already running, this call returned at once;
+            // the dot then waits for it (see the isRefreshing onChange).
+            if !viewModel.isRefreshing { isPullRefreshing = false }
+        }
     }
 
     /// The new session's reels take the end card's place; the card moves

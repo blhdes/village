@@ -195,8 +195,16 @@ private struct BlockBuilder {
             .drop { $0 != "\"" && $0 != "'" }
             .dropFirst()
             .dropLast()
-        return URL(string: ReviewHTML.decodeEntities(String(value)))
+        // Relative links point at Letterboxd. Only web links are kept, so
+        // nothing else (javascript:, mailto:…) ever becomes tappable, and
+        // every link can open in the in-app browser.
+        guard let url = URL(string: ReviewHTML.decodeEntities(String(value)), relativeTo: letterboxd)?.absoluteURL,
+              let scheme = url.scheme?.lowercased(), scheme == "https" || scheme == "http"
+        else { return nil }
+        return url
     }
+
+    private static let letterboxd = URL(string: "https://letterboxd.com")
 
     // MARK: Text
 

@@ -4,7 +4,7 @@
 //
 //  Draws the blocks produced by `ReviewHTML`: paragraphs, indented quotes
 //  with a side rule, and bulleted or numbered list items. Links take the
-//  brand blue.
+//  brand blue and open in Safari inside the app.
 //
 
 import SwiftUI
@@ -22,6 +22,8 @@ struct ReviewTextView: View {
         .foregroundStyle(Color.primary.opacity(0.88))
         .lineSpacing(5)
         .tint(Color.brandBlue)
+        // Links open in Safari inside the app, so reading continues after.
+        .environment(\.openURL, .inAppBrowser)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -49,5 +51,14 @@ struct ReviewTextView: View {
                 Text(text)
             }
         }
+    }
+}
+
+extension OpenURLAction {
+    /// Web links open in Safari inside the app; anything else goes to the
+    /// system as usual.
+    static let inAppBrowser = OpenURLAction { url in
+        let isWeb = url.scheme == "https" || url.scheme == "http"
+        return .systemAction(url, prefersInApp: isWeb)
     }
 }

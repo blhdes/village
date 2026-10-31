@@ -84,7 +84,7 @@ struct ReelView: View {
                 headerTop: headerTop
             )
 
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 24) {
                 ReviewHeader(
                     review: review,
                     posterURL: posterURL,
@@ -92,8 +92,6 @@ struct ReelView: View {
                     showRating: look.showRating,
                     onPosterTap: posterTap
                 )
-
-                EditorialRule()
 
                 // The container stays put while the `if` swaps its content,
                 // so the spoiler glass can dissolve instead of just vanishing.
@@ -161,7 +159,13 @@ struct ReelView: View {
                 }
             }
             .contentShape(.rect)
-            .onTapGesture { if isOverflowing { isReading = true } }
+            // Tapping a cut-off review opens the reader. Only switched on
+            // when the text is cut off, so links in a short review keep
+            // their own tap (the reader has them all).
+            .gesture(
+                TapGesture().onEnded { isReading = true },
+                including: isOverflowing ? .all : .subviews
+            )
     }
 
     /// One glass shield — tap anywhere on it to reveal. No glass button

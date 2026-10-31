@@ -21,7 +21,6 @@ struct ReviewReaderView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     ReviewHeader(review: review, posterURL: posterURL, showRating: showRating)
-                    EditorialRule()
                     ReviewTextView(blocks: ReviewHTML.blocks(for: review))
                         .textSelection(.enabled)
                     if let url = review.url {

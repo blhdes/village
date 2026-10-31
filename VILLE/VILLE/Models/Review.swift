@@ -124,6 +124,16 @@ extension Review {
 
     var url: URL? { URL(string: link) }
 
+    /// A web search for the film ("Title 2026 film"), opened from its title
+    /// in the in-app browser, as the mobile app does. The year tells
+    /// remakes apart.
+    var filmSearchURL: URL? {
+        var components = URLComponents(string: "https://www.google.com/search")
+        let query = [filmTitle, filmYear.map(String.init), "film"].compactMap { $0 }.joined(separator: " ")
+        components?.queryItems = [URLQueryItem(name: "q", value: query)]
+        return components?.url
+    }
+
     /// True until TMDB has been asked for this film's galleries.
     var needsArt: Bool { !artFetched || posterPaths == nil }
 

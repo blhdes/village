@@ -25,6 +25,8 @@ struct ReviewHeader: View {
     /// Flips to the film's next poster; nil when it only has one.
     var onPosterTap: (() -> Void)? = nil
 
+    @Environment(\.openURL) private var openURL
+
     /// Corners of a printed photo: barely rounded.
     private let posterCorner: CGFloat = 3
 
@@ -38,8 +40,7 @@ struct ReviewHeader: View {
             VStack(alignment: .leading, spacing: 8) {
                 byline
 
-                Text("\(Text(review.filmTitle).font(.system(.title, design: .serif, weight: .bold)))\(yearText)")
-                    .lineLimit(3)
+                title
 
                 if showRating && hasRatingMarks {
                     ratingRow
@@ -52,6 +53,26 @@ struct ReviewHeader: View {
             }
             // No halos: on a reel the backdrop fades out before the rating,
             // so the text sits straight on the page (see ReelBackground).
+        }
+    }
+
+    /// Title and year. Tapping it searches the web for the film in Safari
+    /// inside the app, as the mobile app does.
+    @ViewBuilder
+    private var title: some View {
+        let text = Text("\(Text(review.filmTitle).font(.system(.title, design: .serif, weight: .bold)))\(yearText)")
+            .lineLimit(3)
+
+        if let searchURL = review.filmSearchURL {
+            Button {
+                openURL(searchURL, prefersInApp: true)
+            } label: {
+                text.multilineTextAlignment(.leading)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Searches the web for this film")
+        } else {
+            text
         }
     }
 

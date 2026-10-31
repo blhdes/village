@@ -25,7 +25,8 @@ It is the lighter stepping stone before the full social network (`../ville-du-ci
 - **Suggestions to start**: the People screen shows 5 random members from `SuggestedMember` (100 hand-picked critics, writers, filmmakers and creators who post written reviews often) until the user follows 10. Adding one swaps in someone new; shuffle shows others. English writers are suggested to everyone, others only to readers whose iPhone uses that language.
 - **Share = link to the original review on Letterboxd**, never the review text or an image of it.
 - **Selectable text**: the review text can be long-pressed and copied, on the reel and in the reader (iOS 27: any stretch of a paragraph; iOS 26: the whole paragraph). Selection stays inside one paragraph, because each block is its own `Text`.
-- **One-tap translation** (like X's translate button): when a review isn't in the iPhone's language (`Locale.preferredLanguages.first`, not the app's), a note under its dateline offers "Translate from English". One tap swaps the text in place; the note then reads "Translated from English · Show original", a translator's credit as a book prints it. Everything runs on the device: `NaturalLanguage` detects the language, Apple's Translation framework translates (Apple Intelligence's models when available, else the downloadable Translate languages, which the system offers to download on first use). Each block is translated on its own, so quotes and lists keep their shape; from iOS 26.4 italics, bold and links survive too. Translations live in memory until the app quits, shared by the reel and the reader, and are never saved or shared. "Show original" is a view switch, not a reveal, so it doesn't break the one-way reveal rule.
+- **One-tap translation** (like X's translate button): when a review isn't in the reader's language, a note under its dateline offers "Translate from English". The reader's language is the first of `Locale.preferredLanguages` that Translation supports (not `Locale.current`, which only knows VILLE's interface languages): VILLE's own language when one is picked for it in iOS Settings, else the iPhone's, so a Catalan iPhone with Spanish second reads in Spanish. The note and the credit are written out per source language (`ReviewTranslation.offer`/`credit`), never a "from %@" template, because French says "de l'anglais" but "du japonais", German "aus dem Englischen", Italian "dallo spagnolo". One tap swaps the text in place; the note then reads "Translated from English · Show original", a translator's credit as a book prints it. Everything runs on the device: `NaturalLanguage` detects the language, Apple's Translation framework translates (Apple Intelligence's models when available, else the downloadable Translate languages, which the system offers to download on first use). Each block is translated on its own, so quotes and lists keep their shape; from iOS 26.4 italics, bold and links survive too. Translations live in memory until the app quits, shared by the reel and the reader, and are never saved or shared. "Show original" is a view switch, not a reveal, so it doesn't break the one-way reveal rule.
+- **Eight languages**: English (source), Spanish, German, French, Italian, Japanese, Portuguese (Brazil), Simplified Chinese, all in `Localizable.xcstrings`. Settings → Language shows the current one and opens VILLE's page in iOS Settings to pick another (Apple's per-app language). No in-app picker: it could only apply after a manual restart, and system sheets wouldn't follow it. Reviews always stay as written unless translated.
 - **The library grows**: reviews stay saved after they drop out of the RSS window (RSS holds ~50 diary entries per member).
 
 ---
@@ -68,6 +69,8 @@ VILLE/VILLE/
 ├── AppIcon.icon/               # Icon Composer app icon ("v." in Source Serif 4 Italic)
 ├── Secrets.swift               # (gitignored) TMDB key
 ├── PrivacyInfo.xcprivacy       # Privacy manifest: UserDefaults (CA92.1), no tracking, nothing collected
+├── Localizable.xcstrings       # Every interface string in the 8 languages
+├── InfoPlist.xcstrings         # Bundle name (not translated)
 ├── Models/
 │   ├── Review.swift            # One written review + display helpers
 │   ├── FollowedUser.swift      # A saved Letterboxd member
@@ -77,14 +80,14 @@ VILLE/VILLE/
 │   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
 │   ├── TMDBService.swift       # Poster + backdrop galleries by TMDB id
 │   ├── FilmArtLoader.swift     # Fills missing art, one TMDB request per film
-│   ├── ReviewTranslation.swift # Detects a review's language, translates its blocks (on device)
+│   ├── ReviewTranslation.swift # Detects a review's language, translates its blocks (on device), "Translate from…" sentences
 │   └── PosterImageCache.swift  # Decoded posters in memory + prefetch
 ├── ViewModels/
 │   ├── FeedViewModel.swift     # Library: refresh, members, triggers art loading
 │   ├── ReelSession.swift       # On screen: current session, spoilers, breaks
 │   ├── ReelQueue.swift         # The visit's reels: start, sync, keep reading
 │   ├── ReelSampler.swift       # Which reviews make a session, and their order
-│   └── ReviewTranslator.swift  # Which reviews show translated (memory only)
+│   └── ReviewTranslator.swift  # Which reviews show translated (memory only), into which language
 └── Views/
     ├── Brand/
     │   ├── Editorial.swift     # Headline with red dot, dateline, sheet title
@@ -104,7 +107,7 @@ VILLE/VILLE/
     ├── ReviewReaderView.swift  # Full text of a long review
     ├── MembersView.swift       # Add/remove members
     ├── SuggestedMembersSection.swift # MembersView's "Suggested" section
-    ├── SettingsView.swift      # Appearance, look toggles, session length + attributions
+    ├── SettingsView.swift      # Appearance, language, look toggles, session length + attributions
     └── Appearance.swift        # System / Light / Dark choice
 ```
 
@@ -139,6 +142,7 @@ Publishing follows the global `app-store-release` skill. Its state for VILLE liv
 - **Haptics** on meaningful interactions (`.sensoryFeedback`).
 - **Typography — editorial, like the wordmark** (pieces in `Views/Brand/Editorial.swift`): system serif carries the voice (review text, titles, bylines, names, button labels inside the content); italic for secondary voice ("Review by", "Continue reading", "Keep reading", notes). Meta lines (dates, small notes) use `datelineStyle()`: spaced capitals. No dividers between a header and its text: space alone separates them. `EditorialHeadline` ends on the red full stop: big moments only (empty states), so the dot keeps its meaning. Sheet titles use `editorialTitle(_:)`. Prefer type and space over icons, lines and boxes.
 - **Loading**: review text is always local; only art arrives later (TMDB lookups after a member is added, image downloads). Anything still on its way keeps its place with `LoadingSkeleton`, a quiet tile that breathes at the wordmark dot's pace: never an empty gap, a flat gray box or a layout jump. Show the skeleton only while something is really loading (`FeedViewModel.isLoadingArt`, a download in flight); a failed load gets a plain tile. Refreshing feeds never shows a spinner: the brand's red dot breathes instead (the wordmark's dot, or `RefreshDot` in the middle of the top bar during a pull-to-refresh, which `ReelFeedView` builds by hand with `onScrollGeometryChange` because `.refreshable`'s spinner can't be replaced).
+- **Localization**: every visible or spoken string goes through `Text("…")`/`LocalizedStringKey` or `String(localized:)` (a plain `String` parameter or computed property is invisible to the catalog), and ships translated into all 7 languages in `Localizable.xcstrings`. After adding strings, sync the catalog with `xcodebuild -exportLocalizations -project VILLE/VILLE.xcodeproj -localizationPath /tmp/loc -scheme VILLE` (a plain build doesn't). Counts use plural variations, two-argument keys positional specifiers (`%1$@`, `%2$@`). A sentence around a language name is written out per language. Tone: es *tú* (Spain), de *du*, fr *vous*; "review" is reseña · Kritik · critique · recensione · レビュー · resenha · 影评. Brand names stay as they are.
 - **Reveal actions are one-way** (e.g. spoilers): no collapse toggle.
 - **No UIKit** unless genuinely unavoidable. **No third-party deps** without explicit approval.
 - **Never swallow errors** — log with `print` and context, or rethrow.

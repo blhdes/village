@@ -22,8 +22,11 @@ final class ReviewTranslator {
         case translated
     }
 
-    /// What reviews are translated into: the iPhone's language.
-    let target: Locale.Language
+    /// What reviews are translated into: the reader's first language that
+    /// Translation can do. A Catalan iPhone with Spanish second reads in
+    /// Spanish rather than not at all. Nil until the supported languages
+    /// load, or when Translation can do none of them.
+    private(set) var target: Locale.Language?
 
     /// Languages Translation can handle on this iPhone, filled at launch.
     /// Until then no review offers a translation.
@@ -35,22 +38,21 @@ final class ReviewTranslator {
     private var showing: Set<String> = []
     private var inFlight: Set<String> = []
 
-    init(target: Locale.Language = ReviewTranslation.deviceLanguage) {
-        self.target = target
-    }
-
     func loadSupportedLanguages() async {
         let languages = await LanguageAvailability().supportedLanguages
         supported = Set(languages.compactMap(\.languageCode))
+        target = ReviewTranslation.readerLanguages.first { language in
+            language.languageCode.map(supported.contains) ?? false
+        }
     }
 
     // MARK: Reading
 
     /// The language to offer a translation from, or nil when the review is
-    /// already in the iPhone's language, the language is unclear, or
+    /// already in the reader's language, the language is unclear, or
     /// Translation can't do the pair.
     func sourceLanguage(for review: Review) -> Locale.Language? {
-        guard let target = target.languageCode, supported.contains(target),
+        guard let target = target?.languageCode,
               let source = ReviewTranslation.language(of: review.reviewHTML),
               let code = source.languageCode, code != target, supported.contains(code)
         else { return nil }
@@ -110,7 +112,7 @@ final class ReviewTranslator {
         } catch {
             // Also lands here when the reader declines to download the
             // languages, or scrolls away mid-translation.
-            print("ReviewTranslator: could not translate review \(id) into \(target.minimalIdentifier) — \(error)")
+            print("ReviewTranslator: could not translate review \(id) into \(target?.minimalIdentifier ?? "no language") — \(error)")
             inFlight.remove(id)
         }
     }

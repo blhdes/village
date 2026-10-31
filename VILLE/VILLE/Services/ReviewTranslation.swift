@@ -3,7 +3,7 @@
 //  VILLE
 //
 //  Finds out which language a review is written in and translates its
-//  blocks into the iPhone's language. Both happen on the device: language
+//  blocks into the reader's language. Both happen on the device: language
 //  detection with NaturalLanguage, translation with Apple's Translation
 //  framework (Apple Intelligence's models when the iPhone has them, the
 //  downloadable Translate languages otherwise). Nothing is sent or saved.
@@ -20,10 +20,14 @@ import SwiftUI  // for the `underlineStyle` attribute on links
 import Translation
 
 enum ReviewTranslation {
-    /// The iPhone's first language, e.g. Spanish. Not the app's: VILLE's
-    /// interface is English only, so `Locale.current` would say English.
-    static var deviceLanguage: Locale.Language {
-        Locale.Language(identifier: Locale.preferredLanguages.first ?? "en")
+    /// The reader's languages, most preferred first. That's the iPhone's
+    /// list, unless a language was picked for VILLE alone (iOS Settings →
+    /// VILLE → Language, reached from VILLE's Settings): iOS then puts that
+    /// one first for this app. Not `Locale.current`, which only knows the
+    /// languages VILLE's interface comes in: a Korean iPhone would get
+    /// English there, but its reviews should still turn into Korean.
+    static var readerLanguages: [Locale.Language] {
+        Locale.preferredLanguages.map { Locale.Language(identifier: $0) }
     }
 
     /// Below this, the detector is guessing (very short reviews, mixed
@@ -50,9 +54,71 @@ enum ReviewTranslation {
         return language
     }
 
-    /// "English", "Portuguese"… in the app's own language, so the note reads
-    /// as one sentence ("Translate from English").
-    static func name(of language: Locale.Language) -> String {
+    /// "Translate from English", written out for each language Translation
+    /// can do, because languages bend around the name: French says "de
+    /// l'anglais" but "du japonais", German "aus dem Englischen", Italian
+    /// "dallo spagnolo". One that Apple adds later gets the plain pattern.
+    static func offer(from language: Locale.Language) -> String {
+        switch language.languageCode?.identifier {
+        case "ar": String(localized: "Translate from Arabic")
+        case "da": String(localized: "Translate from Danish")
+        case "de": String(localized: "Translate from German")
+        case "en": String(localized: "Translate from English")
+        case "es": String(localized: "Translate from Spanish")
+        case "fr": String(localized: "Translate from French")
+        case "hi": String(localized: "Translate from Hindi")
+        case "id": String(localized: "Translate from Indonesian")
+        case "it": String(localized: "Translate from Italian")
+        case "ja": String(localized: "Translate from Japanese")
+        case "ko": String(localized: "Translate from Korean")
+        case "nb", "no": String(localized: "Translate from Norwegian")
+        case "nl": String(localized: "Translate from Dutch")
+        case "pl": String(localized: "Translate from Polish")
+        case "pt": String(localized: "Translate from Portuguese")
+        case "ru": String(localized: "Translate from Russian")
+        case "sv": String(localized: "Translate from Swedish")
+        case "th": String(localized: "Translate from Thai")
+        case "tr": String(localized: "Translate from Turkish")
+        case "uk": String(localized: "Translate from Ukrainian")
+        case "vi": String(localized: "Translate from Vietnamese")
+        case "zh": String(localized: "Translate from Chinese")
+        default: String(localized: "Translate from \(name(of: language))", comment: "Fallback for a language without its own sentence. The argument is the language's name, e.g. Swahili.")
+        }
+    }
+
+    /// "Translated from English", the translator's credit once the text is
+    /// swapped. Written out per language for the same reason as `offer`.
+    static func credit(from language: Locale.Language) -> String {
+        switch language.languageCode?.identifier {
+        case "ar": String(localized: "Translated from Arabic")
+        case "da": String(localized: "Translated from Danish")
+        case "de": String(localized: "Translated from German")
+        case "en": String(localized: "Translated from English")
+        case "es": String(localized: "Translated from Spanish")
+        case "fr": String(localized: "Translated from French")
+        case "hi": String(localized: "Translated from Hindi")
+        case "id": String(localized: "Translated from Indonesian")
+        case "it": String(localized: "Translated from Italian")
+        case "ja": String(localized: "Translated from Japanese")
+        case "ko": String(localized: "Translated from Korean")
+        case "nb", "no": String(localized: "Translated from Norwegian")
+        case "nl": String(localized: "Translated from Dutch")
+        case "pl": String(localized: "Translated from Polish")
+        case "pt": String(localized: "Translated from Portuguese")
+        case "ru": String(localized: "Translated from Russian")
+        case "sv": String(localized: "Translated from Swedish")
+        case "th": String(localized: "Translated from Thai")
+        case "tr": String(localized: "Translated from Turkish")
+        case "uk": String(localized: "Translated from Ukrainian")
+        case "vi": String(localized: "Translated from Vietnamese")
+        case "zh": String(localized: "Translated from Chinese")
+        default: String(localized: "Translated from \(name(of: language))", comment: "Fallback for a language without its own sentence. The argument is the language's name, e.g. Swahili.")
+        }
+    }
+
+    /// "English", "Portuguese"… in the app's own language, for languages
+    /// `offer` and `credit` don't write out.
+    private static func name(of language: Locale.Language) -> String {
         let appLocale = Locale(identifier: Bundle.main.preferredLocalizations.first ?? "en")
         guard let code = language.languageCode,
               let name = appLocale.localizedString(forLanguageCode: code.identifier)

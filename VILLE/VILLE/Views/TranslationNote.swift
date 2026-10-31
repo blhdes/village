@@ -4,7 +4,7 @@
 //
 //  The line under a review's dateline when it's written in another
 //  language: "Translate from English". One tap swaps the text in place for
-//  the iPhone's language, and the note becomes a translator's credit, as a
+//  the reader's language, and the note becomes a translator's credit, as a
 //  book prints it: "Translated from English · Show original". Shown in
 //  the reel and the full reader (it lives in `ReviewHeader`).
 //
@@ -27,13 +27,13 @@ struct TranslationNote: View {
             Button {
                 toggle(from: source, state: state)
             } label: {
-                label(for: state, language: ReviewTranslation.name(of: source))
+                label(for: state, from: source)
                     .font(.system(.subheadline, design: .serif).italic())
                     .foregroundStyle(Color.primary.opacity(0.8))
                     .multilineTextAlignment(.leading)
             }
             .buttonStyle(.plain)
-            .accessibilityHint(state == .translated ? "Shows the review as written" : "Translates the review into your iPhone's language")
+            .accessibilityHint(state == .translated ? "Shows the review as written" : "Translates the review into your language")
             .sensoryFeedback(.selection, trigger: state == .translated)
             .translationTask(configuration) { session in
                 await translator.translate(review, using: session)
@@ -42,14 +42,14 @@ struct TranslationNote: View {
     }
 
     @ViewBuilder
-    private func label(for state: ReviewTranslator.State, language: String) -> some View {
+    private func label(for state: ReviewTranslator.State, from source: Locale.Language) -> some View {
         switch state {
         case .original:
-            Text("Translate from \(language)")
+            Text(ReviewTranslation.offer(from: source))
         case .translating:
             BreathingText(text: "Translating…")
         case .translated:
-            Text("Translated from \(language) · Show original")
+            Text("\(ReviewTranslation.credit(from: source)) · Show original", comment: "The argument is a credit such as “Translated from English”.")
         }
     }
 

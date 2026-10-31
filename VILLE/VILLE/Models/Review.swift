@@ -119,7 +119,7 @@ extension Review {
     /// "Watched Oct 14, 2026", falling back to the publish date.
     var watchedLabel: String {
         let date = (watchedOn ?? publishedAt).formatted(.dateTime.month(.abbreviated).day().year())
-        return isRewatch ? "Rewatched \(date)" : "Watched \(date)"
+        return isRewatch ? String(localized: "Rewatched \(date)") : String(localized: "Watched \(date)")
     }
 
     var url: URL? { URL(string: link) }

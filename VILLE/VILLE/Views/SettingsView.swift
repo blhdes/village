@@ -2,8 +2,9 @@
 //  SettingsView.swift
 //  VILLE
 //
-//  Look options (appearance, posters, backdrops, stars and likes), the session length,
-//  and the attributions required by Letterboxd and TMDB.
+//  Look options (appearance, posters, backdrops, stars and likes), the
+//  language, the session length, and the attributions required by
+//  Letterboxd and TMDB.
 //
 
 import SwiftUI
@@ -20,6 +21,7 @@ enum SettingsKey {
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
     @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = true
@@ -39,6 +41,23 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.segmented)
                     .labelsHidden()
+                }
+
+                Section {
+                    Button(action: openLanguageSettings) {
+                        HStack {
+                            Text(verbatim: Self.currentLanguageName)
+                            Spacer()
+                            Image(systemName: "arrow.up.forward")
+                                .imageScale(.small)
+                                .foregroundStyle(Color.primary.opacity(0.6))
+                        }
+                    }
+                    .accessibilityHint("Opens VILLE in iOS Settings")
+                } header: {
+                    Text("Language")
+                } footer: {
+                    Text("VILLE follows your iPhone. To read it in another language, tap and choose one under Language. Translations follow it too.")
                 }
 
                 Section {
@@ -87,6 +106,28 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+}
+
+private extension SettingsView {
+    /// The language VILLE shows right now, named in itself ("Español",
+    /// "Deutsch", "日本語"), as iOS lists languages.
+    static var currentLanguageName: String {
+        let code = Bundle.main.preferredLocalizations.first ?? "en"
+        let name = Locale(identifier: code).localizedString(forIdentifier: code) ?? code
+        return name.prefix(1).capitalized(with: Locale(identifier: code)) + name.dropFirst()
+    }
+
+    /// iOS picks the language per app on VILLE's page in its own Settings
+    /// (it appears once the app ships in two or more languages); VILLE
+    /// starts again in it. Apple's way: an in-app picker could only apply
+    /// after a manual restart, and system sheets wouldn't follow it.
+    func openLanguageSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else {
+            print("SettingsView: could not build the iOS Settings URL")
+            return
+        }
+        openURL(url)
     }
 }
 

@@ -32,7 +32,7 @@ struct ReviewActions: View {
             ShareLink(
                 item: url,
                 subject: Text(review.filmTitle),
-                message: Text("\(review.filmTitle) — review by \(review.authorName)")
+                message: Text("\(review.filmTitle) · review by \(review.authorName)")
             ) {
                 if shareTitle {
                     Label("Share", systemImage: "square.and.arrow.up")

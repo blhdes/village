@@ -53,7 +53,7 @@ struct ReelTopBar: View {
         }
     }
 
-    private func barButton(_ systemImage: String, label: String, action: @escaping () -> Void) -> some View {
+    private func barButton(_ systemImage: String, label: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.body.weight(.medium))

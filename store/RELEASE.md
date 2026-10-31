@@ -98,11 +98,11 @@
 3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. This is explained in the review notes.
 4. **Age rating: unrestricted web access.** Decided 2026-10-31: answer "yes" (Safari inside the app reaches any site). The rating goes up, probably to 16+.
 5. **Art in screenshots.** TMDB art is fine in the app, not in marketing. Decided 2026-10-31: posters off, backdrops from frames of public-domain films.
-6. **The Spanish listing describes an English app.** It says so. If the app gets localized (`/swift-localize`), remove that line.
+6. **Localized app (2026-10-31).** The app ships in en, es, de, fr, it, ja, pt-BR and zh-Hans, so the "La app está en inglés" line left the Spanish listing. Only en-US and es-ES listings exist: the other six languages can get listings (and their own screenshots) later.
 7. **iPhone Duo.** Screenshots required from April 2027 for iOS 27.1+ SDK builds.
 8. **Name reservation.** Upload a first TestFlight build once the app runs.
 9. **Public repo.** Contact details go in `store/contact.env` (gitignored). No UDIDs or keys in git.
-10. **Copy and translate (added 2026-10-31).** Review text can be selected and copied, and translated into the iPhone's language with Apple's Translation framework, on the device. Nothing is stored, synced or sent, and Share stays a link, so App Privacy ("Data Not Collected") and the privacy page stay true. If Letterboxd answers the email thread, check they're fine with on-device translation (it works like Safari's Translate on their site).
+10. **Copy and translate (added 2026-10-31).** Review text can be selected and copied, and translated into the reader's language (VILLE's own, if one was picked in iOS Settings, else the iPhone's) with Apple's Translation framework, on the device. Nothing is stored, synced or sent, and Share stays a link, so App Privacy ("Data Not Collected") and the privacy page stay true. If Letterboxd answers the email thread, check they're fine with on-device translation (it works like Safari's Translate on their site).
 
 ## Log
 
@@ -114,3 +114,4 @@
 - 2026-10-31: App Privacy published: Data Not Collected.
 - 2026-10-31: Follow-up email sent to Letterboxd (api@letterboxd.com, same thread as January).
 - 2026-10-31: Screenshots will use public-domain film frames.
+- 2026-10-31: App localized into es, de, fr, it, ja, pt-BR, zh-Hans (`Localizable.xcstrings`). Settings → Language opens iOS's per-app language page. Spanish listing line about an English-only app removed.

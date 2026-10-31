@@ -23,7 +23,23 @@ The first three appear in search results, so they carry the pitch.
 
 Optional 7: Settings → Look, with "Text only, if you like" / "Solo texto, si quieres".
 
-Captions are written without their final full stop because the template adds it. Only shot 1 gets the **red** full stop, like the wordmark: the dot keeps its meaning by being rare (CLAUDE.md, big moments only).
+### Captions in the other six languages (2026-10-31)
+
+Same words the app uses in each language (Kritik, critique, recensione, レビュー, resenha, 影评).
+
+| # | de-DE | fr-FR | it | ja | pt-BR | zh-Hans |
+|---|---|---|---|---|---|---|
+| 1 | Filmkritiken, eine nach der anderen | Des critiques de films, une à une | Recensioni di film, una alla volta | 映画レビューを、ひとつずつ | Resenhas de filmes, uma de cada vez | 影评，一篇一篇读 |
+| 2 | Zuerst die Worte | Les mots d’abord | Prima le parole | まず、言葉から | Primeiro, as palavras | 文字优先 |
+| 3 | Keine Spoiler, bis du tippst | Les spoilers, seulement si vous touchez | Niente spoiler finché non tocchi | ネタバレは、タップするまで隠したまま | Sem spoilers até você tocar | 剧透，轻点才显示 |
+| 4 | Ein Feed mit Ende | Un fil qui a une fin | Un feed che finisce | 終わりのあるフィード | Um feed que termina | 有终点的信息流 |
+| 5 | Lange Kritiken, vollständig | Les longues critiques, en entier | Le recensioni lunghe, per intero | 長いレビューも、最後まで | Resenhas longas, por inteiro | 长篇影评，完整阅读 |
+| 6 | Folge den Autoren, die du liebst | Suivez les plumes que vous aimez | Segui chi scrive come piace a te | 好きな書き手をフォロー | Siga quem você adora ler | 关注你喜欢的作者 |
+| 7 | Nur Text, wenn du magst | Le texte seul, si vous préférez | Solo testo, se preferisci | 文字だけでも | Só texto, se preferir | 也可以只看文字 |
+
+Captions are written without their final full stop because the template adds it. Only shot 1 gets the **red** full stop, like the wordmark: the dot keeps its meaning by being rare (CLAUDE.md, big moments only). Open point for ja and zh-Hans: a Latin full stop after CJK text reads oddly, so decide in the template whether those captions end on "。" (and the red dot only on shot 1) or on no mark at all.
+
+Until a locale has its own screenshots, App Store Connect shows the English ones on that listing.
 
 ## Design (`templates/reel.html`)
 

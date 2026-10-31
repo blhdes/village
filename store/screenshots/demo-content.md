@@ -66,7 +66,11 @@ Half documentary, half staging, and the film doesn't always tell you which half 
 
 ## Spanish set (es-ES screenshots)
 
-The app's interface stays in English. The reviews are in Spanish because these members write in Spanish, as happens in the real app.
+The app's interface runs in Spanish (the test run sets the language). The reviews are in Spanish because these members write in Spanish, as happens in the real app.
+
+## The other six languages (de-DE, fr-FR, it, ja, pt-BR, zh-Hans)
+
+The interface runs in each language and the reviews stay the English set, as in the real app, where most Letterboxd reviews are in English. Each reel then shows "Translate from English" in that language under its dateline, which shows the feature. Whether one shot shows a review already translated is decided with the shot list.
 
 ### Members
 

@@ -15,7 +15,7 @@
 | Team | `56BK7T2JG7` (Alejandro Gómez Urrea) |
 | `asc` profile | `Ale` (team key `DUFUT4RBBW`, Admin role, in the macOS keychain) |
 | Primary language | English (U.S.) |
-| Listing locales | en-US, es-ES |
+| Listing locales | en-US, es-ES, de-DE, fr-FR, it, ja, pt-BR, zh-Hans (one per app language) |
 | Devices / orientation | iPhone only, portrait |
 | Test device | iPhone 13 (raw captures 1170 × 2532) |
 | Minimum iOS | 26.2 |
@@ -37,11 +37,13 @@
 - 2026-10-31: **No "Letterboxd" in the name, subtitle or keywords** (Risks 2). Name with a descriptive suffix instead, e.g. `ville. Film Review Reader`. No long dashes in any copy (your call).
 - 2026-10-31: In prose the app is called VILLE, as in Settings → About. "ville." stays for the name and the logo.
 - 2026-10-31: China mainland left out of availability (new apps there need an ICP filing number).
+- 2026-10-31: China stays out for 1.0, checked again (your choice). Culla, Culla Music and doppio are on sale there because they barely use the internet. VILLE shows internet content from other people, the kind of app the ICP rule is for, and a filing needs a Chinese company or partner. In China, Letterboxd over HTTPS loads intermittently, TMDB is mixed and Google is blocked (GreatFire, 2026-10). To try later: `asc pricing availability edit --app 6829207754 --territory CHN --available true`.
 - 2026-10-31: Listing copy approved as written in `store/METADATA.md`.
 - 2026-10-31: Support and privacy pages on GitHub Pages (this repo is public), served from a `gh-pages` branch that holds only `store/site/`. Public contact: your personal Gmail (your choice, knowing it's public).
 - 2026-10-31: Secondary category Lifestyle. Age rating: unrestricted web access **yes** (in-app Safari search stays, the rating goes up, probably 16+).
 - 2026-10-31: Screenshot art: frames of public-domain films (your choice), posters off. Not text only.
 - 2026-10-31: App Review contact: your personal email and phone, saved in `store/contact.env` (gitignored, never in git).
+- 2026-10-31: One store listing per app language (8). Keywords kept under 100 bytes, so Japanese and Chinese hold about 30 characters.
 - 2026-10-31: The pages' favicon, home-screen icon and link-preview image are the real app icon, exported from `AppIcon.icon` with Icon Composer's `ictool` (never redrawn).
 
 ## 1. Foundations
@@ -68,6 +70,7 @@
 - ✅ Privacy policy and support pages online at https://blhdes.github.io/village/ (2026-10-31). To change them: edit `store/site/`, commit, `bash store/publish-site.sh`
 - ✅ `store/apply-store-setup.sh --go` sent (2026-10-31, your OK): copy en/es with support and privacy URLs, categories, copyright, manual release, free price, availability without China, age rating, App Review contact and notes. Every call succeeded. Re-run it after changing any of those files.
 - ✅ App Privacy "Data Not Collected" published in App Store Connect (2026-10-31, Chrome)
+- ✅ Six more listings (de-DE, fr-FR, it, ja, pt-BR, zh-Hans) + "In your language" section in every description, sent with `asc metadata apply` (2026-10-31, your OK). A dry run afterwards shows no differences. To change them: edit `store/metadata/`, then the same command.
 - ⬜ Content rights (after Letterboxd answers)
 
 `asc validate` (2026-10-31): 3 blocking items left: content rights (waits for Letterboxd; never answer "does not use third-party content", which `asc` suggests), screenshots, build. App Privacy is published (the API can't check it, so `asc` still shows an info line).
@@ -98,7 +101,7 @@
 3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. This is explained in the review notes.
 4. **Age rating: unrestricted web access.** Decided 2026-10-31: answer "yes" (Safari inside the app reaches any site). The rating goes up, probably to 16+.
 5. **Art in screenshots.** TMDB art is fine in the app, not in marketing. Decided 2026-10-31: posters off, backdrops from frames of public-domain films.
-6. **Localized app (2026-10-31).** The app ships in en, es, de, fr, it, ja, pt-BR and zh-Hans, so the "La app está en inglés" line left the Spanish listing. Only en-US and es-ES listings exist: the other six languages can get listings (and their own screenshots) later.
+6. **Localized app (2026-10-31).** The app ships in en, es, de, fr, it, ja, pt-BR and zh-Hans, so the "La app está en inglés" line left the Spanish listing. All eight languages have listings in App Store Connect (2026-10-31). Until each has its own screenshots, App Store Connect shows the English ones there. The translations weren't checked by native speakers: worth a look for ja and zh-Hans before submitting.
 7. **iPhone Duo.** Screenshots required from April 2027 for iOS 27.1+ SDK builds.
 8. **Name reservation.** Upload a first TestFlight build once the app runs.
 9. **Public repo.** Contact details go in `store/contact.env` (gitignored). No UDIDs or keys in git.
@@ -115,3 +118,5 @@
 - 2026-10-31: Follow-up email sent to Letterboxd (api@letterboxd.com, same thread as January).
 - 2026-10-31: Screenshots will use public-domain film frames.
 - 2026-10-31: App localized into es, de, fr, it, ja, pt-BR, zh-Hans (`Localizable.xcstrings`). Settings → Language opens iOS's per-app language page. Spanish listing line about an English-only app removed.
+- 2026-10-31: Product page written for de-DE, fr-FR, it, ja, pt-BR and zh-Hans (`store/metadata/`, `METADATA.md`), "In your language" section added to every description, screenshot captions for the six languages in `SCREENSHOTS.md`. Validated and dry-run only: nothing sent.
+- 2026-10-31: Six listings sent and the en/es descriptions updated (`asc metadata apply`, your OK). App Store Connect now has 8 locales. `asc validate`: still 3 blocking (content rights, screenshots, build), nothing new.

@@ -45,7 +45,7 @@ skip() { printf '\n== %s\n  (skipped: %s)\n' "$1" "$2"; }
 
 $GO && echo "Sending to App Store Connect…" || echo "Dry run. Nothing is sent. Re-run with --go after the OK."
 
-section "Product page text (name, subtitle, description, keywords, promo, support and privacy URLs) for en-US and es-ES"
+section "Product page text (name, subtitle, description, keywords, promo, support and privacy URLs) for every locale in store/metadata (en-US, es-ES, de-DE, fr-FR, it, ja, pt-BR, zh-Hans)"
 asc metadata validate --dir store/metadata >/dev/null
 if $GO; then
   run asc metadata apply --app "$APP_ID" --version "$VERSION" --dir store/metadata

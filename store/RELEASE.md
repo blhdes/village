@@ -1,4 +1,4 @@
-# VILLE — App Store release
+# VILLE: App Store release
 
 > State file for the `app-store-release` skill. Claude reads it first and updates it at the end of every session.
 > ✅ done · ⏳ in progress · 👉 your turn · ⬜ to do
@@ -7,31 +7,35 @@
 
 | | |
 |---|---|
-| Store name | `ville.` (suffix still open, see Decisions) |
+| Store name | `ville. Film Review Reader` (en) · `ville. Críticas de cine` (es), proposed. Live now: `ville.` |
 | Home-screen name | `VILLE` (`PRODUCT_NAME`) |
 | Bundle ID | `agu.VILLE` (permanent) |
-| Apple ID (App Store Connect) | `6829207754` |
+| Apple ID (App Store Connect) | `6829207754` · version 1.0 id `7712a8d8-4ee9-4ffc-a6ed-f4f282b1d949` |
 | SKU | `ville-ios` |
 | Team | `56BK7T2JG7` (Alejandro Gómez Urrea) |
+| `asc` profile | `Ale` (team key `DUFUT4RBBW`, Admin role, in the macOS keychain) |
 | Primary language | English (U.S.) |
-| Listing locales | en-US (+ es-ES planned) |
+| Listing locales | en-US, es-ES |
 | Devices / orientation | iPhone only, portrait |
+| Test device | iPhone 13 (raw captures 1170 × 2532) |
 | Minimum iOS | 26.2 |
 | Version (build) | 1.0 (1) |
 | Price | Free (Letterboxd ToS 6.9: no competing business) |
-| Category | ⬜ (Entertainment, or Books?) |
-| Privacy label | Data Not Collected (planned) |
-| Privacy policy URL | ⬜ |
-| Support URL | ⬜ |
+| Category | Entertainment (proposed) |
+| Privacy label | Data Not Collected (proposed) |
+| Privacy policy URL | ⬜ draft in `store/site/privacy.html`, not online |
+| Support URL | ⬜ draft in `store/site/index.html`, not online |
 
 ## Decisions
 
-- 2026-10-31 — Store name `ville.`, the same as the wordmark — the subtitle explains the app. Another app called "Ville • Find events near you." exists (events, Social Networking).
-- 2026-10-31 — Keep bundle ID `agu.VILLE` — same style as `agu.culla`, and it was already in the project.
-- 2026-10-31 — iPhone only, portrait, for 1.0 — reels are vertical and it means one screenshot set. iPad can come in a later version.
-- 2026-10-31 — Screenshots captured automatically on the physical iPhone (XCUITest + demo mode), never the simulator.
-- 2026-10-31 — Encryption exempt (`ITSAppUsesNonExemptEncryption = NO`): the app only uses HTTPS.
-- Open — Name suffix for search (e.g. `ville. — Film Review Reader`). **No "Letterboxd" in the name, subtitle or keywords** (Risks 2). Decide in phase 3.
+- 2026-10-31: Store record created as `ville.`, the same as the wordmark. Another app called "Ville • Find events near you." exists (events, Social Networking).
+- 2026-10-31: Keep bundle ID `agu.VILLE`, the same style as `agu.culla` and already in the project.
+- 2026-10-31: iPhone only, portrait, for 1.0. Reels are vertical and it means one screenshot set. iPad can come later.
+- 2026-10-31: Screenshots captured automatically on the physical iPhone (XCUITest + demo mode), never the simulator.
+- 2026-10-31: Encryption exempt (`ITSAppUsesNonExemptEncryption = NO`): the app only uses HTTPS.
+- 2026-10-31: **No "Letterboxd" in the name, subtitle or keywords** (Risks 2). Name with a descriptive suffix instead, e.g. `ville. Film Review Reader`. No long dashes in any copy (your call).
+- 2026-10-31: In prose the app is called VILLE, as in Settings → About. "ville." stays for the name and the logo.
+- 2026-10-31: China mainland left out of availability (new apps there need an ICP filing number).
 
 ## 1. Foundations
 
@@ -39,7 +43,7 @@
 - ✅ Paid Applications Schedule accepted (2026-10-31)
 - ✅ Explicit App ID `agu.VILLE` registered (2026-10-31)
 - ✅ App record created: `ville.`, Apple ID 6829207754 (2026-10-31)
-- 👉 API key created and `asc auth status --validate` passes (`asc` 6.2.0 is installed)
+- ✅ API key `asc-cli` created by you, stored by `asc`, `asc auth status --validate` → works (2026-10-31)
 
 ## 2. Project readiness
 
@@ -48,41 +52,51 @@
 - ✅ Export compliance key
 - ✅ iPhone only (`TARGETED_DEVICE_FAMILY = 1`), portrait
 - ✅ Release build compiles (Xcode 27.2, generic iOS, unsigned)
-- ⬜ Third-party content: basis for the rights answer (Risks 1)
-- ⬜ App finished (in progress)
+- 👉 Third-party content: basis for the rights answer (Risks 1)
+- ⏳ App finished (you)
 
 ## 3. Product page
 
-- ⬜ Copy written in `store/metadata/` (en-US, es-ES) and approved
-- ⬜ Privacy policy and support pages live (the repo is public, so GitHub Pages works; or your own site)
-- ⬜ Metadata pushed (`asc metadata apply`)
-- ⬜ Category, age rating, App Privacy, content rights, price and availability
+- ⏳ Copy written in `store/metadata/` (en-US, es-ES), `asc metadata validate` → 0 errors. 👉 Your review: `store/METADATA.md`
+- ⏳ Privacy policy and support pages drafted in `store/site/` (VILLE style, light and dark, English + Spanish). 👉 Pick hosting and a public contact email (`{{CONTACT_EMAIL}}` placeholders)
+- ⏳ `store/apply-store-setup.sh`: one command for copy, category, copyright, manual release, free price, availability, age rating and review notes. Dry run checked. 👉 Fill the DECIDE values, then `--go` after your OK
+- ⬜ App Privacy "Data Not Collected" (Chrome, not in the API)
+- ⬜ Content rights (after Letterboxd answers)
+
+`asc validate` today: 35 blocking items. All of them are covered by the steps above, the screenshots and the build.
 
 ## 4. Screenshots
 
-- ⬜ Demo mode (`-StoreScreenshots`): in-memory store, our own demo reviews and members, no network, hidden status bar
-- ⬜ `VILLEStoreShots` UI-testing target (you add it in Xcode) + capture test
-- ⬜ Koubou template in the VILLE style (Source Serif 4, red full stop, plenty of space) + en/es captions
-- ⬜ Validated and uploaded (required set: 1206 × 2622; optional 6.9" 1320 × 2868)
+- ✅ Plan: `store/SCREENSHOTS.md` (six shots, captions en/es)
+- ✅ Demo content: `store/screenshots/demo-content.md`. Fictional members (usernames checked: none exist), our own reviews, public-domain films
+- ✅ Template `store/screenshots/templates/reel.html` + preview `store/screenshots/preview/layout-preview.png`
+- ⬜ Demo mode in the app (plan in SCREENSHOTS.md, code waits for your OK)
+- ⬜ `VILLEStoreShots` UI-testing target (you, in Xcode) + capture test
+- ⬜ Install Koubou; download Source Serif 4 and the public-domain film frames (needs your OK)
+- ⬜ Validated and uploaded (required set 1206 × 2622; optional 6.9" 1320 × 2868)
 
 ## 5. Build and submit
 
-- ⬜ Final testing on the iPhone (by you)
-- ⬜ Archive and upload
-- ⬜ TestFlight check
-- ⬜ Review notes (no sign-in; how to add a member; how the third-party content works)
+- ⬜ Final testing on the iPhone (you)
+- ⬜ Archive and upload (a first TestFlight build as soon as the app runs well)
+- ⬜ TestFlight check (you)
+- ⏳ Review notes drafted: `store/review-notes.txt`
 - ⬜ Submitted (manual release)
 - ⬜ Released
 
 ## Risks and open questions
 
-1. **Letterboxd rights (Guideline 5.2.2 + "Content Rights").** VILLE shows other members' reviews from their public RSS feeds. The RSS route is the one Letterboxd offers (letterboxd.com/api-beta), and every reel credits the author and links back. But our March 2026 email is still unanswered. Write again before submitting (CLAUDE.md) and record the answer here, because it decides how we answer "Do you have the rights?".
-2. **Trademark.** Never put "Letterboxd" in the name, subtitle or keywords (Guidelines 2.3.7 and 5.2.1, Letterboxd ToS 19). The description may say it factually ("reads the public RSS feeds of the Letterboxd members you choose"), plus "VILLE is not affiliated with Letterboxd."
-3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, can remove a member at any time, and each reel links to the original review, where it can be reported on Letterboxd. Explain this in the review notes.
-4. **Art in screenshots.** TMDB posters and backdrops are fine in the app with attribution, not in marketing images. Use only art that is public domain in both the U.S. and the EU, or switch posters and backdrops off for the screenshots (VILLE's own "pure text" mode).
-5. **iPhone Duo.** Screenshots are optional now and required from April 2027 for apps built with the iOS 27.1 SDK or later (we build with Xcode 27.2). Check how the layouts look on Duo before then.
-6. **Name reservation.** Upload a first TestFlight build once the app runs, so the `ville.` record doesn't sit for months without a build.
+1. **Letterboxd rights (Guideline 5.2.2 + "Content Rights").** VILLE shows other members' reviews from their public RSS feeds. RSS is the route Letterboxd offers (letterboxd.com/api-beta), and every reel credits the author and links back. Our March 2026 email is still unanswered. Write again before submitting and record the answer here.
+2. **Trademark.** Never "Letterboxd" in the name, subtitle or keywords (Guidelines 2.3.7 and 5.2.1, Letterboxd ToS 19). The description says it factually, plus "VILLE is not affiliated with Letterboxd".
+3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. This is explained in the review notes.
+4. **Age rating: unrestricted web access.** Tapping a title opens a Google search in Safari inside the app. Answering "yes" is the honest reading and raises the rating. The alternative is to open those searches outside the app. 👉 Your call.
+5. **Art in screenshots.** TMDB art is fine in the app, not in marketing. Plan: posters off, backdrops from frames of public-domain films.
+6. **The Spanish listing describes an English app.** It says so. If the app gets localized (`/swift-localize`), remove that line.
+7. **iPhone Duo.** Screenshots required from April 2027 for iOS 27.1+ SDK builds.
+8. **Name reservation.** Upload a first TestFlight build once the app runs.
+9. **Public repo.** Contact details go in `store/contact.env` (gitignored). No UDIDs or keys in git.
 
 ## Log
 
-- 2026-10-31 — Program License Agreement accepted (you). Registered `agu.VILLE`, created the `ville.` record (6829207754). Project set to iPhone-only and portrait, export-compliance key added, privacy manifest added, Release build OK. `asc` installed.
+- 2026-10-31: Agreements accepted (you). Registered `agu.VILLE`, created the `ville.` record (6829207754). Project set to iPhone only and portrait, export-compliance key and privacy manifest added, Release build OK. Commit `89c2067`.
+- 2026-10-31: API key connected to `asc` (profile Ale). Listing copy en/es written and validated. Privacy and support pages drafted. `apply-store-setup.sh` + review notes ready (dry run only, nothing sent). Screenshot plan, demo content and template done. Pending list in the vault: `Areas/Claude/Skills/Docs/app-store-release.md`.

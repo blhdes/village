@@ -30,3 +30,7 @@ Carthage/Build/
 
 # Local API keys (see Secrets.example.swift)
 VILLE/VILLE/Secrets.swift
+
+# App Store release: private contact details and build output
+store/contact.env
+store/build/

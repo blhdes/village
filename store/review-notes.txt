@@ -1,0 +1,5 @@
+VILLE has no accounts and no sign-in.
+
+To try it: tap the people icon (two figures) in the top bar and add any member from the "Suggested" list with the + button, or type a Letterboxd username such as 812filmreviews. Close the sheet: their recent written reviews appear as full-screen reels. Swipe up to read. After the session's last review a "Fin" card appears, with "Keep reading". The sliders icon in the top bar opens Settings: appearance, session length, and the poster, backdrop and rating toggles.
+
+Content: VILLE only shows reviews from the public RSS feed Letterboxd publishes for each member (letterboxd.com/<username>/rss/), and only for members the user adds. Every review credits its author and links to the original on Letterboxd ("View on Letterboxd"), where content can be reported. Removing a member in the people screen deletes all of their reviews from the device. Film images come from the TMDB API, credited in Settings. No data leaves the device except these read-only requests.

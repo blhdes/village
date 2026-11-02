@@ -131,3 +131,4 @@
 - 2026-11-02: Show each review once (Settings → Reading, off by default): sessions never bring back a review already shown; with nothing new left, the Fin card drops Keep reading and the feed says "Nothing new yet". Support FAQ and privacy page updated locally. Built, not yet tested on the iPhone.
 - 2026-11-02: People's Bookmarks row got a monochrome icon, like the Settings rows. Built, not yet tested on the iPhone.
 - 2026-11-02: Backdrops off by default (your call). 👉 The screenshot plan uses public-domain frames as backdrops, so the demo mode must turn Backdrops on. Built, not yet tested on the iPhone.
+- 2026-11-02: Uncovered spoilers are saved on the review: they stay uncovered on the reel, in Bookmarks and after VILLE quits (before, only until it quit). Privacy page updated locally. Built, not yet tested on the iPhone.

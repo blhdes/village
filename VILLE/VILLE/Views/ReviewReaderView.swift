@@ -51,11 +51,6 @@ struct ReviewReader: View {
     var onPosterTap: (() -> Void)? = nil
 
     @Environment(ReviewTranslator.self) private var translator
-    @Environment(ReelSession.self) private var session
-
-    private var isSpoilerCovered: Bool {
-        review.containsSpoilers && !session.revealedSpoilers.contains(review.id)
-    }
 
     /// The poster the next tap will show, fetched ahead so the flip is instant.
     private var nextPosterURL: URL? {
@@ -73,8 +68,8 @@ struct ReviewReader: View {
             )
             // The container stays while the gate goes, so its glass can dissolve.
             GlassEffectContainer {
-                if isSpoilerCovered {
-                    SpoilerGate(reviewID: review.id)
+                if review.isSpoilerCovered {
+                    SpoilerGate(review: review)
                 } else {
                     // Translated if the reel was (or the header's note is tapped here).
                     ReviewTextView(blocks: translator.blocks(for: review))

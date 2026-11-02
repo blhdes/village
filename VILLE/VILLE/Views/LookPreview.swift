@@ -96,13 +96,13 @@ extension LookPreview.Sample {
     /// switches change it before the reader's eyes. On the end card the
     /// newest review with art stands in, its second poster ready for
     /// Alternative posters. Nil while there's nothing to read.
-    static func onScreen(in queue: ReelQueue, pageID: Int?, reviews: [Review], revealedSpoilers: Set<String>) -> Self? {
+    static func onScreen(in queue: ReelQueue, pageID: Int?, reviews: [Review]) -> Self? {
         func sample(_ review: Review, backdropPick: Int, posterPick: Int) -> Self {
             Self(
                 review: review,
                 backdropPick: backdropPick,
                 posterPick: posterPick,
-                isSpoilerCovered: review.containsSpoilers && !revealedSpoilers.contains(review.id)
+                isSpoilerCovered: review.isSpoilerCovered
             )
         }
 

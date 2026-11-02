@@ -212,8 +212,7 @@ struct ReelFeedView: View {
         .onScreen(
             in: session.queue,
             pageID: currentPageID,
-            reviews: reviews,
-            revealedSpoilers: session.revealedSpoilers
+            reviews: reviews
         )
     }
 

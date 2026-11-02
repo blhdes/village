@@ -32,7 +32,6 @@ struct ReelView: View {
     /// Unfollows the author, once the reader has confirmed.
     let onUnfollow: () -> Void
 
-    @Environment(ReelSession.self) private var session
     @Environment(FeedViewModel.self) private var viewModel
 
     /// Lets the reader sheet zoom out of the "Continue reading" button.
@@ -46,10 +45,6 @@ struct ReelView: View {
     /// Where the header starts, below the top bar. The backdrop's fade is
     /// measured from here, so it always clears the text.
     private var headerTop: CGFloat { insets.top + 64 }
-
-    private var isSpoilerCovered: Bool {
-        review.containsSpoilers && !session.revealedSpoilers.contains(review.id)
-    }
 
     /// The poster on screen: the official one unless Alternative posters is
     /// on (then a random one), moved on by each tap. Nil with posters off.
@@ -112,8 +107,8 @@ struct ReelView: View {
                 // The container stays put while the `if` swaps its content,
                 // so the spoiler glass can dissolve instead of just vanishing.
                 GlassEffectContainer {
-                    if isSpoilerCovered {
-                        SpoilerGate(reviewID: review.id)
+                    if review.isSpoilerCovered {
+                        SpoilerGate(review: review)
                             .frame(maxHeight: .infinity, alignment: .top)
                     } else {
                         ReelTextBox(review: review, readerNamespace: readerNamespace) {

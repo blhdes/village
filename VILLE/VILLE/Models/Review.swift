@@ -45,6 +45,11 @@ final class Review {
     var isRewatch: Bool
     var containsSpoilers: Bool
 
+    /// When the reader uncovered this spoiler review; nil while it's still
+    /// covered. One-way: saved, never set back, so it stays uncovered on
+    /// the reel, in Bookmarks and after VILLE quits.
+    var spoilersRevealedAt: Date?
+
     /// Review body as Letterboxd's HTML, with the poster image removed.
     var reviewHTML: String
 
@@ -100,6 +105,7 @@ final class Review {
         containsSpoilers = parsed.containsSpoilers
         reviewHTML = parsed.reviewHTML
         wordCount = parsed.wordCount
+        spoilersRevealedAt = nil
         posterPath = nil
         backdropPath = nil
         posterPaths = nil
@@ -148,6 +154,9 @@ extension Review {
     var authorProfileURL: URL? { URL(string: "https://letterboxd.com/\(username)/") }
 
     var isBookmarked: Bool { bookmarkedAt != nil }
+
+    /// A spoiler review the reader hasn't uncovered yet (`SpoilerGate`).
+    var isSpoilerCovered: Bool { containsSpoilers && spoilersRevealedAt == nil }
 
     /// A one-liner ("Banger", "absolute cinema"): under
     /// `ReviewLength.shortLimit` words. Settings → Reading can leave these

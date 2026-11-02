@@ -3,7 +3,8 @@
 //  VILLE
 //
 //  The glass shield over a review that may contain spoilers. Tap anywhere
-//  on it to reveal: one-way, and kept until the app quits (`ReelSession`).
+//  on it to reveal: one-way, and saved on the review, so it stays
+//  uncovered everywhere, even after VILLE quits (`ReelSession`).
 //  Used on the reel and in the reader, since a review can be bookmarked
 //  before it's revealed (to read after watching the film).
 //
@@ -14,7 +15,7 @@
 import SwiftUI
 
 struct SpoilerGate: View {
-    let reviewID: String
+    let review: Review
 
     @Environment(ReelSession.self) private var session
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -25,7 +26,7 @@ struct SpoilerGate: View {
     var body: some View {
         Button {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                session.revealSpoilers(for: reviewID)
+                session.revealSpoilers(of: review)
             }
         } label: {
             VStack(alignment: .leading, spacing: 12) {

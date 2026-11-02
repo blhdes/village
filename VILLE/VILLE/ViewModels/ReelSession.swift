@@ -2,8 +2,9 @@
 //  ReelSession.swift
 //  VILLE
 //
-//  What's on screen right now: the session's `ReelQueue`, the page the
-//  reader is on, and the spoilers they chose to reveal. A session is as
+//  What's on screen right now: the session's `ReelQueue` and the page the
+//  reader is on. Spoilers the reader uncovers are saved on the review
+//  (`Review.spoilersRevealedAt`), from here. A session is as
 //  long as Settings says; then the feed ends. Coming back after a break
 //  (30 minutes away) starts a new one.
 //
@@ -46,10 +47,6 @@ final class ReelSession {
     static let endPageID = -1
 
     private(set) var queue = ReelQueue()
-
-    /// Spoiler reviews the user chose to read. Kept until the app quits, so
-    /// a review stays uncovered if it comes round again.
-    private(set) var revealedSpoilers: Set<String> = []
 
     /// Sessions read to the end during this visit: one more each time the
     /// end card comes on screen after new reels. The rating request counts
@@ -140,8 +137,16 @@ final class ReelSession {
         markShown(queue.slots[index].reviewID, in: reviews)
     }
 
-    func revealSpoilers(for reviewID: String) {
-        revealedSpoilers.insert(reviewID)
+    /// Uncovers a spoiler review for good: on the reel, in Bookmarks and
+    /// after VILLE quits. One-way.
+    func revealSpoilers(of review: Review) {
+        guard review.spoilersRevealedAt == nil else { return }
+        review.spoilersRevealedAt = .now
+        do {
+            try context.save()
+        } catch {
+            print("ReelSession: could not save that the spoilers of \(review.id) were revealed — \(error)")
+        }
     }
 
     // MARK: Breaks

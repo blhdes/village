@@ -137,6 +137,9 @@ extension Review {
 
     var url: URL? { URL(string: link) }
 
+    /// The author's profile on letterboxd.com.
+    var authorProfileURL: URL? { URL(string: "https://letterboxd.com/\(username)/") }
+
     var isBookmarked: Bool { bookmarkedAt != nil }
 
     /// A web search for the film ("Title 2026 film"), opened from its title

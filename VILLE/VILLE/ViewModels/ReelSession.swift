@@ -61,7 +61,7 @@ final class ReelSession {
             startNew(with: reviews, length: length)
             return
         }
-        queue.sync(with: candidates(reviews), length: length, currentIndex: currentIndex, sessionEnded: isAtEnd)
+        queue.sync(with: candidates(reviews), length: length, currentSlotID: currentPageID, sessionEnded: isAtEnd)
     }
 
     /// The session length changed in Settings.

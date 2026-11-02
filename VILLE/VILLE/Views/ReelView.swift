@@ -9,7 +9,9 @@
 //
 //  The backdrop (and, with Alternative posters on, the poster) is picked
 //  per appearance by the slot, so a film looks different each time it
-//  comes round. Tapping the poster flips to the film's next one.
+//  comes round. Tapping the poster flips to the film's next one. Tapping
+//  the byline offers the author's profile, Report on Letterboxd and
+//  Unfollow, which asks first.
 //
 
 import SwiftUI
@@ -27,6 +29,8 @@ struct ReelView: View {
     let slot: ReelSlot
     let look: ReelLook
     let insets: EdgeInsets
+    /// Unfollows the author, once the reader has confirmed.
+    let onUnfollow: () -> Void
 
     @Environment(ReelSession.self) private var session
     @Environment(FeedViewModel.self) private var viewModel
@@ -35,6 +39,7 @@ struct ReelView: View {
     @Namespace private var readerNamespace
 
     @State private var isReading = false
+    @State private var isConfirmingUnfollow = false
     /// How many times the poster was tapped, each showing the next one.
     @State private var posterTaps = 0
 
@@ -90,8 +95,19 @@ struct ReelView: View {
                     posterURL: posterURL,
                     isPosterPending: isPosterPending,
                     showRating: look.showRating,
-                    onPosterTap: posterTap
+                    onPosterTap: posterTap,
+                    onUnfollow: { isConfirmingUnfollow = true }
                 )
+                // Unfollowing also deletes their saved reviews: ask first.
+                .confirmationDialog(
+                    Text("Unfollow \(review.authorName)?"),
+                    isPresented: $isConfirmingUnfollow,
+                    titleVisibility: .visible
+                ) {
+                    Button("Unfollow", role: .destructive, action: onUnfollow)
+                } message: {
+                    Text("Their reviews leave your feed and this iPhone. The ones you bookmarked stay in Bookmarks.")
+                }
 
                 // The container stays put while the `if` swaps its content,
                 // so the spoiler glass can dissolve instead of just vanishing.

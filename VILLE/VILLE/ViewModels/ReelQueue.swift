@@ -42,10 +42,18 @@ struct ReelQueue {
     /// Brings the queue in line with the saved reviews: drops deleted ones
     /// and lets new arrivals into the upcoming reels. Once the end card is
     /// showing, the session is over and new reviews wait for the next one.
-    mutating func sync(with candidates: [ReelCandidate], length: Int, currentIndex: Int, sessionEnded: Bool) {
+    /// `currentSlotID` is the reel on screen, found again after the drop:
+    /// reels leaving before it (an unfollowed member's) mustn't shift where
+    /// the session goes on from.
+    mutating func sync(with candidates: [ReelCandidate], length: Int, currentSlotID: Int?, sessionEnded: Bool) {
         let ids = Set(candidates.map(\.id))
         let arrived = !ids.isSubset(of: knownIDs)
         knownIDs = ids
+
+        // Where the reader is, counted in the reels that stay. If the reel
+        // on screen leaves too, the next one that stays takes its place.
+        let current = currentSlotID.flatMap { index(of: $0) } ?? 0
+        let currentIndex = slots[..<current].count(where: { ids.contains($0.reviewID) })
 
         let countBefore = slots.count
         slots.removeAll { !ids.contains($0.reviewID) }

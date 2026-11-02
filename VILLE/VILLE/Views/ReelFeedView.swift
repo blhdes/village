@@ -120,7 +120,9 @@ struct ReelFeedView: View {
                 ForEach(slots) { slot in
                     Group {
                         if let review = lookup[slot.reviewID] {
-                            ReelView(review: review, slot: slot, look: look, insets: insets)
+                            ReelView(review: review, slot: slot, look: look, insets: insets) {
+                                unfollow(review.username, leaving: slot)
+                            }
                         } else {
                             Color.reelBackground
                         }
@@ -156,6 +158,29 @@ struct ReelFeedView: View {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             guard let firstNew = session.keepReading(with: reviews, length: sessionLength) else { return }
             currentPageID = firstNew
+        }
+    }
+
+    /// Unfollows a reel's author, from its byline. The feed first moves on
+    /// to the next reel by someone else (or the end card), then the member
+    /// and their saved reviews go, so nothing vanishes under the reader's
+    /// eyes. Bookmarks stay.
+    private func unfollow(_ username: String, leaving slot: ReelSlot) {
+        guard let member = members.first(where: { $0.username == username }) else {
+            print("ReelFeedView: \(username) isn't followed, nothing to unfollow")
+            return
+        }
+        let authors = Dictionary(reviews.map { ($0.id, $0.username) }, uniquingKeysWith: { first, _ in first })
+        let slots = session.queue.slots
+        let after = slots.firstIndex { $0.id == slot.id }.map { $0 + 1 } ?? 0
+        let next = slots[after...].first { upcoming in
+            authors[upcoming.reviewID].map { $0 != username } ?? false
+        }?.id ?? ReelSession.endPageID
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            currentPageID = next
+        } completion: {
+            viewModel.removeMembers([member])
         }
     }
 

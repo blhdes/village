@@ -5,7 +5,8 @@
 //  Add and remove the Letterboxd members whose reviews fill the feed.
 //  Saved only on this device. Until the user follows a few people, a
 //  "Suggested" section offers some to start with. Bookmarks open from here
-//  too: one quiet row, the user's own corner of the library.
+//  too: one quiet row, the user's own corner of the library, with a
+//  monochrome icon like the rows in Settings.
 //
 
 import SwiftUI
@@ -73,8 +74,12 @@ struct MembersView: View {
                                 Text(bookmarks.count, format: .number)
                             }
                         } label: {
-                            Text("Bookmarks")
-                                .font(.system(.body, design: .serif))
+                            Label {
+                                Text("Bookmarks")
+                                    .font(.system(.body, design: .serif))
+                            } icon: {
+                                Image(systemName: "bookmark")
+                            }
                         }
                     }
                 }

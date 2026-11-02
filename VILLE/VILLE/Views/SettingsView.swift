@@ -2,9 +2,12 @@
 //  SettingsView.swift
 //  VILLE
 //
-//  Look options (appearance, posters, backdrops, stars and likes), the
-//  language, the session length, storage (`StorageSection`), and the
-//  attributions required by Letterboxd and TMDB.
+//  Settings, from how a reel looks to what VILLE is: the reel on screen in
+//  miniature (`LookPreview`), Look (the appearance as three small pages,
+//  then posters, backdrops, stars and likes), Reading (the session length),
+//  Language, Storage (`StorageSection`) and About (`AboutSection`). Icons
+//  stay monochrome, in the text color, so the brand's colors keep their
+//  meaning.
 //
 
 import SwiftUI
@@ -20,6 +23,10 @@ enum SettingsKey {
 }
 
 struct SettingsView: View {
+    /// The reel on screen (or a stand-in), drawn at the top with the
+    /// current look. Nil until the library has a review.
+    var preview: LookPreview.Sample?
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
@@ -30,76 +37,31 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
     @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
+    private var look: ReelLook {
+        ReelLook(
+            showPoster: showPosters,
+            showBackdrop: showBackdrops,
+            alternativePosters: alternativePosters,
+            showRating: showRatings
+        )
+    }
+
     var body: some View {
         NavigationStack {
             Form {
-                Section("Appearance") {
-                    Picker("Appearance", selection: $appearance) {
-                        ForEach(Appearance.allCases) { option in
-                            Text(option.title).tag(option)
-                        }
+                if let preview {
+                    Section {
+                        LookPreview(sample: preview, look: look)
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
                 }
 
-                Section {
-                    Button(action: openLanguageSettings) {
-                        HStack {
-                            Text(verbatim: Self.currentLanguageName)
-                            Spacer()
-                            Image(systemName: "arrow.up.forward")
-                                .imageScale(.small)
-                                .foregroundStyle(Color.primary.opacity(0.6))
-                        }
-                    }
-                    .accessibilityHint("Opens VILLE in iOS Settings")
-                } header: {
-                    Text("Language")
-                } footer: {
-                    Text("VILLE follows your iPhone. To read it in another language, tap and choose one under Language. Translations follow it too.")
-                }
-
-                Section {
-                    Toggle("Posters", isOn: $showPosters)
-                    Toggle("Alternative posters", isOn: $alternativePosters)
-                        .disabled(!showPosters)
-                    Toggle("Backdrops", isOn: $showBackdrops)
-                    Toggle("Stars and likes", isOn: $showRatings)
-                } header: {
-                    Text("Look")
-                } footer: {
-                    Text("Alternative posters picks a different one from TMDB each time, like other countries' releases. Tap any poster to flip to the next. Turn posters and backdrops off for text only, and stars and likes off to read the words before the verdict.")
-                }
-
-                Section {
-                    Picker("Reviews per session", selection: $sessionLength) {
-                        ForEach(SessionLength.options, id: \.self) { length in
-                            Text(verbatim: "\(length)").tag(length)
-                        }
-                    }
-                } header: {
-                    Text("Session")
-                } footer: {
-                    Text("The feed ends after this many reviews. Keep reading from the end card, or come back later for a new session.")
-                }
-
+                lookSection
+                readingSection
+                languageSection
                 StorageSection()
-
-                Section("About") {
-                    Text("Reviews come from members' public Letterboxd RSS feeds and belong to their authors. VILLE is not affiliated with or endorsed by Letterboxd.")
-                    Text("This product uses the TMDB API but is not endorsed or certified by TMDB.")
-                    // Official files from letterboxd.com/about/brand and
-                    // themoviedb.org/about/logos-attribution. Letterboxd only
-                    // allows its logo as a link to the platform.
-                    Link(destination: URL(string: "https://letterboxd.com")!) {
-                        AttributionLogo(image: .letterboxdLogo, label: "Letterboxd", height: 24)
-                    }
-                    Link(destination: URL(string: "https://www.themoviedb.org")!) {
-                        AttributionLogo(image: .tmdbLogo, label: "The Movie Database (TMDB)", height: 14)
-                    }
-                }
-                .font(.footnote)
+                AboutSection()
             }
             .editorialTitle("Settings")
             .toolbar {
@@ -110,6 +72,79 @@ struct SettingsView: View {
         }
     }
 }
+
+// MARK: - Sections
+
+private extension SettingsView {
+    var lookSection: some View {
+        Section {
+            AppearancePicker(selection: $appearance)
+
+            Toggle(isOn: $showPosters) {
+                Label("Posters", systemImage: "rectangle.portrait")
+            }
+            Toggle(isOn: $alternativePosters) {
+                Label("Alternative posters", systemImage: "rectangle.portrait.on.rectangle.portrait.angled")
+            }
+            .disabled(!showPosters)
+            Toggle(isOn: $showBackdrops) {
+                Label("Backdrops", systemImage: "film")
+            }
+            Toggle(isOn: $showRatings) {
+                Label("Stars and likes", systemImage: "star.leadinghalf.filled")
+            }
+        } header: {
+            Text("Look")
+        } footer: {
+            Text("Alternative posters picks a different one from TMDB each time, like other countries' releases. Tap any poster to flip to the next.")
+        }
+    }
+
+    var readingSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Reviews per session", systemImage: "rectangle.stack")
+                Picker("Reviews per session", selection: $sessionLength) {
+                    ForEach(SessionLength.options, id: \.self) { length in
+                        Text(verbatim: "\(length)").tag(length)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+            }
+            .padding(.vertical, 4)
+        } header: {
+            Text("Reading")
+        } footer: {
+            Text("The feed ends after this many reviews. Keep reading from the end card, or come back later for a new session.")
+        }
+    }
+
+    var languageSection: some View {
+        Section {
+            Button(action: openLanguageSettings) {
+                HStack {
+                    Label {
+                        Text(verbatim: Self.currentLanguageName)
+                    } icon: {
+                        Image(systemName: "globe")
+                    }
+                    Spacer()
+                    Image(systemName: "arrow.up.forward")
+                        .imageScale(.small)
+                        .foregroundStyle(Color.primary.opacity(0.6))
+                }
+            }
+            .accessibilityHint("Opens VILLE in iOS Settings")
+        } header: {
+            Text("Language")
+        } footer: {
+            Text("VILLE follows your iPhone. To read it in another language, tap and choose one under Language. Translations follow it too.")
+        }
+    }
+}
+
+// MARK: - Language
 
 private extension SettingsView {
     /// The language VILLE shows right now, named in itself ("Español",
@@ -130,21 +165,5 @@ private extension SettingsView {
             return
         }
         openURL(url)
-    }
-}
-
-/// A partner logo drawn from its official asset, never redrawn or recolored.
-private struct AttributionLogo: View {
-    let image: ImageResource
-    let label: String
-    let height: CGFloat
-
-    var body: some View {
-        Image(image)
-            .resizable()
-            .scaledToFit()
-            .frame(height: height)
-            .padding(.vertical, 4)
-            .accessibilityLabel(label)
     }
 }

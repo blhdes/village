@@ -62,7 +62,8 @@
 - ✅ iPhone only (`TARGETED_DEVICE_FAMILY = 1`), portrait
 - ✅ Release build compiles (Xcode 27.2, generic iOS, unsigned)
 - 👉 Third-party content: basis for the rights answer (Risks 1)
-- ⏳ App finished (you)
+- ⏳ Privacy policy and a way to contact you inside the app (guidelines 5.1.1 and 1.5): Settings → About links to the privacy and support pages (2026-11-02, in the code, waiting for your iPhone test)
+- ⏳ App finished (you). The plan for the rest of 1.0 is in the vault (`Projects/village-swift/village-swift.md`, Next steps)
 
 ## 3. Product page
 
@@ -120,3 +121,4 @@
 - 2026-10-31: App localized into es, de, fr, it, ja, pt-BR, zh-Hans (`Localizable.xcstrings`). Settings → Language opens iOS's per-app language page. Spanish listing line about an English-only app removed.
 - 2026-10-31: Product page written for de-DE, fr-FR, it, ja, pt-BR and zh-Hans (`store/metadata/`, `METADATA.md`), "In your language" section added to every description, screenshot captions for the six languages in `SCREENSHOTS.md`. Validated and dry-run only: nothing sent.
 - 2026-10-31: Six listings sent and the en/es descriptions updated (`asc metadata apply`, your OK). App Store Connect now has 8 locales. `asc validate`: still 3 blocking (content rights, screenshots, build), nothing new.
+- 2026-11-02: Settings redesigned: a live preview of the reel on screen, Appearance as three pages, monochrome icons, the session length in one tap (new Reading section), and About with the privacy policy, help and contact, a rating link and the version. Built, not yet tested on the iPhone. Plan for the rest of 1.0 agreed and saved in the vault.

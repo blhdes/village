@@ -78,7 +78,7 @@ struct ReelFeedView: View {
             Group {
                 switch sheet {
                 case .members, .addPeople: MembersView()
-                case .settings: SettingsView()
+                case .settings: SettingsView(preview: settingsPreview)
                 }
             }
             .navigationTransition(.zoom(sourceID: sheet, in: sheetNamespace))
@@ -157,6 +157,16 @@ struct ReelFeedView: View {
             guard let firstNew = session.keepReading(with: reviews, length: sessionLength) else { return }
             currentPageID = firstNew
         }
+    }
+
+    /// The reel on screen, drawn at the top of Settings.
+    private var settingsPreview: LookPreview.Sample? {
+        .onScreen(
+            in: session.queue,
+            pageID: currentPageID,
+            reviews: reviews,
+            revealedSpoilers: session.revealedSpoilers
+        )
     }
 
     /// Back after a break: a new session from the top, and fresh feeds.

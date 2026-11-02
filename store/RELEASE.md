@@ -132,3 +132,4 @@
 - 2026-11-02: People's Bookmarks row got a monochrome icon, like the Settings rows. Built, not yet tested on the iPhone.
 - 2026-11-02: Backdrops off by default (your call). 👉 The screenshot plan uses public-domain frames as backdrops, so the demo mode must turn Backdrops on. Built, not yet tested on the iPhone.
 - 2026-11-02: Uncovered spoilers are saved on the review: they stay uncovered on the reel, in Bookmarks and after VILLE quits (before, only until it quit). Privacy page updated locally. Built, not yet tested on the iPhone.
+- 2026-11-02: Bookmarks double as a watchlist: swipe a row left in the list to remove it, after a confirmation. Support FAQ updated locally. Built, not yet tested on the iPhone.

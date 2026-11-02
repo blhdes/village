@@ -2811,6 +2811,52 @@
         }
       }
     },
+    "Remove “%@” from Bookmarks?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ aus den Lesezeichen entfernen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quitar «%@» de Marcadores?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer « %@ » des signets ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovere “%@” dai segnalibri?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "『%@』をブックマークから削除しますか？"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover “%@” dos marcadores?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要从书签中移除《%@》吗？"
+          }
+        }
+      }
+    },
     "Remove bookmark" : {
       "localizations" : {
         "de" : {
@@ -6929,6 +6975,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你已关注“%@”。"
+          }
+        }
+      }
+    },
+    "You no longer follow %@, so this review leaves this iPhone too." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du folgst %@ nicht mehr, daher verschwindet diese Kritik auch von diesem iPhone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya no sigues a %@, así que esta reseña también saldrá de este iPhone."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous ne suivez plus %@, donc cette critique quittera aussi cet iPhone."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non segui più %@, quindi questa recensione sparirà anche da questo iPhone."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@をフォローしていないため、このレビューはこのiPhoneからも削除されます。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você não segue mais %@, então esta resenha também vai sair deste iPhone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已不再关注%@，所以这篇影评也会从这台 iPhone 中移除。"
           }
         }
       }

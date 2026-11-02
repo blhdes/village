@@ -6,9 +6,11 @@
 //  People. Kept only on this iPhone, and never trimmed. A bookmark stays
 //  after its member is removed. Tapping a row opens every bookmark on one
 //  page that scrolls from review to review, starting at that one
-//  (`BookmarksReader`). The bookmark under a review is the only way to
-//  take it off. Each bookmark keeps its own poster: the one on screen
-//  when it was made, or the last one picked on the page.
+//  (`BookmarksReader`). Bookmarks double as a watchlist: swiping a row
+//  left removes it, after a confirmation, without opening it. On the page,
+//  the bookmark under a review takes it off instead. Each bookmark keeps
+//  its own poster: the one on screen when it was made, or the last one
+//  picked on the page.
 //
 
 import SwiftUI
@@ -26,7 +28,16 @@ struct BookmarksView: View {
     )
     private var bookmarks: [Review]
 
+    @Query private var members: [FollowedUser]
+
+    @Environment(FeedViewModel.self) private var viewModel
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
+
+    /// The bookmark a swipe asked to remove, waiting for the reader's OK.
+    @State private var removing: Review?
+    /// Its film, kept for the dialog's title while the dialog closes.
+    @State private var removingFilm = ""
+    @State private var removals = 0
 
     var body: some View {
         List {
@@ -36,8 +47,33 @@ struct BookmarksView: View {
                 NavigationLink(value: BookmarkRoute(reviewID: review.id)) {
                     row(review)
                 }
+                // Not a destructive role: that would slide the row away
+                // before the reader confirms.
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button {
+                        removingFilm = review.filmTitle
+                        removing = review
+                    } label: {
+                        Label("Remove bookmark", systemImage: "bookmark.slash")
+                    }
+                    .tint(.red)
+                }
             }
         }
+        .confirmationDialog(
+            Text("Remove “\(removingFilm)” from Bookmarks?"),
+            isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
+            titleVisibility: .visible,
+            presenting: removing
+        ) { review in
+            Button("Remove bookmark", role: .destructive) { remove(review) }
+        } message: { review in
+            // Without its author followed, nothing else keeps the review.
+            if !members.contains(where: { $0.username == review.username }) {
+                Text("You no longer follow \(review.authorName), so this review leaves this iPhone too.")
+            }
+        }
+        .sensoryFeedback(.selection, trigger: removals)
         .overlay {
             if bookmarks.isEmpty {
                 emptyState
@@ -47,6 +83,13 @@ struct BookmarksView: View {
             BookmarksReader(bookmarks: bookmarks, startID: route.reviewID)
         }
         .editorialTitle("Bookmarks")
+    }
+
+    private func remove(_ review: Review) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            viewModel.toggleBookmark(review, posterPick: nil)
+        }
+        removals += 1
     }
 
     /// The bookmark's own poster, unless posters are off in Settings.

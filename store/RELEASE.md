@@ -74,6 +74,7 @@
 - ✅ App Privacy "Data Not Collected" published in App Store Connect (2026-10-31, Chrome)
 - ✅ Six more listings (de-DE, fr-FR, it, ja, pt-BR, zh-Hans) + "In your language" section in every description, sent with `asc metadata apply` (2026-10-31, your OK). A dry run afterwards shows no differences. To change them: edit `store/metadata/`, then the same command.
 - ⬜ Content rights (after Letterboxd answers)
+- ⬜ Refresh the description in all 8 languages before submitting: backdrops are off by default now, and bookmarks (also a watchlist), the Reading options and Search (planned) aren't in it yet. Then `asc metadata apply` after your OK
 
 `asc validate` (2026-10-31): 3 blocking items left: content rights (waits for Letterboxd; never answer "does not use third-party content", which `asc` suggests), screenshots, build. App Privacy is published (the API can't check it, so `asc` still shows an info line).
 
@@ -108,6 +109,7 @@
 8. **Name reservation.** Upload a first TestFlight build once the app runs.
 9. **Public repo.** Contact details go in `store/contact.env` (gitignored). No UDIDs or keys in git.
 10. **Copy and translate (added 2026-10-31).** Review text can be selected and copied, and translated into the reader's language (VILLE's own, if one was picked in iOS Settings, else the iPhone's) with Apple's Translation framework, on the device. Nothing is stored, synced or sent, and Share stays a link, so App Privacy ("Data Not Collected") and the privacy page stay true. If Letterboxd answers the email thread, check they're fine with on-device translation (it works like Safari's Translate on their site).
+11. **Search (planned, 2026-11-02).** Opening any member's feed by username or link, without following, is still RSS only, one member at a time and on demand (ToS 6.8 and 6.11 stay fine: no index, no scraping). The privacy page must then say VILLE fetches the feed of any member you search for.
 
 ## Log
 
@@ -133,3 +135,4 @@
 - 2026-11-02: Backdrops off by default (your call). 👉 The screenshot plan uses public-domain frames as backdrops, so the demo mode must turn Backdrops on. Built, not yet tested on the iPhone.
 - 2026-11-02: Uncovered spoilers are saved on the review: they stay uncovered on the reel, in Bookmarks and after VILLE quits (before, only until it quit). Privacy page updated locally. Built, not yet tested on the iPhone.
 - 2026-11-02: Bookmarks double as a watchlist: swipe a row left in the list to remove it, after a confirmation. Support FAQ updated locally. Built, not yet tested on the iPhone.
+- 2026-11-02: Docs brought up to date with this session (support FAQ: the Suggested button is "Add", spoilers, bookmark swipe; review notes: Reading options; screenshot plan: demo mode turns backdrops on; README; vault Phase 07). Nothing published or sent. Next before the demo build: translation intro, a stronger brand red, Search, the light/dark redraw bug in Settings.

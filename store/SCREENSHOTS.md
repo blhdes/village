@@ -63,6 +63,8 @@ All of it is in `screenshots/demo-content.md`: fictional members (each username 
 | Build settings | `EXCLUDED_SOURCE_FILE_NAMES = StoreDemo/*` in **Release**, so none of it ships |
 | `VILLEStoreShots` (new UI-test target, you create it in Xcode) | Walks through the six screens and saves each capture |
 
+Backdrops are off by default since 2026-11-02, and the shots use public-domain frames as backdrops: demo mode turns `showBackdrops` on.
+
 ## Running it (later)
 
 1. iPhone 13 connected and unlocked, Developer Mode on, **Settings → Developer → Enable UI Automation** on.

@@ -1241,6 +1241,52 @@
         }
       }
     },
+    "Couldn't open that link. Try the member's username instead." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Link ließ sich nicht öffnen. Versuch es mit dem Benutzernamen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido abrir ese enlace. Prueba con su nombre de usuario."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’ouvrir ce lien. Essayez plutôt avec le nom d’utilisateur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aprire il link. Prova con il nome utente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このリンクを開けませんでした。ユーザー名で試してください。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível abrir o link. Tente com o nome de usuário."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法打开该链接。请改用用户名。"
+          }
+        }
+      }
+    },
     "Couldn't reach Letterboxd. Showing saved reviews." : {
       "localizations" : {
         "de" : {
@@ -3589,6 +3635,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "轻点以显示"
+          }
+        }
+      }
+    },
+    "That link isn't to a member's profile or one of their reviews." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Link führt weder zu einem Mitgliedsprofil noch zu einer Kritik."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese enlace no es el perfil de un miembro ni una de sus reseñas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce lien ne mène ni au profil d’un membre ni à l’une de ses critiques."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo link non porta al profilo di un membro né a una sua recensione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このリンクはメンバーのプロフィールでもレビューでもありません。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esse link não é do perfil de um membro nem de uma resenha dele."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该链接既不是成员主页，也不是其影评。"
           }
         }
       }

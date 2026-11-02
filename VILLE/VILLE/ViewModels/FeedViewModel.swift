@@ -135,9 +135,13 @@ final class FeedViewModel {
     // MARK: Members
 
     /// Validates the username against Letterboxd, then saves the member and
-    /// their current reviews. Throws a user-readable error on failure.
+    /// their current reviews. Takes a username or a link, including the
+    /// boxd.it short links the Letterboxd app shares (`LetterboxdLink`).
+    /// Throws a user-readable error on failure.
     func addMember(_ input: String) async throws {
-        guard let username = RSSService.normalizeUsername(input) else {
+        let address = try await LetterboxdLink.expand(input)
+        try LetterboxdLink.requireMember(address)
+        guard let username = RSSService.normalizeUsername(address) else {
             throw RSSError.invalidUsername(input)
         }
         let existing = FetchDescriptor<FollowedUser>(predicate: #Predicate { $0.username == username })

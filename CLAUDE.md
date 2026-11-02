@@ -38,7 +38,7 @@ It is the lighter stepping stone before the full social network (`../ville-du-ci
 
 Checked 2026-10-21 against the "October 2026" Terms of Use.
 
-- **RSS only.** Never fetch or parse Letterboxd HTML pages (clause 6.11 bans scraping). The RSS feed is the route Letterboxd offers on letterboxd.com/api-beta.
+- **RSS only.** Never fetch or parse Letterboxd HTML pages (clause 6.11 bans scraping). The RSS feed is the route Letterboxd offers on letterboxd.com/api-beta. The one other request: a boxd.it short link the user pastes to add someone (the Letterboxd app shares profiles that way) is resolved by `LetterboxdLink` with a single HEAD request to boxd.it that reads only the redirect's Location and never follows it, so no page is fetched.
 - **No exporting others' content** (6.8): sharing sends the Letterboxd URL only. Copying and translating are the reader's own, on the device, like selecting text or "Translate" in Safari on letterboxd.com: translations are never stored, synced or sent anywhere, and Share never carries them.
 - **No index of a "significant portion"** (6.8 bans "creating… an index of any significant portion of the Service content"): only reviews from members the user added, stored locally. The one bundled list is `SuggestedMember`: about 100 hand-picked usernames and display names (out of 30M+ members), never reviews, and nothing is fetched until the user adds someone. Never scrape or import member lists, never pre-fetch suggested members' feeds, and don't grow it into a directory. Re-check the list against RSS before each release (2026-10-28 last).
 - **No competing business** (6.9): keep the app free, credit the author on every reel, and always link back to the original.
@@ -80,6 +80,7 @@ VILLE/VILLE/
 │   └── SuggestedMember.swift   # Hand-picked members offered on the People screen
 ├── Services/
 │   ├── RSSService.swift        # Fetch + parse RSS, keep reviews only
+│   ├── LetterboxdLink.swift    # boxd.it short links (one HEAD, never followed), links that aren't members
 │   ├── ReviewHTML.swift        # Review HTML → paragraph/quote/list blocks
 │   ├── TMDBService.swift       # Poster + backdrop galleries by TMDB id
 │   ├── FilmArtLoader.swift     # Fills missing art, one TMDB request per film

@@ -16,6 +16,8 @@ import SwiftUI
 /// `@AppStorage` keys, shared by every view that reads these settings.
 enum SettingsKey {
     static let showPosters = "showPosters"
+    /// Off by default: a reel opens on plain type. Every `@AppStorage`
+    /// that reads it must default to false too.
     static let showBackdrops = "showBackdrops"
     static let alternativePosters = "alternativePosters"
     static let showRatings = "showRatings"
@@ -34,7 +36,7 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
 
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
-    @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = true
+    @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = false
     @AppStorage(SettingsKey.alternativePosters) private var alternativePosters = false
     @AppStorage(SettingsKey.showRatings) private var showRatings = true
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard

@@ -32,7 +32,7 @@ struct ReelFeedView: View {
     @Query private var members: [FollowedUser]
 
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
-    @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = true
+    @AppStorage(SettingsKey.showBackdrops) private var showBackdrops = false
     @AppStorage(SettingsKey.alternativePosters) private var alternativePosters = false
     @AppStorage(SettingsKey.showRatings) private var showRatings = true
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard

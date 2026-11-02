@@ -45,6 +45,7 @@
 - 2026-10-31: App Review contact: your personal email and phone, saved in `store/contact.env` (gitignored, never in git).
 - 2026-10-31: One store listing per app language (8). Keywords kept under 100 bytes, so Japanese and Chinese hold about 30 characters.
 - 2026-10-31: The pages' favicon, home-screen icon and link-preview image are the real app icon, exported from `AppIcon.icon` with Icon Composer's `ictool` (never redrawn).
+- 2026-11-02: New logo from a logo study (your pick): Source Serif 4 Italic, weight 670, a bigger red full stop, for both the wordmark and the icon (`brand/export_marks.py`). 👉 After your iPhone test, the pages' favicon, home-screen icon and link-preview image get exported again from the new `AppIcon.icon` and the pages republished (`bash store/publish-site.sh`, your OK). The store screenshots aren't made yet, so they'll show the new logo.
 
 ## 1. Foundations
 
@@ -122,3 +123,4 @@
 - 2026-10-31: Product page written for de-DE, fr-FR, it, ja, pt-BR and zh-Hans (`store/metadata/`, `METADATA.md`), "In your language" section added to every description, screenshot captions for the six languages in `SCREENSHOTS.md`. Validated and dry-run only: nothing sent.
 - 2026-10-31: Six listings sent and the en/es descriptions updated (`asc metadata apply`, your OK). App Store Connect now has 8 locales. `asc validate`: still 3 blocking (content rights, screenshots, build), nothing new.
 - 2026-11-02: Settings redesigned: a live preview of the reel on screen, Appearance as three pages, monochrome icons, the session length in one tap (new Reading section), and About with the privacy policy, help and contact, a rating link and the version. Built, not yet tested on the iPhone. Plan for the rest of 1.0 agreed and saved in the vault.
+- 2026-11-02: New wordmark and icon (Source Serif 4 Italic, weight 670, dot 140%), exported from the font by `brand/export_marks.py`, which first reproduced the old icon point for point. Built, not yet tested on the iPhone. Site icons wait for that test.

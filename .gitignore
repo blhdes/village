@@ -34,3 +34,6 @@ VILLE/VILLE/Secrets.swift
 # App Store release: private contact details and build output
 store/contact.env
 store/build/
+
+# Python environment for brand/export_marks.py
+.venv/

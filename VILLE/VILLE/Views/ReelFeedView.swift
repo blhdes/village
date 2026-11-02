@@ -37,6 +37,7 @@ struct ReelFeedView: View {
     @AppStorage(SettingsKey.showRatings) private var showRatings = true
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
     @AppStorage(SettingsKey.hideShortReviews) private var hideShortReviews = false
+    @AppStorage(SettingsKey.showEachReviewOnce) private var showEachReviewOnce = false
 
     /// The page on screen: a reel's slot id, or `ReelSession.endPageID`.
     @State private var currentPageID: Int?
@@ -62,7 +63,11 @@ struct ReelFeedView: View {
     /// Settings → Reading: how long a session is, and which reviews it
     /// leaves out.
     private var rules: ReadingRules {
-        ReadingRules(length: sessionLength, hidesShortReviews: hideShortReviews)
+        ReadingRules(
+            length: sessionLength,
+            hidesShortReviews: hideShortReviews,
+            showsEachReviewOnce: showEachReviewOnce
+        )
     }
 
     var body: some View {
@@ -71,7 +76,12 @@ struct ReelFeedView: View {
                 Color.reelBackground.ignoresSafeArea()
 
                 if session.queue.slots.isEmpty {
-                    emptyState
+                    FeedEmptyState(
+                        reason: .init(hasMembers: !members.isEmpty, isRefreshing: viewModel.isRefreshing, reviews: reviews, rules: rules),
+                        namespace: sheetNamespace
+                    ) {
+                        activeSheet = .addPeople
+                    }
                 } else {
                     reels(insets: proxy.safeAreaInsets)
                 }
@@ -123,6 +133,8 @@ struct ReelFeedView: View {
             showRating: showRatings
         )
         let slots = session.queue.slots
+        // Never shown, and allowed by Settings → Reading.
+        let unread = reviews.count { $0.lastShownAt == nil && rules.allows($0) }
 
         return ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
@@ -142,7 +154,9 @@ struct ReelFeedView: View {
                 SessionEndView(
                     reviewCount: slots.count,
                     memberCount: Set(slots.compactMap { lookup[$0.reviewID]?.username }).count,
-                    unreadCount: reviews.count(where: { $0.lastShownAt == nil && rules.allows($0) }),
+                    unreadCount: unread,
+                    // Each review once and none left: the session can't go on.
+                    canKeepReading: unread > 0 || !rules.showsEachReviewOnce,
                     onKeepReading: keepReading
                 )
                 .containerRelativeFrame([.horizontal, .vertical])
@@ -216,56 +230,6 @@ struct ReelFeedView: View {
         default:
             break
         }
-    }
-
-    // MARK: Empty states
-
-    @ViewBuilder
-    private var emptyState: some View {
-        if members.isEmpty {
-            emptyMessage(
-                title: "Reviews, one at a time",
-                message: "Add the Letterboxd members whose writing you want to read.",
-                buttonTitle: "Add people"
-            )
-        } else if viewModel.isRefreshing {
-            VStack(spacing: 18) {
-                VILLEWordmark(size: 44, isPulsing: true)
-                Text("Fetching reviews…")
-                    .datelineStyle()
-                    .foregroundStyle(Color.primary.opacity(0.6))
-            }
-        } else if hideShortReviews, !reviews.isEmpty {
-            // There are reviews, but Settings → Reading hides them all.
-            emptyMessage(
-                title: "Only short reviews so far",
-                message: "Very short reviews are hidden in Settings. Add more people to fill your feed.",
-                buttonTitle: "Add people"
-            )
-        } else {
-            emptyMessage(
-                title: "No written reviews yet",
-                message: "The people you follow haven't posted reviews recently. Add more people to fill your feed.",
-                buttonTitle: "Add people"
-            )
-        }
-    }
-
-    /// A headline with the red full stop, a line of serif text and one button.
-    private func emptyMessage(title: LocalizedStringKey, message: LocalizedStringKey, buttonTitle: LocalizedStringKey) -> some View {
-        VStack(spacing: 14) {
-            EditorialHeadline(text: title)
-                .multilineTextAlignment(.center)
-            Text(message)
-                .font(.system(.body, design: .serif))
-                .foregroundStyle(Color.primary.opacity(0.65))
-                .multilineTextAlignment(.center)
-            Button(buttonTitle) { activeSheet = .addPeople }
-                .buttonStyle(.glassProminent)
-                .matchedTransitionSource(id: FeedSheet.addPeople, in: sheetNamespace)
-                .padding(.top, 8)
-        }
-        .padding(.horizontal, 40)
     }
 }
 

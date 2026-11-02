@@ -27,10 +27,16 @@ struct ReadingRules: Equatable {
     var length: Int
     /// Leave very short reviews (`Review.isVeryShort`) out of new sessions.
     var hidesShortReviews: Bool
+    /// Never pick a review that has been shown (`Review.lastShownAt`), so
+    /// each one appears once. Off, sessions fill up with the ones shown
+    /// longest ago when nothing new is left.
+    var showsEachReviewOnce: Bool
 
     /// Whether a new session may pick this review.
     func allows(_ review: Review) -> Bool {
-        !(hidesShortReviews && review.isVeryShort)
+        if hidesShortReviews, review.isVeryShort { return false }
+        if showsEachReviewOnce, review.lastShownAt != nil { return false }
+        return true
     }
 }
 

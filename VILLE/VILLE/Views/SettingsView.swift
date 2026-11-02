@@ -5,8 +5,8 @@
 //  Settings, from how a reel looks to what VILLE is: the reel on screen in
 //  miniature (`LookPreview`), Look (the appearance as three small pages,
 //  then posters, backdrops, stars and likes), Reading (the session length,
-//  and whether very short reviews are hidden), Language, Storage
-//  (`StorageSection`) and About (`AboutSection`). Icons
+//  whether reviews come back, whether very short ones are hidden),
+//  Language, Storage (`StorageSection`) and About (`AboutSection`). Icons
 //  stay monochrome, in the text color, so the brand's colors keep their
 //  meaning.
 //
@@ -21,6 +21,7 @@ enum SettingsKey {
     static let showRatings = "showRatings"
     static let sessionLength = "sessionLength"
     static let hideShortReviews = "hideShortReviews"
+    static let showEachReviewOnce = "showEachReviewOnce"
     static let appearance = "appearance"
 }
 
@@ -38,6 +39,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.showRatings) private var showRatings = true
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
     @AppStorage(SettingsKey.hideShortReviews) private var hideShortReviews = false
+    @AppStorage(SettingsKey.showEachReviewOnce) private var showEachReviewOnce = false
     @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
     private var look: ReelLook {
@@ -103,7 +105,7 @@ private extension SettingsView {
         }
     }
 
-    /// Two sections under one header, so each control keeps its own note.
+    /// Sections under one header, so each control keeps its own note.
     @ViewBuilder
     var readingSection: some View {
         Section {
@@ -122,6 +124,14 @@ private extension SettingsView {
             Text("Reading")
         } footer: {
             Text("The feed ends after this many reviews. Keep reading from the end card, or come back later for a new session.")
+        }
+
+        Section {
+            Toggle(isOn: $showEachReviewOnce) {
+                Label("Show each review once", systemImage: "text.badge.checkmark")
+            }
+        } footer: {
+            Text("Reviews you've seen don't come back. When it's off, sessions bring back the ones you saw longest ago once there's nothing new.")
         }
 
         Section {

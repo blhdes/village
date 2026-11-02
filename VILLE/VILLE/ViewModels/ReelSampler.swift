@@ -23,7 +23,8 @@ struct ReelCandidate {
     let publishedAt: Date
     let lastShownAt: Date?
     /// Left out of new picks by Settings → Reading (a very short review,
-    /// with that switch on). A reel already placed stays.
+    /// or one already shown, with those switches on). A reel already
+    /// placed stays.
     let isHidden: Bool
 }
 

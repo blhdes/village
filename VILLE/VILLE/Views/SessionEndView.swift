@@ -13,6 +13,9 @@ struct SessionEndView: View {
     let memberCount: Int
     /// Saved reviews that have never been shown.
     let unreadCount: Int
+    /// False when "Keep reading" would have nothing to add (each review
+    /// shows once, and every one has been seen): this card is the end.
+    var canKeepReading = true
     let onKeepReading: () -> Void
 
     var body: some View {
@@ -34,10 +37,12 @@ struct SessionEndView: View {
             }
             .multilineTextAlignment(.center)
 
-            Button("Keep reading", action: onKeepReading)
-                .font(.system(.subheadline, design: .serif, weight: .medium).italic())
-                .buttonStyle(.glass)
-                .padding(.top, 8)
+            if canKeepReading {
+                Button("Keep reading", action: onKeepReading)
+                    .font(.system(.subheadline, design: .serif, weight: .medium).italic())
+                    .buttonStyle(.glass)
+                    .padding(.top, 8)
+            }
         }
         .padding(.horizontal, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

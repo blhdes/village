@@ -2213,6 +2213,52 @@
         }
       }
     },
+    "Nothing new yet" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch nichts Neues"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay nada nuevo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien de nouveau pour l’instant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora niente di nuovo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだ新しいレビューはありません"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ainda não há nada novo"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂时没有新影评"
+          }
+        }
+      }
+    },
     "Only public reviews from Letterboxd RSS feeds are shown." : {
       "localizations" : {
         "de" : {
@@ -3159,6 +3205,52 @@
         }
       }
     },
+    "Reviews you've seen don't come back. When it's off, sessions bring back the ones you saw longest ago once there's nothing new." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kritiken, die du schon gesehen hast, kommen nicht wieder. Ist es aus und gibt es nichts Neues, zeigen Sitzungen wieder die, die du am längsten nicht mehr gesehen hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las reseñas que ya has visto no vuelven. Si está desactivado, cuando no hay nada nuevo, las sesiones recuperan las que viste hace más tiempo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les critiques déjà vues ne reviennent pas. Désactivé, quand il n’y a rien de nouveau, les sessions reprennent celles que vous avez vues il y a le plus longtemps."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le recensioni che hai già visto non tornano. Se è disattivato e non c’è niente di nuovo, le sessioni ripropongono quelle che hai visto da più tempo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一度見たレビューは再表示されません。オフの場合、新しいレビューがないときは、見てから最も時間がたったものがセッションに戻ってきます。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As resenhas que você já viu não voltam. Desativado, quando não há nada novo, as sessões trazem de volta as que você viu há mais tempo."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "看过的影评不会再出现。关闭时，如果没有新影评，每轮会重新显示你最久以前看过的影评。"
+          }
+        }
+      }
+    },
     "Reviews, one at a time" : {
       "localizations" : {
         "de" : {
@@ -3389,6 +3481,52 @@
         }
       }
     },
+    "Settings shows each review once, and you've seen them all. New ones arrive when your members post." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Einstellungen zeigen jede Kritik nur einmal, und du hast alle gesehen. Neue kommen, sobald die Personen, denen du folgst, etwas posten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Según tus Ajustes, cada reseña sale una sola vez, y ya las has visto todas. Llegarán más cuando publiquen las personas que sigues."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos Réglages n’affichent chaque critique qu’une fois, et vous les avez toutes vues. De nouvelles arriveront quand les personnes que vous suivez publieront."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con le tue Impostazioni ogni recensione appare una sola volta, e le hai già viste tutte. Ne arriveranno di nuove quando le persone che segui pubblicheranno."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定により各レビューは1回だけ表示され、すべて表示済みです。フォロー中のメンバーが投稿すると、新しいレビューが届きます。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pelos seus Ajustes, cada resenha aparece só uma vez, e você já viu todas. Novas chegam quando as pessoas que você segue publicarem."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "根据设置，每篇影评只显示一次，你已经全部看过了。你关注的成员发布新影评后，就会出现在这里。"
+          }
+        }
+      }
+    },
     "Share" : {
       "localizations" : {
         "de" : {
@@ -3431,6 +3569,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "共享"
+          }
+        }
+      }
+    },
+    "Show each review once" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Kritik nur einmal zeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar cada reseña una sola vez"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher chaque critique une seule fois"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra ogni recensione una sola volta"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各レビューを1回だけ表示"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar cada resenha só uma vez"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每篇影评只显示一次"
           }
         }
       }

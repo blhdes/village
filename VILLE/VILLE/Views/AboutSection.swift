@@ -4,14 +4,16 @@
 //
 //  Settings → About: the privacy policy and a way to get help or write to
 //  us (Apple asks for both inside the app: guidelines 5.1.1 and 1.5), a
-//  link to rate VILLE on the App Store, the credits Letterboxd and TMDB
-//  require, and the version at the very end.
+//  link to rate VILLE on the App Store (after which the Fin cards stop
+//  asking: `RatingRequest`), the credits Letterboxd and TMDB require, and
+//  the version at the very end.
 //
 
 import SwiftUI
 
 struct AboutSection: View {
     @Environment(\.openURL) private var openURL
+    @AppStorage(RatingRequest.askCountKey) private var ratingAsks = 0
 
     private static let privacyURL = URL(string: "https://blhdes.github.io/village/privacy.html")!
     /// The support page, which has the contact email.
@@ -30,6 +32,8 @@ struct AboutSection: View {
                 openURL(Self.supportURL, prefersInApp: true)
             }
             linkRow("Rate VILLE", systemImage: "star.bubble") {
+                // They went to rate on their own: the Fin cards stop asking.
+                ratingAsks = RatingRequest.maxAsks
                 openURL(Self.reviewURL)
             }
         }

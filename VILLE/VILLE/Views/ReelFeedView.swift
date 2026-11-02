@@ -108,6 +108,8 @@ struct ReelFeedView: View {
         .sensoryFeedback(trigger: currentPageID) { _, pageID in
             pageID == ReelSession.endPageID ? .success : .selection
         }
+        // On Fin cards: the third, then up to three more (`RatingRequest`).
+        .asksForRating(finishedSessions: session.finishedSessions, onEndCard: currentPageID == ReelSession.endPageID)
     }
 
     // MARK: Reels

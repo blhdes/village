@@ -45,11 +45,20 @@ final class ReelSession {
     /// a review stays uncovered if it comes round again.
     private(set) var revealedSpoilers: Set<String> = []
 
+    /// Sessions read to the end during this visit: one more each time the
+    /// end card comes on screen after new reels. The rating request counts
+    /// these (`RatingRequest`).
+    private(set) var finishedSessions = 0
+
     private let context: ModelContext
 
     /// The page on screen: a reel's slot id, or `endPageID`.
     private var currentPageID: Int?
     private var leftAt: Date?
+
+    /// True once the end card has been on screen since the last reels were
+    /// added, so scrolling back to it doesn't finish the session twice.
+    private var endReached = false
 
     /// Time away after which coming back starts a new session.
     private let breakLength: TimeInterval = 30 * 60
@@ -92,6 +101,7 @@ final class ReelSession {
     func startNew(with reviews: [Review], rules: ReadingRules) {
         queue.start(length: rules.length, from: candidates(reviews, rules))
         currentPageID = queue.slots.first?.id
+        endReached = false
         // The first reel is on screen straight away, before any scrolling.
         if let first = queue.slots.first {
             markShown(first.reviewID, in: reviews)
@@ -104,14 +114,22 @@ final class ReelSession {
         let firstNew = queue.slots.count
         queue.extend(length: rules.length, from: candidates(reviews, rules))
         guard queue.slots.count > firstNew else { return nil }
+        endReached = false
         return queue.slots[firstNew].id
     }
 
     // MARK: Reading
 
-    /// Called as the feed scrolls. Every reel that appears counts as shown.
+    /// Called as the feed scrolls. Every reel that appears counts as shown;
+    /// the end card, the first time it appears, finishes the session.
     func didShowPage(_ pageID: Int, reviews: [Review]) {
         currentPageID = pageID
+        if pageID == Self.endPageID {
+            guard !endReached else { return }
+            endReached = true
+            finishedSessions += 1
+            return
+        }
         guard let index = queue.index(of: pageID) else { return }
         markShown(queue.slots[index].reviewID, in: reviews)
     }

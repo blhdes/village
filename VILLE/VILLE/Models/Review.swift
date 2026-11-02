@@ -48,6 +48,11 @@ final class Review {
     /// Review body as Letterboxd's HTML, with the poster image removed.
     var reviewHTML: String
 
+    /// Words in the review text (`ReviewLength`). Nil for a review saved
+    /// before VILLE counted words, until its member's feed brings it
+    /// again: such a review never counts as very short.
+    var wordCount: Int?
+
     /// TMDB image paths (append to an image base URL). Nil when TMDB has none.
     var posterPath: String?
     var backdropPath: String?
@@ -94,6 +99,7 @@ final class Review {
         isRewatch = parsed.isRewatch
         containsSpoilers = parsed.containsSpoilers
         reviewHTML = parsed.reviewHTML
+        wordCount = parsed.wordCount
         posterPath = nil
         backdropPath = nil
         posterPaths = nil
@@ -114,6 +120,7 @@ final class Review {
         isRewatch = parsed.isRewatch
         containsSpoilers = parsed.containsSpoilers
         reviewHTML = parsed.reviewHTML
+        wordCount = parsed.wordCount
         fetchedAt = .now
     }
 }
@@ -141,6 +148,14 @@ extension Review {
     var authorProfileURL: URL? { URL(string: "https://letterboxd.com/\(username)/") }
 
     var isBookmarked: Bool { bookmarkedAt != nil }
+
+    /// A one-liner ("Banger", "absolute cinema"): under
+    /// `ReviewLength.shortLimit` words. Settings → Reading can leave these
+    /// out of the feed.
+    var isVeryShort: Bool {
+        guard let wordCount else { return false }
+        return wordCount < ReviewLength.shortLimit
+    }
 
     /// A web search for the film ("Title 2026 film"), opened from its title
     /// in the in-app browser, as the mobile app does. The year tells

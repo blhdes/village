@@ -21,6 +21,19 @@ enum SessionLength {
     static let standard = 20
 }
 
+/// What Settings → Reading asks of the feed.
+struct ReadingRules: Equatable {
+    /// Reviews per session.
+    var length: Int
+    /// Leave very short reviews (`Review.isVeryShort`) out of new sessions.
+    var hidesShortReviews: Bool
+
+    /// Whether a new session may pick this review.
+    func allows(_ review: Review) -> Bool {
+        !(hidesShortReviews && review.isVeryShort)
+    }
+}
+
 @Observable
 final class ReelSession {
     /// Scroll id of the end card that follows the last reel.
@@ -56,21 +69,28 @@ final class ReelSession {
 
     /// Keeps the session in line with the saved reviews. The first call, or
     /// one after the feed emptied, picks a new session.
-    func sync(with reviews: [Review], length: Int) {
+    func sync(with reviews: [Review], rules: ReadingRules) {
         guard !queue.slots.isEmpty else {
-            startNew(with: reviews, length: length)
+            startNew(with: reviews, rules: rules)
             return
         }
-        queue.sync(with: candidates(reviews), length: length, currentSlotID: currentPageID, sessionEnded: isAtEnd)
+        queue.sync(with: candidates(reviews, rules), length: rules.length, currentSlotID: currentPageID, sessionEnded: isAtEnd)
     }
 
-    /// The session length changed in Settings.
-    func resize(to length: Int, reviews: [Review]) {
-        queue.resize(to: length, from: candidates(reviews), currentIndex: currentIndex, sessionEnded: isAtEnd)
+    /// Settings → Reading changed: a new session length, or very short
+    /// reviews hidden or shown again. Only reels not reached yet change.
+    func apply(_ rules: ReadingRules, reviews: [Review]) {
+        // Nothing to show before (every review hidden): showing them again
+        // can start a session.
+        guard !queue.slots.isEmpty else {
+            startNew(with: reviews, rules: rules)
+            return
+        }
+        queue.update(length: rules.length, from: candidates(reviews, rules), currentIndex: currentIndex, sessionEnded: isAtEnd)
     }
 
-    func startNew(with reviews: [Review], length: Int) {
-        queue.start(length: length, from: candidates(reviews))
+    func startNew(with reviews: [Review], rules: ReadingRules) {
+        queue.start(length: rules.length, from: candidates(reviews, rules))
         currentPageID = queue.slots.first?.id
         // The first reel is on screen straight away, before any scrolling.
         if let first = queue.slots.first {
@@ -80,9 +100,9 @@ final class ReelSession {
 
     /// "Keep reading" on the end card. Returns the first new reel, to scroll
     /// to, or nil when there was nothing to add.
-    func keepReading(with reviews: [Review], length: Int) -> Int? {
+    func keepReading(with reviews: [Review], rules: ReadingRules) -> Int? {
         let firstNew = queue.slots.count
-        queue.extend(length: length, from: candidates(reviews))
+        queue.extend(length: rules.length, from: candidates(reviews, rules))
         guard queue.slots.count > firstNew else { return nil }
         return queue.slots[firstNew].id
     }
@@ -118,8 +138,8 @@ final class ReelSession {
 
     /// A closure rather than `map(ReelCandidate.init)`, so it stays on the
     /// main actor like the reviews it reads.
-    private func candidates(_ reviews: [Review]) -> [ReelCandidate] {
-        reviews.map { ReelCandidate($0) }
+    private func candidates(_ reviews: [Review], _ rules: ReadingRules) -> [ReelCandidate] {
+        reviews.map { ReelCandidate($0, rules: rules) }
     }
 
     private func markShown(_ reviewID: String, in reviews: [Review]) {

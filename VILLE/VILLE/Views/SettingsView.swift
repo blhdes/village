@@ -4,8 +4,9 @@
 //
 //  Settings, from how a reel looks to what VILLE is: the reel on screen in
 //  miniature (`LookPreview`), Look (the appearance as three small pages,
-//  then posters, backdrops, stars and likes), Reading (the session length),
-//  Language, Storage (`StorageSection`) and About (`AboutSection`). Icons
+//  then posters, backdrops, stars and likes), Reading (the session length,
+//  and whether very short reviews are hidden), Language, Storage
+//  (`StorageSection`) and About (`AboutSection`). Icons
 //  stay monochrome, in the text color, so the brand's colors keep their
 //  meaning.
 //
@@ -19,6 +20,7 @@ enum SettingsKey {
     static let alternativePosters = "alternativePosters"
     static let showRatings = "showRatings"
     static let sessionLength = "sessionLength"
+    static let hideShortReviews = "hideShortReviews"
     static let appearance = "appearance"
 }
 
@@ -35,6 +37,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.alternativePosters) private var alternativePosters = false
     @AppStorage(SettingsKey.showRatings) private var showRatings = true
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
+    @AppStorage(SettingsKey.hideShortReviews) private var hideShortReviews = false
     @AppStorage(SettingsKey.appearance) private var appearance: Appearance = .system
 
     private var look: ReelLook {
@@ -100,6 +103,8 @@ private extension SettingsView {
         }
     }
 
+    /// Two sections under one header, so each control keeps its own note.
+    @ViewBuilder
     var readingSection: some View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
@@ -117,6 +122,14 @@ private extension SettingsView {
             Text("Reading")
         } footer: {
             Text("The feed ends after this many reviews. Keep reading from the end card, or come back later for a new session.")
+        }
+
+        Section {
+            Toggle(isOn: $hideShortReviews) {
+                Label("Hide very short reviews", systemImage: "text.badge.minus")
+            }
+        } footer: {
+            Text("Reviews under ^[\(ReviewLength.shortLimit) words](inflect: true), like one-liners, stay out of the feed. Bookmarks keep them.")
         }
     }
 

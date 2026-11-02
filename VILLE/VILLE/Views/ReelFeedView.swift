@@ -36,6 +36,7 @@ struct ReelFeedView: View {
     @AppStorage(SettingsKey.alternativePosters) private var alternativePosters = false
     @AppStorage(SettingsKey.showRatings) private var showRatings = true
     @AppStorage(SettingsKey.sessionLength) private var sessionLength = SessionLength.standard
+    @AppStorage(SettingsKey.hideShortReviews) private var hideShortReviews = false
 
     /// The page on screen: a reel's slot id, or `ReelSession.endPageID`.
     @State private var currentPageID: Int?
@@ -57,6 +58,12 @@ struct ReelFeedView: View {
     }
 
     private var reviewIDs: [String] { reviews.map(\.id) }
+
+    /// Settings → Reading: how long a session is, and which reviews it
+    /// leaves out.
+    private var rules: ReadingRules {
+        ReadingRules(length: sessionLength, hidesShortReviews: hideShortReviews)
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -85,10 +92,10 @@ struct ReelFeedView: View {
         }
         .task { await viewModel.refreshIfNeeded() }
         .onChange(of: reviewIDs, initial: true) {
-            session.sync(with: reviews, length: sessionLength)
+            session.sync(with: reviews, rules: rules)
         }
-        .onChange(of: sessionLength) { _, length in
-            session.resize(to: length, reviews: reviews)
+        .onChange(of: rules) { _, rules in
+            session.apply(rules, reviews: reviews)
         }
         .onChange(of: currentPageID) { _, pageID in
             guard let pageID else { return }
@@ -133,7 +140,7 @@ struct ReelFeedView: View {
                 SessionEndView(
                     reviewCount: slots.count,
                     memberCount: Set(slots.compactMap { lookup[$0.reviewID]?.username }).count,
-                    unreadCount: reviews.count(where: { $0.lastShownAt == nil }),
+                    unreadCount: reviews.count(where: { $0.lastShownAt == nil && rules.allows($0) }),
                     onKeepReading: keepReading
                 )
                 .containerRelativeFrame([.horizontal, .vertical])
@@ -156,7 +163,7 @@ struct ReelFeedView: View {
     /// down to follow them.
     private func keepReading() {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-            guard let firstNew = session.keepReading(with: reviews, length: sessionLength) else { return }
+            guard let firstNew = session.keepReading(with: reviews, rules: rules) else { return }
             currentPageID = firstNew
         }
     }
@@ -201,7 +208,7 @@ struct ReelFeedView: View {
             session.didLeave()
         case .active:
             guard session.didReturn() else { return }
-            session.startNew(with: reviews, length: sessionLength)
+            session.startNew(with: reviews, rules: rules)
             currentPageID = session.queue.slots.first?.id
             Task { await viewModel.refreshAll() }
         default:
@@ -226,6 +233,13 @@ struct ReelFeedView: View {
                     .datelineStyle()
                     .foregroundStyle(Color.primary.opacity(0.6))
             }
+        } else if hideShortReviews, !reviews.isEmpty {
+            // There are reviews, but Settings → Reading hides them all.
+            emptyMessage(
+                title: "Only short reviews so far",
+                message: "Very short reviews are hidden in Settings. Add more people to fill your feed.",
+                buttonTitle: "Add people"
+            )
         } else {
             emptyMessage(
                 title: "No written reviews yet",

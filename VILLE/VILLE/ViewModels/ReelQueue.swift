@@ -10,6 +10,9 @@
 //  for the upcoming reels. The reel on screen and the next one never change,
 //  so nothing moves under the reader's finger.
 //
+//  Reviews Settings → Reading hides (`ReelCandidate.isHidden`) are never
+//  picked, but a reel already placed stays until the reader is past it.
+//
 
 import Foundation
 
@@ -35,8 +38,9 @@ struct ReelQueue {
     mutating func start(length: Int, from candidates: [ReelCandidate]) {
         slots = []
         sessions = 1
-        knownIDs = Set(candidates.map(\.id))
-        append(ReelSampler.pick(length, from: candidates, after: nil))
+        let pickable = Self.pickable(candidates)
+        knownIDs = Set(pickable.map(\.id))
+        append(ReelSampler.pick(length, from: pickable, after: nil))
     }
 
     /// Brings the queue in line with the saved reviews: drops deleted ones
@@ -47,8 +51,10 @@ struct ReelQueue {
     /// the session goes on from.
     mutating func sync(with candidates: [ReelCandidate], length: Int, currentSlotID: Int?, sessionEnded: Bool) {
         let ids = Set(candidates.map(\.id))
-        let arrived = !ids.isSubset(of: knownIDs)
-        knownIDs = ids
+        // A review only arrives if a session could pick it.
+        let pickableIDs = Set(Self.pickable(candidates).map(\.id))
+        let arrived = !pickableIDs.isSubset(of: knownIDs)
+        knownIDs = pickableIDs
 
         // Where the reader is, counted in the reels that stay. If the reel
         // on screen leaves too, the next one that stays takes its place.
@@ -63,8 +69,10 @@ struct ReelQueue {
         replanUpcoming(length: length, from: candidates, currentIndex: currentIndex)
     }
 
-    /// Applies a new session length to the reels not reached yet.
-    mutating func resize(to length: Int, from candidates: [ReelCandidate], currentIndex: Int, sessionEnded: Bool) {
+    /// Applies Settings → Reading to the reels not reached yet: a new
+    /// session length, or very short reviews hidden or shown again.
+    mutating func update(length: Int, from candidates: [ReelCandidate], currentIndex: Int, sessionEnded: Bool) {
+        knownIDs = Set(Self.pickable(candidates).map(\.id))
         guard !sessionEnded else { return }
         replanUpcoming(length: length, from: candidates, currentIndex: currentIndex)
     }
@@ -73,10 +81,11 @@ struct ReelQueue {
     mutating func extend(length: Int, from candidates: [ReelCandidate]) {
         sessions += 1
         let placed = Set(slots.map(\.reviewID))
-        var pool = candidates.filter { !placed.contains($0.id) }
+        let pickable = Self.pickable(candidates)
+        var pool = pickable.filter { !placed.contains($0.id) }
         // Everything was read during this visit: go round again.
         if pool.isEmpty {
-            pool = candidates.filter { $0.id != slots.last?.reviewID }
+            pool = pickable.filter { $0.id != slots.last?.reviewID }
         }
         append(ReelSampler.pick(length, from: pool, after: candidate(for: slots.last, in: candidates)))
     }
@@ -96,8 +105,13 @@ struct ReelQueue {
         slots.removeSubrange(keep...)
 
         let placed = Set(slots.map(\.reviewID))
-        let pool = candidates.filter { !placed.contains($0.id) }
+        let pool = Self.pickable(candidates).filter { !placed.contains($0.id) }
         append(ReelSampler.pick(capacity - slots.count, from: pool, after: candidate(for: slots.last, in: candidates)))
+    }
+
+    /// The reviews a session may pick.
+    private static func pickable(_ candidates: [ReelCandidate]) -> [ReelCandidate] {
+        candidates.filter { !$0.isHidden }
     }
 
     private func candidate(for slot: ReelSlot?, in candidates: [ReelCandidate]) -> ReelCandidate? {

@@ -1661,6 +1661,52 @@
         }
       }
     },
+    "Hide very short reviews" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sehr kurze Kritiken ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar reseñas muy cortas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer les critiques très courtes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi recensioni molto brevi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "とても短いレビューを非表示"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar resenhas muito curtas"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐藏很短的影评"
+          }
+        }
+      }
+    },
     "Images" : {
       "localizations" : {
         "de" : {
@@ -2209,6 +2255,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "仅显示 Letterboxd RSS 订阅源中的公开影评。"
+          }
+        }
+      }
+    },
+    "Only short reviews so far" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bisher nur kurze Kritiken"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por ahora, solo reseñas cortas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour l’instant, que des critiques courtes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per ora, solo recensioni brevi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今のところ短いレビューだけです"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por enquanto, só resenhas curtas"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前只有短评"
           }
         }
       }
@@ -2945,6 +3037,124 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每轮影评数"
+          }
+        }
+      }
+    },
+    "Reviews under ^[%lld words](inflect: true), like one-liners, stay out of the feed. Bookmarks keep them." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Kritiken mit weniger als %lld Wort, etwa Einzeiler, erscheinen nicht im Feed. Die in deinen Lesezeichen bleiben."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Kritiken mit weniger als %lld Wörtern, etwa Einzeiler, erscheinen nicht im Feed. Die in deinen Lesezeichen bleiben."
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Las reseñas de menos de %lld palabra, como las de una sola frase, no aparecen en el feed. Las que tengas en Marcadores se quedan."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Las reseñas de menos de %lld palabras, como las de una sola frase, no aparecen en el feed. Las que tengas en Marcadores se quedan."
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Les critiques de moins de %lld mot, comme celles d’une seule ligne, n’apparaissent pas dans le fil. Celles de vos signets restent."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Les critiques de moins de %lld mots, comme celles d’une seule ligne, n’apparaissent pas dans le fil. Celles de vos signets restent."
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Le recensioni con meno di %lld parola, come quelle di una sola riga, non compaiono nel feed. Quelle nei segnalibri restano."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Le recensioni con meno di %lld parole, come quelle di una sola riga, non compaiono nel feed. Quelle nei segnalibri restano."
+                }
+              }
+            }
+          }
+        },
+        "ja" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld語未満のレビュー（一言レビューなど）はフィードに表示されません。ブックマークしたものは残ります。"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Resenhas com menos de %lld palavra, como as de uma linha só, não aparecem no feed. As que estiverem nos marcadores continuam."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Resenhas com menos de %lld palavras, como as de uma linha só, não aparecem no feed. As que estiverem nos marcadores continuam."
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "少于 %lld 个词的影评（比如一句话短评）不会出现在信息流中。已加入书签的会保留。"
+                }
+              }
+            }
           }
         }
       }
@@ -6305,6 +6515,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "取消关注 %@？"
+          }
+        }
+      }
+    },
+    "Very short reviews are hidden in Settings. Add more people to fill your feed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sehr kurze Kritiken sind in den Einstellungen ausgeblendet. Füge weitere Personen hinzu, um deinen Feed zu füllen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las reseñas muy cortas están ocultas en Ajustes. Añade a más gente para llenar tu feed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les critiques très courtes sont masquées dans les Réglages. Ajoutez d’autres personnes pour remplir votre fil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le recensioni molto brevi sono nascoste nelle Impostazioni. Aggiungi altre persone per riempire il tuo feed."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "とても短いレビューは設定で非表示になっています。メンバーを追加してフィードを充実させましょう。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resenhas muito curtas estão ocultas nos Ajustes. Adicione mais pessoas para preencher seu feed."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "很短的影评已在设置中隐藏。添加更多成员来充实你的信息流。"
           }
         }
       }

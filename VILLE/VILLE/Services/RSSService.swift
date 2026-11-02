@@ -30,6 +30,8 @@ struct ParsedReview: Sendable {
     let isRewatch: Bool
     let containsSpoilers: Bool
     let reviewHTML: String
+    /// Words in the review text (`ReviewLength`).
+    let wordCount: Int
 }
 
 struct UserFeed: Sendable {
@@ -209,7 +211,8 @@ private nonisolated final class RSSParserDelegate: NSObject, XMLParserDelegate {
 
         html = html.trimmingCharacters(in: .whitespacesAndNewlines)
         // A "review" with no words left is just a diary entry — skip it.
-        guard !ReviewHTML.plainText(from: html).isEmpty else { return nil }
+        let text = ReviewHTML.plainText(from: html)
+        guard !text.isEmpty else { return nil }
 
         let pubDate = item["pubDate"] ?? ""
         return ParsedReview(
@@ -226,7 +229,9 @@ private nonisolated final class RSSParserDelegate: NSObject, XMLParserDelegate {
             liked: item["letterboxd:memberLike"] == "Yes",
             isRewatch: item["letterboxd:rewatch"] == "Yes",
             containsSpoilers: containsSpoilers,
-            reviewHTML: html
+            reviewHTML: html,
+            // Counted here, off the main thread, so the feed never has to.
+            wordCount: ReviewLength.words(in: text)
         )
     }
 

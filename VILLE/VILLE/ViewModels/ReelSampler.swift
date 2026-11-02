@@ -22,15 +22,19 @@ struct ReelCandidate {
     let film: String
     let publishedAt: Date
     let lastShownAt: Date?
+    /// Left out of new picks by Settings → Reading (a very short review,
+    /// with that switch on). A reel already placed stays.
+    let isHidden: Bool
 }
 
 extension ReelCandidate {
-    init(_ review: Review) {
+    init(_ review: Review, rules: ReadingRules) {
         id = review.id
         author = review.username
         film = review.tmdbID.map { "tmdb:\($0)" } ?? "\(review.filmTitle.lowercased())|\(review.filmYear ?? 0)"
         publishedAt = review.publishedAt
         lastShownAt = review.lastShownAt
+        isHidden = !rules.allows(review)
     }
 }
 

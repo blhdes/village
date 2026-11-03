@@ -55,14 +55,12 @@ struct BookmarksView: View {
                     }
                     .tint(.red)
                 }
-                // On the row, not the list: iOS 26 points the question at
-                // the view it hangs from, so it opens beside this row.
-                .confirmationDialog(
+                .rowConfirmation(
                     Text("Remove “\(review.filmTitle)” from Bookmarks?"),
                     isPresented: isRemoving(review),
-                    titleVisibility: .visible
+                    confirm: "Remove bookmark"
                 ) {
-                    Button("Remove bookmark", role: .destructive) { remove(review) }
+                    remove(review)
                 } message: {
                     // Without its author followed, nothing else keeps the review:
                     // someone unfollowed, or found by Search and never followed.

@@ -108,7 +108,7 @@ struct MembersView: View {
     /// profile on Letterboxd. Swiping left unfollows, after asking.
     private func memberRow(_ member: FollowedUser) -> some View {
         // Plain copies for the question: unfollowing deletes the member,
-        // and the question must not read it while it closes.
+        // and the row's question must not read it as the row goes.
         let username = member.username
         let name = member.displayName
 
@@ -152,14 +152,13 @@ struct MembersView: View {
             }
             .tint(.red)
         }
-        // Unfollowing also deletes their saved reviews: ask first. On the
-        // row, not the list, so the question opens beside this name.
-        .confirmationDialog(
+        // Unfollowing also deletes their saved reviews: ask first.
+        .rowConfirmation(
             Text("Unfollow \(name)?"),
             isPresented: isUnfollowing(username),
-            titleVisibility: .visible
+            confirm: "Unfollow"
         ) {
-            Button("Unfollow", role: .destructive) { unfollow(member) }
+            unfollow(member)
         } message: {
             Text("Their reviews leave your feed and this iPhone. The ones you bookmarked stay in Bookmarks.")
         }

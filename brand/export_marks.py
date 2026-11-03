@@ -190,9 +190,11 @@ def export_icon(font_path: Path, out: Path):
     (out / "v.svg").write_text(svg(
         ICON_CANVAS, ICON_CANVAS, f'"v" from {spec}. Outline exported unchanged (brand/export_marks.py).',
         [v_path], view_box, "#1C1C1E"))
+    # The dot's own color is BrandRed's sRGB fallback; the "Red dot" layer
+    # in AppIcon.icon/icon.json paints the Display P3 red over it.
     (out / "dot.svg").write_text(svg(
         ICON_CANVAS, ICON_CANVAS, f'"." from {spec}, scaled {DOT_SCALE:.0%} as a whole. Outline otherwise unchanged (brand/export_marks.py).',
-        [dot_path], view_box, "#D7263D"))
+        [dot_path], view_box, "#D80017"))
     return union([v_box, dot_box])
 
 

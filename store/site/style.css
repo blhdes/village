@@ -5,7 +5,7 @@
   --bg: #ffffff;
   --text: #111111;
   --secondary: rgba(17, 17, 17, 0.62);
-  --red: #d7263d;   /* BrandRed, light */
+  --red: #d80017;   /* BrandRed, light (sRGB fallback) */
   --blue: #2a7c9f;  /* BrandBlue, light: links */
   --rule: rgba(17, 17, 17, 0.12);
 }
@@ -15,9 +15,22 @@
     --bg: #000000;
     --text: #f2f2f2;
     --secondary: rgba(242, 242, 242, 0.62);
-    --red: #e5475d;  /* BrandRed, dark */
+    --red: #ff3534;  /* BrandRed, dark (sRGB fallback) */
     --blue: #3b95bc; /* BrandBlue, dark */
     --rule: rgba(242, 242, 242, 0.14);
+  }
+}
+
+/* BrandRed is a Display P3 red: screens that show P3 get the deeper red. */
+@supports (color: color(display-p3 1 0 0)) {
+  :root {
+    --red: color(display-p3 0.812 0 0.078);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --red: color(display-p3 0.945 0.24 0.215);
+    }
   }
 }
 

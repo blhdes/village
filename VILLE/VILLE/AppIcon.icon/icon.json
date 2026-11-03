@@ -49,9 +49,14 @@
           "name": "Red dot",
           "fill-specializations": [
             {
+              "value": {
+                "solid": "display-p3:0.81187,0.00000,0.07767,1.00000"
+              }
+            },
+            {
               "appearance": "dark",
               "value": {
-                "solid": "srgb:0.89804,0.27843,0.36471,1.00000"
+                "solid": "display-p3:0.94548,0.24050,0.21478,1.00000"
               }
             }
           ]

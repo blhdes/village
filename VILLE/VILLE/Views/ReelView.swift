@@ -30,8 +30,8 @@ struct ReelView: View {
     let slot: ReelSlot
     let look: ReelLook
     let insets: EdgeInsets
-    /// Unfollows the author, once the reader has confirmed. Nil leaves
-    /// Unfollow out of the byline's menu.
+    /// Unfollows the author, once the reader has confirmed (the byline
+    /// asks). Nil leaves Unfollow out of the byline's menu.
     var onUnfollow: (() -> Void)? = nil
 
     @Environment(FeedViewModel.self) private var viewModel
@@ -40,7 +40,6 @@ struct ReelView: View {
     @Namespace private var readerNamespace
 
     @State private var isReading = false
-    @State private var isConfirmingUnfollow = false
     /// How many times the poster was tapped, each showing the next one.
     @State private var posterTaps = 0
 
@@ -79,6 +78,13 @@ struct ReelView: View {
         look.showPoster && review.needsArt && viewModel.isLoadingArt
     }
 
+    /// The author's menu. In the feed it offers Unfollow too, which the
+    /// byline asks about first.
+    private var bylineMenu: BylineMenu {
+        guard let onUnfollow else { return .report }
+        return .reportAndUnfollow(onUnfollow)
+    }
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             ReelBackground(
@@ -93,18 +99,8 @@ struct ReelView: View {
                     isPosterPending: isPosterPending,
                     showRating: look.showRating,
                     onPosterTap: posterTap,
-                    byline: onUnfollow == nil ? .report : .reportAndUnfollow { isConfirmingUnfollow = true }
+                    byline: bylineMenu
                 )
-                // Unfollowing also deletes their saved reviews: ask first.
-                .confirmationDialog(
-                    Text("Unfollow \(review.authorName)?"),
-                    isPresented: $isConfirmingUnfollow,
-                    titleVisibility: .visible
-                ) {
-                    Button("Unfollow", role: .destructive) { onUnfollow?() }
-                } message: {
-                    Text("Their reviews leave your feed and this iPhone. The ones you bookmarked stay in Bookmarks.")
-                }
 
                 // The container stays put while the `if` swaps its content,
                 // so the spoiler glass can dissolve instead of just vanishing.

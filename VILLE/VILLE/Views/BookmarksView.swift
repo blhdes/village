@@ -34,9 +34,7 @@ struct BookmarksView: View {
     @AppStorage(SettingsKey.showPosters) private var showPosters = true
 
     /// The bookmark a swipe asked to remove, waiting for the reader's OK.
-    @State private var removing: Review?
-    /// Its film, kept for the dialog's title while the dialog closes.
-    @State private var removingFilm = ""
+    @State private var removingID: String?
     @State private var removals = 0
 
     var body: some View {
@@ -51,27 +49,27 @@ struct BookmarksView: View {
                 // before the reader confirms.
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button {
-                        removingFilm = review.filmTitle
-                        removing = review
+                        removingID = review.id
                     } label: {
                         Label("Remove bookmark", systemImage: "bookmark.slash")
                     }
                     .tint(.red)
                 }
-            }
-        }
-        .confirmationDialog(
-            Text("Remove “\(removingFilm)” from Bookmarks?"),
-            isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
-            titleVisibility: .visible,
-            presenting: removing
-        ) { review in
-            Button("Remove bookmark", role: .destructive) { remove(review) }
-        } message: { review in
-            // Without its author followed, nothing else keeps the review:
-            // someone unfollowed, or found by Search and never followed.
-            if !members.contains(where: { $0.username == review.username }) {
-                Text("You don't follow \(review.authorName), so this review leaves this iPhone too.")
+                // On the row, not the list: iOS 26 points the question at
+                // the view it hangs from, so it opens beside this row.
+                .confirmationDialog(
+                    Text("Remove “\(review.filmTitle)” from Bookmarks?"),
+                    isPresented: isRemoving(review),
+                    titleVisibility: .visible
+                ) {
+                    Button("Remove bookmark", role: .destructive) { remove(review) }
+                } message: {
+                    // Without its author followed, nothing else keeps the review:
+                    // someone unfollowed, or found by Search and never followed.
+                    if !members.contains(where: { $0.username == review.username }) {
+                        Text("You don't follow \(review.authorName), so this review leaves this iPhone too.")
+                    }
+                }
             }
         }
         .sensoryFeedback(.selection, trigger: removals)
@@ -84,6 +82,14 @@ struct BookmarksView: View {
             BookmarksReader(bookmarks: bookmarks, startID: route.reviewID)
         }
         .editorialTitle("Bookmarks")
+    }
+
+    /// Only the swiped row's question is up.
+    private func isRemoving(_ review: Review) -> Binding<Bool> {
+        Binding(
+            get: { removingID == review.id },
+            set: { if !$0 { removingID = nil } }
+        )
     }
 
     private func remove(_ review: Review) {

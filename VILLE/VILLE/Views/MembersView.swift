@@ -9,7 +9,8 @@
 //  Until the user follows a few people, a "Suggested" section offers some
 //  to start with. Bookmarks open from here too: one quiet row, the user's
 //  own corner of the library, with a monochrome icon like the rows in
-//  Settings.
+//  Settings. Swiping a name in Following left unfollows, after asking,
+//  as the reel's byline does.
 //
 
 import SwiftUI
@@ -31,7 +32,10 @@ struct MembersView: View {
 
     /// A member's reviews, open over People.
     @State private var visit: MemberVisit?
+    /// The member a swipe asked to unfollow, waiting for the reader's OK.
+    @State private var unfollowing: String?
     @State private var follows = 0
+    @State private var unfollows = 0
 
     private var following: Set<String> {
         Set(members.map(\.username))
@@ -80,9 +84,6 @@ struct MembersView: View {
                         ForEach(members) { member in
                             memberRow(member)
                         }
-                        .onDelete { offsets in
-                            viewModel.removeMembers(offsets.map { members[$0] })
-                        }
                     }
                 }
             }
@@ -96,6 +97,7 @@ struct MembersView: View {
                 }
             }
             .sensoryFeedback(.success, trigger: follows)
+            .sensoryFeedback(.selection, trigger: unfollows)
             .fullScreenCover(item: $visit) { visit in
                 MemberFeedView(visit: visit)
             }
@@ -103,9 +105,14 @@ struct MembersView: View {
     }
 
     /// A followed member: the name opens their reviews, the arrow their
-    /// profile on Letterboxd.
+    /// profile on Letterboxd. Swiping left unfollows, after asking.
     private func memberRow(_ member: FollowedUser) -> some View {
-        HStack {
+        // Plain copies for the question: unfollowing deletes the member,
+        // and the question must not read it while it closes.
+        let username = member.username
+        let name = member.displayName
+
+        return HStack {
             // Borderless, so the name and the arrow each keep their own tap
             // instead of the whole row firing both.
             Button {
@@ -134,5 +141,43 @@ struct MembersView: View {
                 .accessibilityLabel("Open \(member.displayName) on Letterboxd")
             }
         }
+        // Unfollow, not the system's Delete: "Follow" is the verb
+        // everywhere. Not a destructive role either: that would slide the
+        // row away before the reader confirms.
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button {
+                unfollowing = username
+            } label: {
+                Label("Unfollow", systemImage: "person.badge.minus")
+            }
+            .tint(.red)
+        }
+        // Unfollowing also deletes their saved reviews: ask first. On the
+        // row, not the list, so the question opens beside this name.
+        .confirmationDialog(
+            Text("Unfollow \(name)?"),
+            isPresented: isUnfollowing(username),
+            titleVisibility: .visible
+        ) {
+            Button("Unfollow", role: .destructive) { unfollow(member) }
+        } message: {
+            Text("Their reviews leave your feed and this iPhone. The ones you bookmarked stay in Bookmarks.")
+        }
+    }
+
+    /// Only the swiped row's question is up.
+    private func isUnfollowing(_ username: String) -> Binding<Bool> {
+        Binding(
+            get: { unfollowing == username },
+            set: { if !$0 { unfollowing = nil } }
+        )
+    }
+
+    /// Their row slides out and their saved reviews go, bookmarks apart.
+    private func unfollow(_ member: FollowedUser) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            viewModel.removeMembers([member])
+        }
+        unfollows += 1
     }
 }

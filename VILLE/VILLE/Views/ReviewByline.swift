@@ -5,9 +5,10 @@
 //  "Review by" in italic, the author upright, both serif. On a reel it
 //  opens the author's menu: their profile and Report on Letterboxd, where
 //  the review lives, plus Unfollow in the feed (App Store guideline 1.2:
-//  report and block, from the content itself). A member's feed opened
-//  from People leaves Unfollow out. The reader, Bookmarks and the Settings
-//  preview keep the byline plain.
+//  report and block, from the content itself). Unfollow asks first, from
+//  the byline, so the question opens beside the name. A member's feed
+//  opened from People leaves Unfollow out. The reader, Bookmarks and the
+//  Settings preview keep the byline plain.
 //
 
 import SwiftUI
@@ -18,7 +19,7 @@ enum BylineMenu {
     case none
     /// The author's profile and Report on Letterboxd.
     case report
-    /// Those and Unfollow, which calls this (the reel asks first).
+    /// Those and Unfollow, which asks first, then calls this.
     case reportAndUnfollow(() -> Void)
 }
 
@@ -27,6 +28,9 @@ struct ReviewByline: View {
     var menu: BylineMenu = .none
 
     @Environment(\.openURL) private var openURL
+
+    /// Unfollow was picked: the question waits for the reader's OK.
+    @State private var isConfirmingUnfollow = false
 
     var body: some View {
         switch menu {
@@ -53,8 +57,10 @@ struct ReviewByline: View {
             Button("Report on Letterboxd", systemImage: "flag") {
                 open(review.url)
             }
-            if let onUnfollow {
-                Button("Unfollow", systemImage: "person.badge.minus", role: .destructive, action: onUnfollow)
+            if onUnfollow != nil {
+                Button("Unfollow", systemImage: "person.badge.minus", role: .destructive) {
+                    isConfirmingUnfollow = true
+                }
             }
         } label: {
             // A taller hit area than the line itself, without moving it.
@@ -65,6 +71,18 @@ struct ReviewByline: View {
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .padding(.vertical, -8)
+        // Unfollowing also deletes their saved reviews: ask first. Here,
+        // not on the whole header: iOS 26 points the question at the view
+        // it hangs from, so it opens beside the name.
+        .confirmationDialog(
+            Text("Unfollow \(review.authorName)?"),
+            isPresented: $isConfirmingUnfollow,
+            titleVisibility: .visible
+        ) {
+            Button("Unfollow", role: .destructive) { onUnfollow?() }
+        } message: {
+            Text("Their reviews leave your feed and this iPhone. The ones you bookmarked stay in Bookmarks.")
+        }
         .accessibilityHint(hint)
     }
 

@@ -77,6 +77,12 @@ struct SettingsView: View {
                 }
             }
         }
+        // The app's root sets the appearance for the window, but this sheet
+        // is a presentation of its own: a color scheme preference only
+        // reaches the presentation whose views set it, so the root's choice
+        // arrived here only when the sheet opened. Set here too, a new pick
+        // redraws this screen, preview included, at once.
+        .preferredColorScheme(appearance.colorScheme)
     }
 }
 

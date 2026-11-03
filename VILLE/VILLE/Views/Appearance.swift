@@ -3,7 +3,9 @@
 //  VILLE
 //
 //  The light/dark choice from Settings, and its picker: three small pages
-//  with the wordmark, like iOS's Display & Brightness. The reel background
+//  with the wordmark, like iOS's Display & Brightness. It's applied with
+//  `preferredColorScheme` at the app's root, for the window, and again in
+//  Settings' own sheet, which a pick there must redraw. The reel background
 //  that follows it is the `ReelBackground` color asset
 //  (`Color.reelBackground`): white in light mode, pure black in dark mode,
 //  also inside sheets.

@@ -3,10 +3,12 @@
 //  VILLE
 //
 //  The line under a review's dateline when it's written in another
-//  language: "Translate from English". One tap swaps the text in place for
-//  the reader's language, and the note becomes a translator's credit, as a
-//  book prints it: "Translated from English · Show original". Shown in
-//  the reel and the full reader (it lives in `ReviewHeader`).
+//  language: the translate symbol, then "Translate". One tap swaps the text
+//  in place for the reader's language, and the note becomes the way back:
+//  "See original". Set like the rating marks, the symbol at a small scale
+//  on the serif line's baseline, in the note's color. Picked in the
+//  translation study (2026-11-03). Shown in the reel and the full reader
+//  (it lives in `ReviewHeader`).
 //
 
 import SwiftUI
@@ -27,10 +29,16 @@ struct TranslationNote: View {
             Button {
                 toggle(from: source, state: state)
             } label: {
-                label(for: state, from: source)
-                    .font(.system(.subheadline, design: .serif).italic())
-                    .foregroundStyle(Color.primary.opacity(0.8))
-                    .multilineTextAlignment(.leading)
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    // The words say it all, so VoiceOver skips the symbol.
+                    Image(systemName: "translate")
+                        .imageScale(.small)
+                        .accessibilityHidden(true)
+                    label(for: state)
+                }
+                .font(.system(.subheadline, design: .serif).italic())
+                .foregroundStyle(Color.primary.opacity(0.8))
+                .multilineTextAlignment(.leading)
             }
             .buttonStyle(.plain)
             .accessibilityHint(state == .translated ? "Shows the review as written" : "Translates the review into your language")
@@ -41,15 +49,17 @@ struct TranslationNote: View {
         }
     }
 
+    /// Only the words change (and breathe while translating); the symbol
+    /// holds still.
     @ViewBuilder
-    private func label(for state: ReviewTranslator.State, from source: Locale.Language) -> some View {
+    private func label(for state: ReviewTranslator.State) -> some View {
         switch state {
         case .original:
-            Text(ReviewTranslation.offer(from: source))
+            Text("Translate", comment: "Under a review written in another language: translates it into the reader's language.")
         case .translating:
             BreathingText(text: "Translating…")
         case .translated:
-            Text("\(ReviewTranslation.credit(from: source)) · Show original", comment: "The argument is a credit such as “Translated from English”.")
+            Text("See original", comment: "Under a translated review: shows it again as the author wrote it.")
         }
     }
 

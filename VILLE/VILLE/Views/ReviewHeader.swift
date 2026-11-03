@@ -56,8 +56,8 @@ struct ReviewHeader: View {
                     .datelineStyle()
                     .foregroundStyle(Color.primary.opacity(0.75))
 
-                // "Translate from English", only when the review isn't in
-                // the iPhone's language.
+                // "Translate", only when the review isn't in the reader's
+                // language.
                 TranslationNote(review: review)
             }
             // No halos: on a reel the backdrop fades out before the rating,

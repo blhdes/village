@@ -31,7 +31,7 @@ enum ReviewTranslation {
     }
 
     /// Below this, the detector is guessing (very short reviews, mixed
-    /// languages), and offering "Translate from Danish" for "wow." would be odd.
+    /// languages), and offering to translate "wow." would be odd.
     private static let minimumConfidence = 0.6
 
     /// Detected languages keyed by the review's HTML, so an edited review is
@@ -52,78 +52,6 @@ enum ReviewTranslation {
         }
         detected[html] = language
         return language
-    }
-
-    /// "Translate from English", written out for each language Translation
-    /// can do, because languages bend around the name: French says "de
-    /// l'anglais" but "du japonais", German "aus dem Englischen", Italian
-    /// "dallo spagnolo". One that Apple adds later gets the plain pattern.
-    static func offer(from language: Locale.Language) -> String {
-        switch language.languageCode?.identifier {
-        case "ar": String(localized: "Translate from Arabic")
-        case "da": String(localized: "Translate from Danish")
-        case "de": String(localized: "Translate from German")
-        case "en": String(localized: "Translate from English")
-        case "es": String(localized: "Translate from Spanish")
-        case "fr": String(localized: "Translate from French")
-        case "hi": String(localized: "Translate from Hindi")
-        case "id": String(localized: "Translate from Indonesian")
-        case "it": String(localized: "Translate from Italian")
-        case "ja": String(localized: "Translate from Japanese")
-        case "ko": String(localized: "Translate from Korean")
-        case "nb", "no": String(localized: "Translate from Norwegian")
-        case "nl": String(localized: "Translate from Dutch")
-        case "pl": String(localized: "Translate from Polish")
-        case "pt": String(localized: "Translate from Portuguese")
-        case "ru": String(localized: "Translate from Russian")
-        case "sv": String(localized: "Translate from Swedish")
-        case "th": String(localized: "Translate from Thai")
-        case "tr": String(localized: "Translate from Turkish")
-        case "uk": String(localized: "Translate from Ukrainian")
-        case "vi": String(localized: "Translate from Vietnamese")
-        case "zh": String(localized: "Translate from Chinese")
-        default: String(localized: "Translate from \(name(of: language))", comment: "Fallback for a language without its own sentence. The argument is the language's name, e.g. Swahili.")
-        }
-    }
-
-    /// "Translated from English", the translator's credit once the text is
-    /// swapped. Written out per language for the same reason as `offer`.
-    static func credit(from language: Locale.Language) -> String {
-        switch language.languageCode?.identifier {
-        case "ar": String(localized: "Translated from Arabic")
-        case "da": String(localized: "Translated from Danish")
-        case "de": String(localized: "Translated from German")
-        case "en": String(localized: "Translated from English")
-        case "es": String(localized: "Translated from Spanish")
-        case "fr": String(localized: "Translated from French")
-        case "hi": String(localized: "Translated from Hindi")
-        case "id": String(localized: "Translated from Indonesian")
-        case "it": String(localized: "Translated from Italian")
-        case "ja": String(localized: "Translated from Japanese")
-        case "ko": String(localized: "Translated from Korean")
-        case "nb", "no": String(localized: "Translated from Norwegian")
-        case "nl": String(localized: "Translated from Dutch")
-        case "pl": String(localized: "Translated from Polish")
-        case "pt": String(localized: "Translated from Portuguese")
-        case "ru": String(localized: "Translated from Russian")
-        case "sv": String(localized: "Translated from Swedish")
-        case "th": String(localized: "Translated from Thai")
-        case "tr": String(localized: "Translated from Turkish")
-        case "uk": String(localized: "Translated from Ukrainian")
-        case "vi": String(localized: "Translated from Vietnamese")
-        case "zh": String(localized: "Translated from Chinese")
-        default: String(localized: "Translated from \(name(of: language))", comment: "Fallback for a language without its own sentence. The argument is the language's name, e.g. Swahili.")
-        }
-    }
-
-    /// "English", "Portuguese"… in the app's own language, for languages
-    /// `offer` and `credit` don't write out.
-    private static func name(of language: Locale.Language) -> String {
-        let appLocale = Locale(identifier: Bundle.main.preferredLocalizations.first ?? "en")
-        guard let code = language.languageCode,
-              let name = appLocale.localizedString(forLanguageCode: code.identifier)
-        else { return language.minimalIdentifier }
-        return name
     }
 
     /// The review's blocks in the session's target language, in the same

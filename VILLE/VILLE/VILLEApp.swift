@@ -46,7 +46,7 @@ struct VILLEApp: App {
                 .environment(session)
                 .environment(translator)
                 // Which languages this iPhone can translate, so reviews in
-                // other languages can offer "Translate from…".
+                // other languages can offer "Translate".
                 .task { await translator.loadSupportedLanguages() }
                 // System, Light or Dark, picked in Settings.
                 .preferredColorScheme(appearance.colorScheme)

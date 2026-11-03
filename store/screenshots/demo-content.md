@@ -70,7 +70,7 @@ The app's interface runs in Spanish (the test run sets the language). The review
 
 ## The other six languages (de-DE, fr-FR, it, ja, pt-BR, zh-Hans)
 
-The interface runs in each language and the reviews stay the English set, as in the real app, where most Letterboxd reviews are in English. Each reel then shows "Translate from English" in that language under its dateline, which shows the feature. Whether one shot shows a review already translated is decided with the shot list.
+The interface runs in each language and the reviews stay the English set, as in the real app, where most Letterboxd reviews are in English. Each reel then shows "Translate" in that language under its dateline, after the translate symbol, which shows the feature. Whether one shot shows a review already translated is decided with the shot list.
 
 ### Members
 

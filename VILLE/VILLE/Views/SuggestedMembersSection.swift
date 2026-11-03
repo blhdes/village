@@ -4,8 +4,9 @@
 //
 //  A few members to start with, on the People screen: five at a time from
 //  `SuggestedMember`, shown until the user follows
-//  `SuggestedMember.enoughMembers`. Adding one swaps in someone new;
-//  shuffle shows a different five. Nothing is fetched until "Add".
+//  `SuggestedMember.enoughMembers`. Following one swaps in someone new;
+//  shuffle shows a different five. Nothing is fetched until a name is
+//  tapped, to read their reviews first, or "Follow" is.
 //
 
 import SwiftUI
@@ -13,26 +14,31 @@ import SwiftUI
 struct SuggestedMembersSection: View {
     /// Usernames already followed — never suggested.
     let following: Set<String>
-    /// Called after a suggestion is added, for the screen's success haptic.
-    let onAdded: () -> Void
+    /// Called after a suggestion is followed, for the screen's success haptic.
+    let onFollowed: () -> Void
+    /// Opens a suggestion's reviews, to read before following.
+    let onRead: (SuggestedMember) -> Void
 
     @Environment(FeedViewModel.self) private var viewModel
 
     @State private var suggestions: [SuggestedMember]
-    @State private var adding: Set<String> = []
-    @State private var addError: String?
+    /// Suggestions being followed: their feed is downloading.
+    @State private var pending: Set<String> = []
+    @State private var followError: String?
     @State private var shuffles = 0
 
     private static let shownCount = 5
 
-    init(following: Set<String>, onAdded: @escaping () -> Void) {
+    init(following: Set<String>, onFollowed: @escaping () -> Void, onRead: @escaping (SuggestedMember) -> Void) {
         self.following = following
-        self.onAdded = onAdded
+        self.onFollowed = onFollowed
+        self.onRead = onRead
         // SwiftUI keeps the first pick; later inits don't reshuffle.
         _suggestions = State(initialValue: SuggestedMember.pick(Self.shownCount, excluding: following))
     }
 
-    /// Leaves out anyone followed meanwhile, e.g. typed into the field above.
+    /// Leaves out anyone followed meanwhile, e.g. found by the search above
+    /// or followed from their feed.
     private var visible: [SuggestedMember] {
         suggestions.filter { !following.contains($0.username) }
     }
@@ -51,28 +57,37 @@ struct SuggestedMembersSection: View {
                     .sensoryFeedback(.selection, trigger: shuffles)
             }
         } footer: {
-            if let addError {
-                Text(addError).foregroundStyle(Color.brandRed)
+            if let followError {
+                Text(followError).foregroundStyle(Color.brandRed)
             } else {
-                Text("Critics, writers, filmmakers and creators who post reviews often.")
+                Text("Critics, writers, filmmakers and creators who post reviews often. Tap a name to read their reviews before following.")
             }
         }
     }
 
     private func row(_ suggestion: SuggestedMember) -> some View {
-        let isAdding = adding.contains(suggestion.username)
+        let isPending = pending.contains(suggestion.username)
 
+        // Borderless, so the name, the link and the button each keep their
+        // own tap instead of the whole row firing them all.
         return HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(suggestion.displayName)
-                    .font(.system(.body, design: .serif))
-                Text("@\(suggestion.username)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            Button {
+                onRead(suggestion)
+            } label: {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(suggestion.displayName)
+                        .font(.system(.body, design: .serif))
+                        .foregroundStyle(Color.primary)
+                    Text("@\(suggestion.username)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(.rect)
             }
-            Spacer()
-            // Borderless, so the link and the button each keep their own tap
-            // instead of the whole row firing both.
+            .buttonStyle(.borderless)
+            .accessibilityHint("Opens their reviews")
+
             HStack(spacing: 20) {
                 if let profileURL = suggestion.profileURL {
                     Link(destination: profileURL) {
@@ -82,34 +97,34 @@ struct SuggestedMembersSection: View {
                     .buttonStyle(.borderless)
                     .accessibilityLabel("Open \(suggestion.displayName) on Letterboxd")
                 }
-                Button("Add") { add(suggestion) }
+                Button("Follow") { follow(suggestion) }
                     .buttonStyle(.borderless)
-                    .disabled(isAdding)
+                    .disabled(isPending)
                     // The spinner sits where the button was, so the row doesn't jump.
-                    .opacity(isAdding ? 0 : 1)
+                    .opacity(isPending ? 0 : 1)
                     .overlay {
-                        if isAdding { ProgressView() }
+                        if isPending { ProgressView() }
                     }
-                    .accessibilityLabel("Add \(suggestion.displayName)")
+                    .accessibilityLabel("Follow \(suggestion.displayName)")
             }
         }
     }
 
     // MARK: Actions
 
-    private func add(_ suggestion: SuggestedMember) {
-        adding.insert(suggestion.username)
-        addError = nil
+    private func follow(_ suggestion: SuggestedMember) {
+        pending.insert(suggestion.username)
+        followError = nil
 
         Task {
-            defer { adding.remove(suggestion.username) }
+            defer { pending.remove(suggestion.username) }
             do {
                 try await viewModel.addMember(suggestion.username)
-                onAdded()
+                onFollowed()
                 replace(suggestion)
             } catch {
-                print("SuggestedMembersSection: adding \(suggestion.username) failed — \(error)")
-                addError = error.localizedDescription
+                print("SuggestedMembersSection: following \(suggestion.username) failed — \(error)")
+                followError = error.localizedDescription
                 // A deleted or renamed account won't come back: offer someone else.
                 if let rssError = error as? RSSError, case .userNotFound = rssError {
                     replace(suggestion)
@@ -140,7 +155,7 @@ struct SuggestedMembersSection: View {
         }
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             suggestions = next
-            addError = nil
+            followError = nil
         }
         shuffles += 1
     }

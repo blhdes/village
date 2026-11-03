@@ -11,13 +11,27 @@
 import SwiftUI
 
 /// A serif italic headline ending on the wordmark's red full stop.
-/// For the big moments only (empty states), so the dot keeps its meaning.
+/// For the big moments only (empty states, the end of a member's feed),
+/// so the dot keeps its meaning.
 struct EditorialHeadline: View {
-    let text: LocalizedStringKey
-    var font: Font = .system(.title, design: .serif)
+    private let text: Text
+    private let font: Font
+
+    init(text: LocalizedStringKey, font: Font = .system(.title, design: .serif)) {
+        self.text = Text(text)
+        self.font = font
+    }
+
+    /// A name, never translated. A full stop it already ends on ("Dave V.")
+    /// becomes the red one.
+    init(verbatim name: String, font: Font = .system(.title, design: .serif)) {
+        let trimmed = name.hasSuffix(".") ? String(name.dropLast()) : name
+        self.text = Text(verbatim: trimmed)
+        self.font = font
+    }
 
     var body: some View {
-        Text("\(Text(text))\(Text(verbatim: ".").foregroundStyle(Color.brandRed))")
+        Text("\(text)\(Text(verbatim: ".").foregroundStyle(Color.brandRed))")
             .font(font.italic())
     }
 }

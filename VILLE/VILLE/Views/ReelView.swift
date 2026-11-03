@@ -10,8 +10,9 @@
 //  The backdrop (and, with Alternative posters on, the poster) is picked
 //  per appearance by the slot, so a film looks different each time it
 //  comes round. Tapping the poster flips to the film's next one. Tapping
-//  the byline offers the author's profile, Report on Letterboxd and
-//  Unfollow, which asks first.
+//  the byline offers the author's profile, Report on Letterboxd and, in
+//  the feed, Unfollow, which asks first. A member's feed opened from
+//  People (`MemberFeedView`) leaves Unfollow out.
 //
 
 import SwiftUI
@@ -29,8 +30,9 @@ struct ReelView: View {
     let slot: ReelSlot
     let look: ReelLook
     let insets: EdgeInsets
-    /// Unfollows the author, once the reader has confirmed.
-    let onUnfollow: () -> Void
+    /// Unfollows the author, once the reader has confirmed. Nil leaves
+    /// Unfollow out of the byline's menu.
+    var onUnfollow: (() -> Void)? = nil
 
     @Environment(FeedViewModel.self) private var viewModel
 
@@ -91,7 +93,7 @@ struct ReelView: View {
                     isPosterPending: isPosterPending,
                     showRating: look.showRating,
                     onPosterTap: posterTap,
-                    onUnfollow: { isConfirmingUnfollow = true }
+                    byline: onUnfollow == nil ? .report : .reportAndUnfollow { isConfirmingUnfollow = true }
                 )
                 // Unfollowing also deletes their saved reviews: ask first.
                 .confirmationDialog(
@@ -99,7 +101,7 @@ struct ReelView: View {
                     isPresented: $isConfirmingUnfollow,
                     titleVisibility: .visible
                 ) {
-                    Button("Unfollow", role: .destructive, action: onUnfollow)
+                    Button("Unfollow", role: .destructive) { onUnfollow?() }
                 } message: {
                     Text("Their reviews leave your feed and this iPhone. The ones you bookmarked stay in Bookmarks.")
                 }

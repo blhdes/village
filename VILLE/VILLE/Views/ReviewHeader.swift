@@ -24,11 +24,9 @@ struct ReviewHeader: View {
     var showRating = true
     /// Flips to the film's next poster; nil when it only has one.
     var onPosterTap: (() -> Void)? = nil
-    /// On a reel, the byline opens the author's menu: their profile and
-    /// Report on Letterboxd, and Unfollow, which calls this (the reel asks
-    /// first). Nil keeps the byline plain: the reader, Bookmarks and the
-    /// Settings preview.
-    var onUnfollow: (() -> Void)? = nil
+    /// What tapping "Review by …" offers (`ReviewByline`): on a reel, the
+    /// author's menu; elsewhere nothing.
+    var byline: BylineMenu = .none
 
     @Environment(\.openURL) private var openURL
 
@@ -43,7 +41,7 @@ struct ReviewHeader: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                byline
+                ReviewByline(review: review, menu: byline)
 
                 title
 
@@ -83,51 +81,6 @@ struct ReviewHeader: View {
         } else {
             text
         }
-    }
-
-    /// "Review by" in italic, the author upright, both serif. On a reel it
-    /// opens the author's menu. Reporting happens on Letterboxd, where the
-    /// review lives; unfollowing removes the member from this iPhone (App
-    /// Store guideline 1.2: report and block, from the content itself).
-    @ViewBuilder
-    private var byline: some View {
-        if let onUnfollow {
-            Menu {
-                Button("Profile on Letterboxd", systemImage: "person.crop.circle") {
-                    open(review.authorProfileURL)
-                }
-                Button("Report on Letterboxd", systemImage: "flag") {
-                    open(review.url)
-                }
-                Button("Unfollow", systemImage: "person.badge.minus", role: .destructive, action: onUnfollow)
-            } label: {
-                // A taller hit area than the line itself, without moving it.
-                bylineText
-                    .padding(.vertical, 8)
-                    .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
-            .menuIndicator(.hidden)
-            .padding(.vertical, -8)
-            .accessibilityHint("Profile, report or unfollow")
-        } else {
-            bylineText
-        }
-    }
-
-    private var bylineText: some View {
-        Text("\(Text("Review by").italic().foregroundStyle(Color.primary.opacity(0.8))) \(Text(review.authorName).fontWeight(.semibold))")
-            .font(.system(.subheadline, design: .serif))
-    }
-
-    /// Letterboxd's own app opens it when installed, signed in, as "View on
-    /// Letterboxd" does: reporting needs the reader's account.
-    private func open(_ url: URL?) {
-        guard let url else {
-            print("ReviewHeader: no Letterboxd link for review \(review.id)")
-            return
-        }
-        openURL(url)
     }
 
     private var hasRatingMarks: Bool {

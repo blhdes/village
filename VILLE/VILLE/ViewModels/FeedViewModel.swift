@@ -3,9 +3,10 @@
 //  VILLE
 //
 //  Owns everything that changes the local library: refreshing members' RSS
-//  feeds, adding and removing members, bookmarks, trimming old reviews
-//  (through `LibraryTrimmer`) and filling in TMDB art (through
-//  `FilmArtLoader`). What's on screen lives in `ReelSession`.
+//  feeds, looking members up (Search), following and removing them,
+//  bookmarks, trimming old reviews (through `LibraryTrimmer`) and filling
+//  in TMDB art (through `FilmArtLoader`). Feeds are saved by
+//  `ReviewImporter`. What's on screen lives in `ReelSession`.
 //
 //  Views read reviews straight from SwiftData with `@Query`, so the feed
 //  looks the same online and offline.
@@ -25,6 +26,13 @@ enum MemberError: LocalizedError {
     }
 }
 
+/// A member Search found, and how many written reviews their feed holds.
+struct FoundMember: Equatable {
+    let username: String
+    let displayName: String
+    let reviewCount: Int
+}
+
 @Observable
 final class FeedViewModel {
 
@@ -42,6 +50,7 @@ final class FeedViewModel {
     private let rss: RSSService
     private let artLoader: FilmArtLoader
     private let trimmer = LibraryTrimmer()
+    private let importer = ReviewImporter()
 
     private var hasRefreshedSinceLaunch = false
 
@@ -139,22 +148,49 @@ final class FeedViewModel {
     /// boxd.it short links the Letterboxd app shares (`LetterboxdLink`).
     /// Throws a user-readable error on failure.
     func addMember(_ input: String) async throws {
-        let address = try await LetterboxdLink.expand(input)
-        try LetterboxdLink.requireMember(address)
-        guard let username = RSSService.normalizeUsername(address) else {
-            throw RSSError.invalidUsername(input)
-        }
-        let existing = FetchDescriptor<FollowedUser>(predicate: #Predicate { $0.username == username })
-        guard try context.fetchCount(existing) == 0 else {
+        let username = try await LetterboxdLink.username(from: input)
+        guard try !isFollowed(username) else {
             throw MemberError.alreadyAdded(username)
         }
 
         let feed = try await rss.fetchUserFeed(username: username)
         context.insert(FollowedUser(username: username, displayName: feed.displayName ?? username))
-        store(feed, for: username)
+        importFeed(feed, for: username)
         save()
 
         loadMissingArt()
+    }
+
+    /// Search: finds a member by username or link without following them,
+    /// with one request to their RSS feed. Their reviews are saved, so
+    /// their feed opens at once; while nobody follows them, they're
+    /// deleted at the next launch (`LibraryTrimmer`), bookmarks apart.
+    func lookUp(_ input: String) async throws -> FoundMember {
+        let username = try await LetterboxdLink.username(from: input)
+        return try await lookUp(username: username)
+    }
+
+    /// The same for a username already known, like a suggestion opened to read.
+    func lookUp(username: String) async throws -> FoundMember {
+        let feed = try await rss.fetchUserFeed(username: username)
+        importFeed(feed, for: username)
+        save()
+
+        loadMissingArt()
+        return FoundMember(username: username, displayName: feed.displayName ?? username, reviewCount: feed.reviews.count)
+    }
+
+    /// Follows a member just looked up. Their reviews are saved already,
+    /// so nothing is fetched; following twice does nothing.
+    func follow(username: String, displayName: String) {
+        do {
+            guard try !isFollowed(username) else { return }
+        } catch {
+            print("FeedViewModel: could not check whether \(username) is followed — \(error)")
+            return
+        }
+        context.insert(FollowedUser(username: username, displayName: displayName))
+        save()
     }
 
     /// Removes members together with every review saved from them, except
@@ -212,45 +248,32 @@ final class FeedViewModel {
 
     // MARK: Persistence
 
-    /// Insert-or-update by review id. Reviews that dropped out of the RSS
-    /// window are kept, so the library grows over time.
+    /// Saves a followed member's feed after a refresh. The member can be
+    /// removed while their feed is still downloading: saving it then would
+    /// bring their reviews back.
     private func store(_ feed: UserFeed, for username: String) {
-        let memberDescriptor = FetchDescriptor<FollowedUser>(predicate: #Predicate { $0.username == username })
-        let member: FollowedUser?
         do {
-            member = try context.fetch(memberDescriptor).first
+            guard try isFollowed(username) else {
+                print("FeedViewModel: \(username) was removed during the refresh — skipping their feed")
+                return
+            }
         } catch {
             print("FeedViewModel: could not look up member \(username) — \(error)")
             return
         }
-        // The member can be removed while their feed is still downloading.
-        // Saving it then would bring back reviews nothing can delete.
-        guard let member else {
-            print("FeedViewModel: \(username) was removed during the refresh — skipping their feed")
-            return
-        }
+        importFeed(feed, for: username)
+    }
 
-        let descriptor = FetchDescriptor<Review>(predicate: #Predicate { $0.username == username })
-        let saved: [Review]
+    private func importFeed(_ feed: UserFeed, for username: String) {
         do {
-            saved = try context.fetch(descriptor)
+            try importer.importFeed(feed, for: username, into: context)
         } catch {
-            print("FeedViewModel: could not read saved reviews for \(username) — \(error)")
-            return
+            print("FeedViewModel: could not save the feed of \(username) — \(error)")
         }
-        let savedByID = Dictionary(saved.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+    }
 
-        for parsed in feed.reviews {
-            if let review = savedByID[parsed.id] {
-                review.update(from: parsed)
-            } else {
-                context.insert(Review(from: parsed))
-            }
-        }
-
-        if let name = feed.displayName {
-            member.displayName = name
-        }
+    private func isFollowed(_ username: String) throws -> Bool {
+        try context.fetchCount(FetchDescriptor<FollowedUser>(predicate: #Predicate { $0.username == username })) > 0
     }
 
     private func save() {

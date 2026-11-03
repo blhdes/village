@@ -68,9 +68,10 @@ struct BookmarksView: View {
         ) { review in
             Button("Remove bookmark", role: .destructive) { remove(review) }
         } message: { review in
-            // Without its author followed, nothing else keeps the review.
+            // Without its author followed, nothing else keeps the review:
+            // someone unfollowed, or found by Search and never followed.
             if !members.contains(where: { $0.username == review.username }) {
-                Text("You no longer follow \(review.authorName), so this review leaves this iPhone too.")
+                Text("You don't follow \(review.authorName), so this review leaves this iPhone too.")
             }
         }
         .sensoryFeedback(.selection, trigger: removals)

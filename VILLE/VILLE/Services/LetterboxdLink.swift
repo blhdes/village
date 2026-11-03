@@ -2,8 +2,8 @@
 //  LetterboxdLink.swift
 //  VILLE
 //
-//  Links people paste to add a member, beyond a plain username. The
-//  Letterboxd app shares profiles and reviews as boxd.it short links
+//  Links people paste to search for a member or follow one, beyond a plain
+//  username. The Letterboxd app shares profiles and reviews as boxd.it short links
 //  ("https://boxd.it/dE0n"): VILLE resolves one with a single HEAD request
 //  to boxd.it and reads only where it points (the redirect's Location),
 //  never following it, so no Letterboxd page is fetched (ToS 6.11). The
@@ -36,6 +36,18 @@ nonisolated enum LetterboxdLink {
         "actor", "director", "writer", "producer", "studio", "crew", "activity", "settings",
         "pro", "patron",
     ]
+
+    /// The member a username or link leads to, as a lowercase handle.
+    /// Throws a readable error for a link that leads to no member, or for
+    /// text that can't be a Letterboxd username.
+    static func username(from input: String) async throws -> String {
+        let address = try await expand(input)
+        try requireMember(address)
+        guard let username = RSSService.normalizeUsername(address) else {
+            throw RSSError.invalidUsername(input)
+        }
+        return username
+    }
 
     /// What to read a username from: a boxd.it short link turned into the
     /// letterboxd.com address it points to; anything else as it was typed.

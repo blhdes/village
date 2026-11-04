@@ -119,7 +119,9 @@ struct ReelView: View {
             }
             .padding(.horizontal, 24)
             .padding(.top, headerTop)
-            .padding(.bottom, insets.bottom + 20)
+            // The actions sit on the bottom safe area, where iOS puts its
+            // own bottom bar, mirroring the top bar.
+            .padding(.bottom, insets.bottom)
         }
         .sheet(isPresented: $isReading) {
             ReviewReaderView(review: review, posterPick: posterPick, showRating: look.showRating)

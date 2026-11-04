@@ -4,6 +4,8 @@ The files `asc` pushes live in `store/metadata/`, and they're the source of trut
 
 Status: en-US and es-ES **approved and sent** (2026-10-31). **Sent 2026-10-31 (your OK):** six more listings (de-DE, fr-FR, it, ja, pt-BR, zh-Hans), one per language the app speaks, plus an "In your language" section added to every description (en and es included). `asc metadata validate --dir store/metadata` → 0 errors. Dry run: 6 new app-info and 6 new version localizations, 2 updated descriptions (en, es), nothing deleted.
 
+**Refreshed 2026-11-04, not sent yet:** description and promotional text in all 8 locales. «Add» became «Follow» (the app's verb since Search), two new sections (Search and Bookmarks), the Reading switches, backdrops described as optional (off by default), and the author's menu. Name, subtitle and keywords unchanged. `asc metadata validate` → 0 errors; dry run: 16 field updates, nothing added or deleted.
+
 The six new listings are written natively, not word for word, with the words the app's own catalog uses (`Localizable.xcstrings`): Kritik, critique, recensione, レビュー, resenha, 影评. Tone as in the app: de *du*, fr *vous*, pt-BR *você*.
 
 ---
@@ -44,29 +46,30 @@ Apple combines keywords with the name and subtitle ("film" + "critic" → "film 
 
 ## Promotional text (170, can change any time without a review)
 
-- en-US (133): *Add the people whose film writing you love on Letterboxd and read their reviews as full-screen reels. One at a time, and with an end.*
-- es-ES (126): *Añade a quienes mejor escriben de cine en Letterboxd y lee sus reseñas como reels a pantalla completa. Una a una, y con final.*
-- de-DE (149): *Füge die Menschen hinzu, deren Filmtexte du auf Letterboxd liebst, und lies ihre Kritiken als Reels im Vollbild. Eine nach der anderen, und mit Ende.*
-- fr-FR (131): *Ajoutez les plumes de Letterboxd que vous aimez et lisez leurs critiques de films en reels plein écran. Une à une, et avec une fin.*
-- it (159): *Aggiungi le persone che scrivono di cinema su Letterboxd come piace a te e leggi le loro recensioni come reel a schermo intero. Una alla volta, e con una fine.*
-- ja (66): *Letterboxdで好きな書き手を追加して、その映画レビューを全画面のリールで読めます。ひとつずつ、そして終わりのあるフィードで。*
-- pt-BR (147): *Adicione as pessoas do Letterboxd cujos textos sobre cinema você adora e leia as resenhas delas em reels de tela cheia. Uma de cada vez, e com fim.*
-- zh-Hans (51): *添加你在 Letterboxd 上最爱读的影评作者，以全屏方式阅读他们的影评。一篇一篇读，而且有终点。*
+- en-US (136): *Follow the people whose film writing you love on Letterboxd and read their reviews as full-screen reels. One at a time, and with an end.*
+- es-ES (126): *Sigue a quienes mejor escriben de cine en Letterboxd y lee sus reseñas como reels a pantalla completa. Una a una, y con final.*
+- de-DE (144): *Folge den Menschen, deren Filmtexte du auf Letterboxd liebst, und lies ihre Kritiken als Reels im Vollbild. Eine nach der anderen, und mit Ende.*
+- fr-FR (130): *Suivez les plumes de Letterboxd que vous aimez et lisez leurs critiques de films en reels plein écran. Une à une, et avec une fin.*
+- it (156): *Segui le persone che scrivono di cinema su Letterboxd come piace a te e leggi le loro recensioni come reel a schermo intero. Una alla volta, e con una fine.*
+- ja (68): *Letterboxdで好きな書き手をフォローして、その映画レビューを全画面のリールで読めます。ひとつずつ、そして終わりのあるフィードで。*
+- pt-BR (143): *Siga as pessoas do Letterboxd cujos textos sobre cinema você adora e leia as resenhas delas em reels de tela cheia. Uma de cada vez, e com fim.*
+- zh-Hans (51): *关注你在 Letterboxd 上最爱读的影评作者，以全屏方式阅读他们的影评。一篇一篇读，而且有终点。*
 
 ## Description (4000)
 
-The full text is in `store/metadata/version/1.0/<locale>.json` (characters: en 2,178, es 2,432, de 2,660, fr 2,700, it 2,499, ja 1,243, pt-BR 2,413, zh-Hans 913). Every locale has the same structure:
+The full text is in `store/metadata/version/1.0/<locale>.json` (characters: en 2,847, es 3,187, de 3,453, fr 3,532, it 3,247, ja 1,641, pt-BR 3,151, zh-Hans 1,173). Every locale has the same structure:
 
 1. **Reviews, one at a time.** + one sentence on what you do in the app. These are the only lines visible before "more".
 2. A feed with an end (sessions, "Fin", Keep reading).
 3. The words first (only written reviews, magazine layout, hide stars, spoilers covered, full reader).
-3b. **In your language** (added 2026-10-31): the eight languages, one-tap translation on the iPhone, long-press to copy a passage. It matters most outside English, where many reviews are in another language.
-4. Picked with care (unseen first, members take turns, pull to refresh).
-5. The film around the words (backdrops, posters, alternative posters, text-only, appearance).
-6. Start in good company (suggestions).
-7. Yours, on your iPhone (no account, no ads, no tracking, saved library).
-8. Credit where it's due (author + link back, share = link).
-9. Small print: RSS source, reviews belong to their authors, not affiliated with Letterboxd, TMDB notice.
+4. **Read before you follow** (added 2026-11-04, replaces "Start in good company"): Search by username or profile link, reviews as reels before following, suggestions you can tap to read first.
+5. **Keep the ones you love** (added 2026-11-04): bookmarks stay after unfollowing, double as a watchlist (swipe one away once you've seen the film), spoilers stay covered there.
+6. In your language (the eight languages, one-tap translation on the iPhone, long-press to copy a passage).
+7. Picked with care (unseen first, members take turns, the Reading switches: each review once, hide very short ones, pull to refresh).
+8. The film around the words (posters, alternative posters, backdrops as an option since they're off by default, text-only, appearance).
+9. Yours, on your iPhone (no account, no ads, no tracking, followed members and bookmarks stay on the device, saved library).
+10. Credit where it's due (author + link back, share = link, the author's menu: profile, report on Letterboxd, unfollow).
+11. Small print: RSS source for members you follow or search for, reviews belong to their authors, not affiliated with Letterboxd, TMDB notice.
 
 In running text the app is called **VILLE**, as in Settings → About. "ville." with its full stop reads as the end of a sentence in the middle of a paragraph, so it stays for the name and the logo.
 
@@ -93,7 +96,7 @@ China mainland stays out of availability (no ICP number), so the Simplified Chin
 
 **Data Not Collected.** Why it's true:
 - No accounts, analytics, ads or crash SDKs. Nothing is sent to us.
-- The app makes read-only requests that serve the screen in real time: Letterboxd RSS feeds for the usernames you add, TMDB for film images, and Google only when you tap a film title (it opens in Safari inside the app). Apple doesn't count that as "collection", because nobody keeps the data for us.
+- The app makes read-only requests that serve the screen in real time: Letterboxd RSS feeds for the members you follow or search for, TMDB for film images, and Google only when you tap a film title (it opens in Safari inside the app). Apple doesn't count that as "collection", because nobody keeps the data for us.
 - It matches `PrivacyInfo.xcprivacy` (no tracking, no collected data) and the privacy policy draft.
 
 ### Content rights
@@ -111,12 +114,8 @@ The reviews are written by other people about any kind of film, so answer honest
 
 For reference (iTunes data, 2026-10-31): Letterboxd is rated 17+ (old system), IMDb 12+.
 
-### Review notes (draft, English, for App Review)
+### Review notes (English, for App Review)
 
-> VILLE has no accounts and no sign-in.
->
-> To try it: tap the people icon (two figures) in the top bar and add any member from the "Suggested" list with the + button (or type a Letterboxd username, for example `812filmreviews`). Close the sheet: their recent written reviews appear as full-screen reels. Swipe up to read. After the session's last review a "Fin" card appears, with "Keep reading". The sliders icon (top bar) opens Settings, with appearance, session length and the poster, backdrop and rating toggles.
->
-> Content: VILLE only shows reviews from the public RSS feed Letterboxd publishes for each member (letterboxd.com/<username>/rss/), and only for members the user adds. Every review credits its author and links to the original on Letterboxd ("View on Letterboxd"), where content can be reported. Removing a member in People deletes all of their reviews from the device. Film images come from the TMDB API, credited in Settings. No data leaves the device except these read-only requests.
+The text App Review reads lives in `store/review-notes.txt` (the source of truth, sent by `store/apply-store-setup.sh`): no sign-in, how to search and follow, Settings, and how report and unfollow work from the reel (guideline 1.2).
 
 Before submitting: untick "Sign-in required", add contact details, and choose **manual release**.

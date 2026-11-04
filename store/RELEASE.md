@@ -45,7 +45,7 @@
 - 2026-10-31: App Review contact: your personal email and phone, saved in `store/contact.env` (gitignored, never in git).
 - 2026-10-31: One store listing per app language (8). Keywords kept under 100 bytes, so Japanese and Chinese hold about 30 characters.
 - 2026-10-31: The pages' favicon, home-screen icon and link-preview image are the real app icon, exported from `AppIcon.icon` with Icon Composer's `ictool` (never redrawn).
-- 2026-11-02: New logo from a logo study (your pick): Source Serif 4 Italic, weight 670, a bigger red full stop, for both the wordmark and the icon (`brand/export_marks.py`). 👉 After your iPhone test, the pages' favicon, home-screen icon and link-preview image get exported again from the new `AppIcon.icon` and the pages republished (`bash store/publish-site.sh`, your OK). The store screenshots aren't made yet, so they'll show the new logo.
+- 2026-11-02: New logo from a logo study (your pick): Source Serif 4 Italic, weight 670, a bigger red full stop, for both the wordmark and the icon (`brand/export_marks.py`). Pages' favicon, home-screen icon and link-preview image exported again from the new `AppIcon.icon` on 2026-11-04 (Icon Composer's own `ictool`, inside Icon Composer.app, converted to sRGB so every browser and link preview shows the same red); republished the same day. The store screenshots aren't made yet, so they'll show the new logo.
 
 ## 1. Foundations
 
@@ -74,7 +74,7 @@
 - ✅ App Privacy "Data Not Collected" published in App Store Connect (2026-10-31, Chrome)
 - ✅ Six more listings (de-DE, fr-FR, it, ja, pt-BR, zh-Hans) + "In your language" section in every description, sent with `asc metadata apply` (2026-10-31, your OK). A dry run afterwards shows no differences. To change them: edit `store/metadata/`, then the same command.
 - ⬜ Content rights (after Letterboxd answers)
-- ⬜ Refresh the description in all 8 languages before submitting: backdrops are off by default now, and bookmarks (also a watchlist), the Reading options and Search (built 2026-11-03) aren't in it yet. Then `asc metadata apply` after your OK
+- ✅ Description and promotional text refreshed in all 8 languages and sent (2026-11-04, your OK): «Follow» instead of «Add», Search and Bookmarks sections, the Reading switches, backdrops as an option, the author's menu. A dry run afterwards shows no differences.
 
 `asc validate` (2026-10-31): 3 blocking items left: content rights (waits for Letterboxd; never answer "does not use third-party content", which `asc` suggests), screenshots, build. App Privacy is published (the API can't check it, so `asc` still shows an info line).
 
@@ -93,7 +93,7 @@
 - ⬜ Final testing on the iPhone (you)
 - ⬜ Archive and upload (a first TestFlight build as soon as the app runs well)
 - ⬜ TestFlight check (you)
-- ⏳ Review notes drafted: `store/review-notes.txt`
+- ✅ Review notes sent (2026-11-04, your OK): `store/review-notes.txt` (Search, Follow, Reading options, report and unfollow from the reel). Re-send with `asc review details-create … --if-exists update` after changing them
 - ⬜ Submitted (manual release)
 - ⬜ Released
 
@@ -101,7 +101,7 @@
 
 1. **Letterboxd rights (Guideline 5.2.2 + "Content Rights").** VILLE shows other members' reviews from their public RSS feeds. RSS is the route Letterboxd offers (letterboxd.com/api-beta), and every reel credits the author and links back. Emails to api@letterboxd.com, one thread: 2026-01-09 (API access for a web app, never answered) and 2026-10-31 (follow-up describing VILLE and its RSS use, asking for a written OK for Apple's content rights question). You expect no answer. Record any answer here.
 2. **Trademark.** Never "Letterboxd" in the name, subtitle or keywords (Guidelines 2.3.7 and 5.2.1, Letterboxd ToS 19). The description says it factually, plus "VILLE is not affiliated with Letterboxd".
-3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. Since 2026-11-02 the reel itself covers report and block: tapping "Review by …" offers Report on Letterboxd and Unfollow (asks first; bookmarks stay). The review notes say so (updated locally the same day, with the "Add" button and bookmarks fixed). 👉 Not sent yet: `bash store/apply-store-setup.sh --go` after your OK.
+3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. Since 2026-11-02 the reel itself covers report and block: tapping "Review by …" offers Report on Letterboxd and Unfollow (asks first; bookmarks stay). The review notes say so (updated locally the same day, with the "Add" button and bookmarks fixed). Sent 2026-11-04.
 4. **Age rating: unrestricted web access.** Decided 2026-10-31: answer "yes" (Safari inside the app reaches any site). The rating goes up, probably to 16+.
 5. **Art in screenshots.** TMDB art is fine in the app, not in marketing. Decided 2026-10-31: posters off, backdrops from frames of public-domain films.
 6. **Localized app (2026-10-31).** The app ships in en, es, de, fr, it, ja, pt-BR and zh-Hans, so the "La app está en inglés" line left the Spanish listing. All eight languages have listings in App Store Connect (2026-10-31). Until each has its own screenshots, App Store Connect shows the English ones there. The translations weren't checked by native speakers: worth a look for ja and zh-Hans before submitting.
@@ -109,7 +109,7 @@
 8. **Name reservation.** Upload a first TestFlight build once the app runs.
 9. **Public repo.** Contact details go in `store/contact.env` (gitignored). No UDIDs or keys in git.
 10. **Copy and translate (added 2026-10-31).** Review text can be selected and copied, and translated into the reader's language (VILLE's own, if one was picked in iOS Settings, else the iPhone's) with Apple's Translation framework, on the device. Nothing is stored, synced or sent, and Share stays a link, so App Privacy ("Data Not Collected") and the privacy page stay true. If Letterboxd answers the email thread, check they're fine with on-device translation (it works like Safari's Translate on their site).
-11. **Search (built 2026-11-03).** Opening any member's feed by username or link, without following, is still RSS only, one member at a time and on demand (ToS 6.8 and 6.11 stay fine: no index, no scraping). Reviews of a member found but not followed are deleted at the next launch, bookmarks apart. The privacy page says so and that VILLE fetches the feed of a member you search for (updated locally, effective 3 November 2026; set the day it goes live if later). Their feed's byline menu keeps Report on Letterboxd (guideline 1.2). 👉 Publish the pages and send the review notes after your OK.
+11. **Search (built 2026-11-03).** Opening any member's feed by username or link, without following, is still RSS only, one member at a time and on demand (ToS 6.8 and 6.11 stay fine: no index, no scraping). Reviews of a member found but not followed are deleted at the next launch, bookmarks apart. The privacy page says so and that VILLE fetches the feed of a member you search for (updated locally, effective 3 November 2026; set the day it goes live if later). Their feed's byline menu keeps Report on Letterboxd (guideline 1.2). Review notes sent and pages published 2026-11-04 (privacy effective 4 November 2026).
 
 ## Log
 
@@ -139,3 +139,4 @@
 - 2026-11-03: Search, from the search study (your pick: the proposal, with reviews read in a member's feed not counting as shown). People's field searches by username or link (one RSS request when sent) and shows the member found with «Read their reviews» and «Follow»; tapping a name in Suggested or Following opens their reviews. Their feed opens full screen, newest first, and ends on their name with the red full stop. «Add» became «Follow». Privacy page, support FAQ and review notes updated locally, nothing published or sent. Built, not yet tested on the iPhone.
 - 2026-11-03: Confirmations open beside what they ask about: removing a bookmark points at its row (it opened at the top of the list), and the reel's Unfollow at «Review by …» instead of the whole header. Following's swipe says «Unfollow» instead of the system's «Delete» and asks first, like the reel (before, a long swipe deleted the member and their reviews at once). Built, not yet tested on the iPhone.
 - 2026-11-03: Tested on the iPhone: the confirmations open beside their row. Fixed a flash after confirming: the row went at once, taking its question with it still marked open, so iOS showed the question again for an instant over the empty place. Rows now ask through `rowConfirmation`, which closes the question, then removes the row. Built, the fix not yet tested on the iPhone.
+- 2026-11-04: The reel's buttons rest on the bottom safe area (`e624938`, pushed). Store description and promotional text refreshed in 8 languages, site icons exported again from the new icon, privacy page dated 4 November 2026. Sent with your OK: the 8 descriptions and promotional texts (`asc metadata apply`) and the review notes (`asc review details-create --if-exists update`, only those two, so price and availability weren't touched). Pages published.

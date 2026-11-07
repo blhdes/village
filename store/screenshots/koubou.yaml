@@ -1,0 +1,101 @@
+# VILLE store screenshots: the 6.3" set Apple requires (1206 × 2622), in eight languages.
+# Plan and rules: store/SCREENSHOTS.md.
+#
+#   kou generate store/screenshots/koubou.yaml     (from the repo root)
+#
+# Captions live in captions.xcstrings, one key per English caption. Every
+# variable below is a key there, which is how {{stop}} turns into "。" in
+# Japanese and Chinese, and {{lang}} into each language's code.
+# Raw captures come from capture.sh: raw/<language>/<shot>.png, picked per
+# language by Koubou (raw/1-reel.png resolves to raw/en-US/1-reel.png).
+# Output: final/<language>/iPhone_17_-_Black_-_Portrait/<shot>.png
+
+project:
+  name: VILLE
+  output_dir: final
+  # Koubou needs a device even with frames off; only the size counts here.
+  device: "iPhone 17 - Black - Portrait"
+  output_size: iPhone6_3
+
+localization:
+  base_language: en-US
+  languages: [en-US, es-ES, de-DE, fr-FR, it, ja, pt-BR, zh-Hans]
+  xcstrings_path: captions.xcstrings
+
+screenshots:
+  1-reel:
+    template: templates/reel.html
+    frame: false
+    variables: { headline: "Film reviews, one at a time", stop: ".", lang: "en" }
+    assets:
+      screen: raw/1-reel.png
+      look: templates/look-dark-red.css
+      serif_italic: "fonts/SourceSerif4-Italic[opsz,wght].ttf"
+      serif_jp: fonts/NotoSerifJP-captions.ttf
+      serif_sc: fonts/NotoSerifSC-captions.ttf
+
+  2-words:
+    template: templates/reel.html
+    frame: false
+    variables: { headline: "The words first", stop: ".", lang: "en" }
+    assets:
+      screen: raw/2-words.png
+      look: templates/look-light.css
+      serif_italic: "fonts/SourceSerif4-Italic[opsz,wght].ttf"
+      serif_jp: fonts/NotoSerifJP-captions.ttf
+      serif_sc: fonts/NotoSerifSC-captions.ttf
+
+  3-spoiler:
+    template: templates/reel.html
+    frame: false
+    variables: { headline: "No spoilers until you tap", stop: ".", lang: "en" }
+    assets:
+      screen: raw/3-spoiler.png
+      look: templates/look-dark.css
+      serif_italic: "fonts/SourceSerif4-Italic[opsz,wght].ttf"
+      serif_jp: fonts/NotoSerifJP-captions.ttf
+      serif_sc: fonts/NotoSerifSC-captions.ttf
+
+  4-fin:
+    template: templates/reel.html
+    frame: false
+    variables: { headline: "A feed with an end", stop: ".", lang: "en" }
+    assets:
+      screen: raw/4-fin.png
+      look: templates/look-dark.css
+      serif_italic: "fonts/SourceSerif4-Italic[opsz,wght].ttf"
+      serif_jp: fonts/NotoSerifJP-captions.ttf
+      serif_sc: fonts/NotoSerifSC-captions.ttf
+
+  5-translation:
+    template: templates/reel.html
+    frame: false
+    variables: { headline: "Any review, in your language", stop: ".", lang: "en" }
+    assets:
+      screen: raw/5-translation.png
+      look: templates/look-light.css
+      serif_italic: "fonts/SourceSerif4-Italic[opsz,wght].ttf"
+      serif_jp: fonts/NotoSerifJP-captions.ttf
+      serif_sc: fonts/NotoSerifSC-captions.ttf
+
+  6-people:
+    template: templates/reel.html
+    frame: false
+    variables: { headline: "Follow the writers you love", stop: ".", lang: "en" }
+    assets:
+      screen: raw/6-people.png
+      look: templates/look-light.css
+      serif_italic: "fonts/SourceSerif4-Italic[opsz,wght].ttf"
+      serif_jp: fonts/NotoSerifJP-captions.ttf
+      serif_sc: fonts/NotoSerifSC-captions.ttf
+
+  7-settings:
+    template: templates/reel.html
+    frame: false
+    variables: { headline: "Text only, if you like", stop: ".", lang: "en" }
+    assets:
+      screen: raw/7-settings.png
+      look: templates/look-dark.css
+      serif_italic: "fonts/SourceSerif4-Italic[opsz,wght].ttf"
+      serif_jp: fonts/NotoSerifJP-captions.ttf
+      serif_sc: fonts/NotoSerifSC-captions.ttf

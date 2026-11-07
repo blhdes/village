@@ -1,0 +1,8 @@
+/* VILLE store screenshot, dark, ending on the brand's red full stop (shot 1 only):
+   BrandRed's sRGB fallback for dark mode. */
+:root {
+  --bg: #000000;
+  --text: #f2f2f2;
+  --stop: #ff3534;
+  --edge: rgba(255, 255, 255, 0.14);
+}

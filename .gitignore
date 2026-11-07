@@ -37,3 +37,8 @@ store/build/
 
 # Python environment for brand/export_marks.py
 .venv/
+
+# Store screenshots: captures from the iPhone and Koubou's output, both
+# rebuilt by store/screenshots/capture.sh and `kou generate`
+store/screenshots/raw/
+store/screenshots/final/

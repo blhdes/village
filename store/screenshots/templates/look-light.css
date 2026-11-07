@@ -1,0 +1,7 @@
+/* VILLE store screenshot, light: the app's white, text as Color.primary. */
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --stop: #111111;
+  --edge: rgba(0, 0, 0, 0.12);
+}

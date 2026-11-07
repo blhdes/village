@@ -45,6 +45,8 @@
 - 2026-10-31: App Review contact: your personal email and phone, saved in `store/contact.env` (gitignored, never in git).
 - 2026-10-31: One store listing per app language (8). Keywords kept under 100 bytes, so Japanese and Chinese hold about 30 characters.
 - 2026-10-31: The pages' favicon, home-screen icon and link-preview image are the real app icon, exported from `AppIcon.icon` with Icon Composer's `ictool` (never redrawn).
+- 2026-11-07: Seven screenshots. A translation shot joins as 5 ("Any review, in your language"): one reel, already translated, with its "See original" note, rather than a before and after (shots 5 to 7 straight to the point, your call). The full reader shot left to make room; Settings → Look ("Text only, if you like") is 7. The translated text is ours, written as Translation would give it, because a test run can't wait for Apple's language downloads.
+- 2026-11-07: Captions end on "。" in Japanese and Chinese, "." elsewhere; only shot 1's is red. Japanese and Chinese captions use Noto Serif JP/SC (OFL), upright, subset to the captions' characters.
 - 2026-11-02: New logo from a logo study (your pick): Source Serif 4 Italic, weight 670, a bigger red full stop, for both the wordmark and the icon (`brand/export_marks.py`). Pages' favicon, home-screen icon and link-preview image exported again from the new `AppIcon.icon` on 2026-11-04 (Icon Composer's own `ictool`, inside Icon Composer.app, converted to sRGB so every browser and link preview shows the same red); republished the same day. The store screenshots aren't made yet, so they'll show the new logo.
 
 ## 1. Foundations
@@ -80,12 +82,14 @@
 
 ## 4. Screenshots
 
-- ✅ Plan: `store/SCREENSHOTS.md` (six shots, captions en/es)
+- ✅ Plan: `store/SCREENSHOTS.md` (seven shots, captions in 8 languages, 2026-11-07)
 - ✅ Demo content: `store/screenshots/demo-content.md`. Fictional members (usernames checked: none exist), our own reviews, public-domain films
-- ✅ Template `store/screenshots/templates/reel.html` + preview `store/screenshots/preview/layout-preview.png`
-- ⬜ Demo mode in the app (plan in SCREENSHOTS.md, code waits for your OK)
-- ⬜ `VILLEStoreShots` UI-testing target (you, in Xcode) + capture test
-- ⬜ Install Koubou; download Source Serif 4 and the public-domain film frames (needs your OK)
+- ✅ Template `store/screenshots/templates/reel.html` + `koubou.yaml` + `captions.xcstrings`, rendered with placeholder screens in all 8 languages (2026-11-07)
+- ✅ Demo mode in the app: `VILLE/VILLE/StoreDemo/`, Debug only, left out of Release (checked: no demo code or frames in a Release build) (2026-11-07)
+- ✅ Koubou 0.21 installed; Source Serif 4 and Noto Serif JP/SC (OFL) in `store/screenshots/fonts/`; four public-domain film frames from Wikimedia Commons (2026-11-07)
+- ✅ Capture test `store/screenshots/StoreShots.swift` + `store/screenshots/capture.sh` (dry run checked) (2026-11-07)
+- 👉 `VILLEStoreShots` UI Testing Bundle target, created in Xcode (steps in SCREENSHOTS.md → Running it)
+- ⬜ First capture on the iPhone (`capture.sh --go`, your OK), look at every raw screen
 - ⬜ Validated and uploaded (required set 1206 × 2622; optional 6.9" 1320 × 2868)
 
 ## 5. Build and submit
@@ -140,3 +144,4 @@
 - 2026-11-03: Confirmations open beside what they ask about: removing a bookmark points at its row (it opened at the top of the list), and the reel's Unfollow at «Review by …» instead of the whole header. Following's swipe says «Unfollow» instead of the system's «Delete» and asks first, like the reel (before, a long swipe deleted the member and their reviews at once). Built, not yet tested on the iPhone.
 - 2026-11-03: Tested on the iPhone: the confirmations open beside their row. Fixed a flash after confirming: the row went at once, taking its question with it still marked open, so iOS showed the question again for an instant over the empty place. Rows now ask through `rowConfirmation`, which closes the question, then removes the row. Built, the fix not yet tested on the iPhone.
 - 2026-11-04: The reel's buttons rest on the bottom safe area (`e624938`, pushed). Store description and promotional text refreshed in 8 languages, site icons exported again from the new icon, privacy page dated 4 November 2026. Sent with your OK: the 8 descriptions and promotional texts (`asc metadata apply`) and the review notes (`asc review details-create --if-exists update`, only those two, so price and availability weren't touched). Pages published.
+- 2026-11-07: Screenshot pipeline built, nothing captured or sent. Demo mode (`VILLE/VILLE/StoreDemo/`, Debug only): `-StoreScreenshots <shot>` opens a fictional library in memory, fixed reels and frames, its own Settings, no feeds fetched, no status bar; Release builds leave it out. Capture test and `capture.sh` (one run per language on the iPhone, attachments saved as `raw/<language>/<shot>.png`). Koubou config, captions in 8 languages and fonts; rendered with placeholders and checked in every language. Four frames from Wikimedia Commons (Nosferatu, Caligari, A Trip to the Moon from the films' public-domain videos; The Last Laugh from a 1925 book's still). 👉 Next: you create the `VILLEStoreShots` target in Xcode, then the first capture after your OK.

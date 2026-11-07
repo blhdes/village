@@ -94,6 +94,10 @@ VILLE/VILLE/
 │   ├── ReviewTranslation.swift # Detects a review's language, translates its blocks (on device)
 │   ├── ReviewLength.swift      # Words in a review (NaturalLanguage), where "very short" ends
 │   └── PosterImageCache.swift  # Decoded posters in memory + prefetch
+├── StoreDemo/                  # Debug only, left out of Release: demo mode for the store screenshots
+│   ├── StoreDemo.swift         # `-StoreScreenshots <shot>`: fixed library, order, art and Settings; no network
+│   ├── StoreDemoContent.swift  # Fictional members, our reviews (en, es), the Moon translation in 8 languages
+│   └── Frames/                 # Public-domain film frames (store/screenshots/demo-content.md)
 ├── ViewModels/
 │   ├── FeedViewModel.swift     # Library: refresh, members, triggers art loading
 │   ├── ReelSession.swift       # On screen: current session, spoilers, breaks
@@ -154,6 +158,8 @@ xcodebuild -project VILLE/VILLE.xcodeproj -scheme VILLE -destination 'generic/pl
 ## Release
 
 Publishing follows the global `app-store-release` skill. Its state for VILLE lives in `store/RELEASE.md` (IDs, decisions, phase checklists, risks): read it first. App Store Connect record: `ville.` (Apple ID 6829207754), bundle `agu.VILLE`, iPhone only, portrait. Never put "Letterboxd" in the store name, subtitle or keywords.
+
+Store screenshots (`store/SCREENSHOTS.md`): demo mode in `StoreDemo/` (Debug only; Release leaves it out with `EXCLUDED_SOURCE_FILE_NAMES`, and every hook in the app is `#if DEBUG`), captured on the iPhone by the `VILLEStoreShots` UI test through `store/screenshots/capture.sh`, composed by Koubou (`store/screenshots/koubou.yaml`). Screenshots never show real members, real reviews or TMDB art. A new screen the test taps needs an `accessibilityIdentifier`, the same in every language.
 
 ---
 

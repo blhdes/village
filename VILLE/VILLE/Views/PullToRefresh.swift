@@ -126,7 +126,8 @@ private struct PullToRefreshModifier: ViewModifier {
 
 /// The pull-to-refresh indicator, in place of the system spinner: the
 /// brand's red dot. It grows as the first reel is pulled down, then breathes
-/// like the wordmark's dot until the new reviews are in.
+/// until the new reviews are in, while the wordmark's dot steps aside. Also
+/// the feed's loading dot while its first reviews arrive (`FeedEmptyState`).
 struct RefreshDot: View {
     /// How far the pull has gone, 0 to 1.
     let progress: CGFloat

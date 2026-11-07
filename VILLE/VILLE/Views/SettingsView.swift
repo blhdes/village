@@ -96,20 +96,26 @@ private extension SettingsView {
             Toggle(isOn: $showPosters) {
                 Label("Posters", systemImage: "rectangle.portrait")
             }
+            // Not the app's tint (the text color): in dark mode a white
+            // switch hid its white knob. Black in light, gray in dark.
+            .tint(Color.toggleOn)
             Toggle(isOn: $alternativePosters) {
                 Label("Alternative posters", systemImage: "rectangle.portrait.on.rectangle.portrait.angled")
             }
+            .tint(Color.toggleOn)
             .disabled(!showPosters)
             Toggle(isOn: $showBackdrops) {
                 Label("Backdrops", systemImage: "film")
             }
+            .tint(Color.toggleOn)
             Toggle(isOn: $showRatings) {
                 Label("Stars and likes", systemImage: "star.leadinghalf.filled")
             }
+            .tint(Color.toggleOn)
         } header: {
             Text("Look")
         } footer: {
-            Text("Alternative posters picks a different one from TMDB each time, like other countries' releases. Tap any poster to flip to the next.")
+            Text("Alternative posters picks a different one from TMDB each time, like other countries’ releases. Tap any poster to flip to the next.")
         }
     }
 
@@ -138,14 +144,16 @@ private extension SettingsView {
             Toggle(isOn: $showEachReviewOnce) {
                 Label("Show each review once", systemImage: "text.badge.checkmark")
             }
+            .tint(Color.toggleOn)
         } footer: {
-            Text("Reviews you've seen don't come back. When it's off, sessions bring back the ones you saw longest ago once there's nothing new.")
+            Text("Reviews you’ve seen don’t come back. When it’s off, sessions bring back the ones you saw longest ago once there’s nothing new.")
         }
 
         Section {
             Toggle(isOn: $hideShortReviews) {
                 Label("Hide very short reviews", systemImage: "text.badge.minus")
             }
+            .tint(Color.toggleOn)
         } footer: {
             Text("Reviews under ^[\(ReviewLength.shortLimit) words](inflect: true), like one-liners, stay out of the feed. Bookmarks keep them.")
         }

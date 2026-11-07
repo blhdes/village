@@ -55,7 +55,7 @@ struct SessionEndView: View {
         if unreadCount > 0 {
             "^[\(unreadCount) more review](inflect: true) will be waiting next time."
         } else {
-            "That's every review saved so far. New ones arrive when your members post."
+            "That’s every review saved so far. New ones arrive when your members post."
         }
     }
 }

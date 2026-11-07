@@ -7,9 +7,11 @@
 //  stop because the feed has an end, like the "Fin" card. Chosen in the logo
 //  study on 2026-11-02 and drawn from the font's own outlines, never by
 //  hand (brand/export_marks.py): `WordmarkLetters` in the text color and
-//  `WordmarkDot` in brand red, two layers so the dot can breathe on its own
-//  while refreshing. Change the logo here and it changes everywhere it's
-//  used (top bar, loading screen, Settings → Look).
+//  `WordmarkDot` in brand red, two layers so the dot can step aside on its
+//  own. It never breathes: breathing belongs to the loading dot
+//  (`RefreshDot`), and while that one shows, this one fades out, as if it
+//  had gone there. Change the logo here and it changes everywhere it's
+//  used (the top bar).
 //
 
 import SwiftUI
@@ -17,10 +19,9 @@ import SwiftUI
 struct VILLEWordmark: View {
     /// Point size of the letters, as if the wordmark were text.
     var size: CGFloat = 28
-    /// Makes the red dot breathe, e.g. while refreshing.
-    var isPulsing = false
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// False while the loading dot breathes elsewhere on screen: the red
+    /// dot fades out, and back in once the reviews are in.
+    var showsDot = true
 
     /// The two layers' shared canvas, in ems: the outlines' tight bounds,
     /// as printed by brand/export_marks.py.
@@ -34,33 +35,23 @@ struct VILLEWordmark: View {
                 .resizable()
                 .foregroundStyle(Color.primary)
 
-            PhaseAnimator(dotOpacities) { opacity in
-                Image(.wordmarkDot)
-                    .renderingMode(.template)
-                    .resizable()
-                    .foregroundStyle(Color.brandRed)
-                    .opacity(opacity)
-            } animation: { _ in
-                .easeInOut(duration: 0.8)
-            }
-            // A fresh animator when pulsing starts or stops, so the dot
-            // settles back to full color instead of breathing forever.
-            .id(isPulsing)
+            Image(.wordmarkDot)
+                .renderingMode(.template)
+                .resizable()
+                .foregroundStyle(Color.brandRed)
+                .opacity(showsDot ? 1 : 0)
+                // Slow and soft, so it reads as leaving, not blinking.
+                .animation(.easeInOut(duration: 0.6), value: showsDot)
         }
         .frame(width: size * Self.widthInEms, height: size * Self.heightInEms)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "VILLE"))
-    }
-
-    /// The dot's opacity steps: it fades in and out only while pulsing.
-    private var dotOpacities: [Double] {
-        isPulsing && !reduceMotion ? [1, 0.2] : [1]
     }
 }
 
 #Preview {
     VStack(spacing: 32) {
         VILLEWordmark()
-        VILLEWordmark(size: 44, isPulsing: true)
+        VILLEWordmark(size: 44, showsDot: false)
     }
 }

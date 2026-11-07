@@ -22,8 +22,8 @@ enum LetterboxdLinkError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .unresolved: String(localized: "Couldn't open that link. Try the member's username instead.")
-        case .notAMember: String(localized: "That link isn't to a member's profile or one of their reviews.")
+        case .unresolved: String(localized: "Couldn’t open that link. Try the member’s username instead.")
+        case .notAMember: String(localized: "That link isn’t to a member’s profile or one of their reviews.")
         }
     }
 }

@@ -84,7 +84,7 @@ struct TranslationNote: View {
     }
 }
 
-/// Text that breathes at the wordmark dot's pace while something is on its
+/// Text that breathes at the loading dot's pace while something is on its
 /// way, like `LoadingSkeleton`. Holds still with Reduce Motion. It never
 /// fades below 0.75, so under the note's 0.8 it stays at the 0.6 floor
 /// for secondary text.

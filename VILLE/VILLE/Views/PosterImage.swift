@@ -65,7 +65,7 @@ struct PosterImage: View {
 }
 
 /// A quiet placeholder that breathes while something loads, at the same
-/// slow pace as the wordmark's dot. Holds still with Reduce Motion.
+/// slow pace as the loading dot. Holds still with Reduce Motion.
 struct LoadingSkeleton: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 

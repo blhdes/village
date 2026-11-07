@@ -3,7 +3,8 @@
 //  VILLE
 //
 //  The light/dark choice from Settings, and its picker: three small pages
-//  with the wordmark, like iOS's Display & Brightness. It's applied with
+//  in each look's colors, a sun on Light, a moon on Dark and both on
+//  System, like iOS's Display & Brightness. It's applied with
 //  `preferredColorScheme` at the app's root, for the window, and again in
 //  Settings' own sheet, which a pick there must redraw. The reel background
 //  that follows it is the `ReelBackground` color asset
@@ -37,9 +38,8 @@ enum Appearance: String, CaseIterable, Identifiable {
     }
 }
 
-/// Settings → Look: each appearance as a small page with the wordmark in
-/// its colors (System split corner to corner between both), and a check
-/// under the one in use.
+/// Settings → Look: each appearance as a small page in its colors (System
+/// split corner to corner between both), and a check under the one in use.
 struct AppearancePicker: View {
     @Binding var selection: Appearance
 
@@ -80,7 +80,8 @@ struct AppearancePicker: View {
     }
 }
 
-/// One appearance in miniature: the wordmark on a reel's page.
+/// One appearance in miniature: a reel's page with a sun or a moon, plain
+/// symbols rather than the wordmark, so the brand isn't used as a control.
 private struct AppearanceSwatch: View {
     let option: Appearance
 
@@ -90,13 +91,15 @@ private struct AppearanceSwatch: View {
         Group {
             switch option {
             case .light:
-                page(.light)
+                page(.light, symbol: "sun.max", alignment: .center)
             case .dark:
-                page(.dark)
+                page(.dark, symbol: "moon", alignment: .center)
             case .system:
-                page(.light)
+                // The sun on the light corner, the moon on the dark one.
+                page(.light, symbol: "sun.max", alignment: .topLeading)
                     .overlay {
-                        page(.dark).mask { LowerRightHalf() }
+                        page(.dark, symbol: "moon", alignment: .bottomTrailing)
+                            .mask { LowerRightHalf() }
                     }
             }
         }
@@ -109,11 +112,18 @@ private struct AppearanceSwatch: View {
         }
     }
 
-    /// The page and the wordmark as they look in one color scheme.
-    private func page(_ scheme: ColorScheme) -> some View {
+    /// The page and its symbol as they look in one color scheme.
+    private func page(_ scheme: ColorScheme, symbol: String, alignment: Alignment) -> some View {
         Color.reelBackground
-            .overlay { VILLEWordmark(size: 20) }
+            .overlay(alignment: alignment) {
+                Image(systemName: symbol)
+                    .font(.system(size: 20))
+                    .foregroundStyle(Color.primary)
+                    // Corners keep clear of the diagonal on System's page.
+                    .padding(alignment == .center ? 0 : 12)
+            }
             .environment(\.colorScheme, scheme)
+            .accessibilityHidden(true)
     }
 }
 

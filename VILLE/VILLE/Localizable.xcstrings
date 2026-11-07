@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "“%@” isn't a valid Letterboxd username." : {
+    "“%@” isn’t a valid Letterboxd username." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1046,7 +1046,7 @@
         }
       }
     },
-    "Alternative posters picks a different one from TMDB each time, like other countries' releases. Tap any poster to flip to the next." : {
+    "Alternative posters picks a different one from TMDB each time, like other countries’ releases. Tap any poster to flip to the next." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1414,7 +1414,7 @@
         }
       }
     },
-    "Couldn't load your saved members." : {
+    "Couldn’t load your saved members." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1460,7 +1460,7 @@
         }
       }
     },
-    "Couldn't open that link. Try the member's username instead." : {
+    "Couldn’t open that link. Try the member’s username instead." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1506,7 +1506,7 @@
         }
       }
     },
-    "Couldn't reach Letterboxd. Showing saved reviews." : {
+    "Couldn’t reach Letterboxd. Showing saved reviews." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1552,7 +1552,7 @@
         }
       }
     },
-    "Couldn't save reviews on this device." : {
+    "Couldn’t save reviews on this device." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2207,43 +2207,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Letterboxd-Benutzername oder Profillink"
+            "value" : "Letterboxd-Name oder Profillink"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Usuario de Letterboxd o enlace al perfil"
+            "value" : "Usuario o enlace de Letterboxd"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nom d’utilisateur Letterboxd ou lien du profil"
+            "value" : "Pseudo ou lien Letterboxd"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nome utente Letterboxd o link al profilo"
+            "value" : "Nome utente o link Letterboxd"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Letterboxdのユーザー名またはプロフィールのリンク"
+            "value" : "Letterboxdのユーザー名かリンク"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nome de usuário do Letterboxd ou link do perfil"
+            "value" : "Usuário ou link do Letterboxd"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Letterboxd 用户名或个人主页链接"
+            "value" : "Letterboxd 用户名或主页链接"
           }
         }
       }
@@ -3544,7 +3544,7 @@
         }
       }
     },
-    "Reviews come from members' public Letterboxd RSS feeds and belong to their authors. VILLE is not affiliated with or endorsed by Letterboxd." : {
+    "Reviews come from members’ public Letterboxd RSS feeds and belong to their authors. VILLE is not affiliated with or endorsed by Letterboxd." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3754,7 +3754,7 @@
         }
       }
     },
-    "Reviews you've seen don't come back. When it's off, sessions bring back the ones you saw longest ago once there's nothing new." : {
+    "Reviews you’ve seen don’t come back. When it’s off, sessions bring back the ones you saw longest ago once there’s nothing new." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4123,7 +4123,7 @@
         }
       }
     },
-    "Settings shows each review once, and you've seen them all. New ones arrive when your members post." : {
+    "Settings shows each review once, and you’ve seen them all. New ones arrive when your members post." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4675,7 +4675,7 @@
         }
       }
     },
-    "That link isn't to a member's profile or one of their reviews." : {
+    "That link isn’t to a member’s profile or one of their reviews." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4721,7 +4721,7 @@
         }
       }
     },
-    "That's every review saved so far. New ones arrive when your members post." : {
+    "That’s every review saved so far. New ones arrive when your members post." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4859,7 +4859,7 @@
         }
       }
     },
-    "The people you follow haven't posted reviews recently. Add more people to fill your feed." : {
+    "The people you follow haven’t posted reviews recently. Add more people to fill your feed." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5596,7 +5596,7 @@
         }
       }
     },
-    "You don't follow %@, so this review leaves this iPhone too." : {
+    "You don’t follow %@, so this review leaves this iPhone too." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {

@@ -104,7 +104,7 @@ final class FeedViewModel {
             members = try context.fetch(FetchDescriptor<FollowedUser>())
         } catch {
             print("FeedViewModel: could not load members — \(error)")
-            errorMessage = String(localized: "Couldn't load your saved members.")
+            errorMessage = String(localized: "Couldn’t load your saved members.")
             return
         }
         guard !members.isEmpty else { return }
@@ -139,7 +139,7 @@ final class FeedViewModel {
         save()
 
         errorMessage = failures == members.count
-            ? String(localized: "Couldn't reach Letterboxd. Showing saved reviews.")
+            ? String(localized: "Couldn’t reach Letterboxd. Showing saved reviews.")
             : nil
 
         loadMissingArt()
@@ -285,7 +285,7 @@ final class FeedViewModel {
             try context.save()
         } catch {
             print("FeedViewModel: save failed — \(error)")
-            errorMessage = String(localized: "Couldn't save reviews on this device.")
+            errorMessage = String(localized: "Couldn’t save reviews on this device.")
         }
     }
 

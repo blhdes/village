@@ -39,7 +39,7 @@ struct AboutSection: View {
         }
 
         Section {
-            Text("Reviews come from members' public Letterboxd RSS feeds and belong to their authors. VILLE is not affiliated with or endorsed by Letterboxd.")
+            Text("Reviews come from members’ public Letterboxd RSS feeds and belong to their authors. VILLE is not affiliated with or endorsed by Letterboxd.")
             Text("This product uses the TMDB API but is not endorsed or certified by TMDB.")
             // Official files from letterboxd.com/about/brand and
             // themoviedb.org/about/logos-attribution. Letterboxd only

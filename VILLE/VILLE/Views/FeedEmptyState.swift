@@ -2,8 +2,9 @@
 //  FeedEmptyState.swift
 //  VILLE
 //
-//  What the feed shows when it has no reel: a first welcome, the wordmark
-//  breathing while reviews arrive, or why there's nothing to read (Settings
+//  What the feed shows when it has no reel: a first welcome, the loading
+//  dot breathing while reviews arrive (the wordmark's dot steps aside for
+//  it), or why there's nothing to read (Settings
 //  → Reading can leave nothing to pick). Each message ends on "Add people".
 //
 
@@ -54,7 +55,7 @@ struct FeedEmptyState: View {
             )
         case .fetching:
             VStack(spacing: 18) {
-                VILLEWordmark(size: 44, isPulsing: true)
+                RefreshDot(progress: 1, isRefreshing: true)
                 Text("Fetching reviews…")
                     .datelineStyle()
                     .foregroundStyle(Color.primary.opacity(0.6))
@@ -62,7 +63,7 @@ struct FeedEmptyState: View {
         case .allSeen:
             message(
                 title: "Nothing new yet",
-                text: "Settings shows each review once, and you've seen them all. New ones arrive when your members post."
+                text: "Settings shows each review once, and you’ve seen them all. New ones arrive when your members post."
             )
         case .onlyShort:
             message(
@@ -72,7 +73,7 @@ struct FeedEmptyState: View {
         case .noReviews:
             message(
                 title: "No written reviews yet",
-                text: "The people you follow haven't posted reviews recently. Add more people to fill your feed."
+                text: "The people you follow haven’t posted reviews recently. Add more people to fill your feed."
             )
         }
     }

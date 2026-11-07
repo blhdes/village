@@ -13,9 +13,11 @@ import SwiftUI
 struct ReelTopBar: View {
     /// Lets each sheet zoom out of the button that opened it.
     let namespace: Namespace.ID
-    /// The pull-to-refresh: the middle dot grows with the pull, and breathes
-    /// instead of the wordmark's while a pull refresh runs.
+    /// The pull-to-refresh: the middle dot grows with the pull and breathes
+    /// while a pull refresh runs.
     var pull = PullToRefreshState()
+    /// The feed's own loading dot is showing (first reviews arriving).
+    var isFetching = false
     let open: (FeedSheet) -> Void
 
     @Environment(FeedViewModel.self) private var viewModel
@@ -23,9 +25,11 @@ struct ReelTopBar: View {
 
     var body: some View {
         HStack {
-            // The red dot breathes while feeds refresh, unless the
-            // pull-to-refresh dot is already showing it.
-            VILLEWordmark(isPulsing: viewModel.isRefreshing && !pull.isRefreshing)
+            // The wordmark's dot never breathes: while a loading dot does
+            // (the pull's or the feed's), it fades out, as if it had gone
+            // there, and comes back once the reviews are in. Refreshes the
+            // reader isn't waiting on stay quiet.
+            VILLEWordmark(showsDot: !pull.isRefreshing && !isFetching)
 
             Spacer()
 

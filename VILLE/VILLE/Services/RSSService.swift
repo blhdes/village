@@ -49,7 +49,7 @@ enum RSSError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .invalidUsername(let input): String(localized: "“\(input)” isn't a valid Letterboxd username.")
+        case .invalidUsername(let input): String(localized: "“\(input)” isn’t a valid Letterboxd username.")
         case .userNotFound(let username): String(localized: "No Letterboxd member called “\(username)”.")
         case .badResponse(let code): String(localized: "Letterboxd returned an error (HTTP \(code)).")
         }

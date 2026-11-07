@@ -4,7 +4,7 @@
 //
 //  The pages of a member's feed that aren't reviews (`MemberFeedView`):
 //  their name while their reviews arrive, its full stop breathing like the
-//  wordmark's; and a card with a headline, a line of text, Follow and
+//  loading dot; and a card with a headline, a line of text, Follow and
 //  Close, for the end of their feed, a feed with nothing to read, or one
 //  that couldn't load.
 //
@@ -51,7 +51,7 @@ struct MemberFeedCard: View {
 }
 
 /// Their name while their reviews arrive, its full stop breathing like the
-/// wordmark's while the feed refreshes.
+/// loading dot of a pull-to-refresh.
 struct MemberFeedLoading: View {
     let name: String
 

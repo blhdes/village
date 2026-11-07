@@ -60,6 +60,12 @@ struct ReelFeedView: View {
 
     private var reviewIDs: [String] { reviews.map(\.id) }
 
+    /// Why the feed has no reels; nil while it has some.
+    private var emptyReason: FeedEmptyState.Reason? {
+        guard session.queue.slots.isEmpty else { return nil }
+        return .init(hasMembers: !members.isEmpty, isRefreshing: viewModel.isRefreshing, reviews: reviews, rules: rules)
+    }
+
     /// Settings → Reading: how long a session is, and which reviews it
     /// leaves out.
     private var rules: ReadingRules {
@@ -75,11 +81,8 @@ struct ReelFeedView: View {
             ZStack {
                 Color.reelBackground.ignoresSafeArea()
 
-                if session.queue.slots.isEmpty {
-                    FeedEmptyState(
-                        reason: .init(hasMembers: !members.isEmpty, isRefreshing: viewModel.isRefreshing, reviews: reviews, rules: rules),
-                        namespace: sheetNamespace
-                    ) {
+                if let emptyReason {
+                    FeedEmptyState(reason: emptyReason, namespace: sheetNamespace) {
                         activeSheet = .addPeople
                     }
                 } else {
@@ -88,7 +91,7 @@ struct ReelFeedView: View {
             }
         }
         .overlay(alignment: .top) {
-            ReelTopBar(namespace: sheetNamespace, pull: pull) { activeSheet = $0 }
+            ReelTopBar(namespace: sheetNamespace, pull: pull, isFetching: emptyReason == .fetching) { activeSheet = $0 }
                 .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { topBarBottom = $0 }
         }
         .sheet(item: $activeSheet) { sheet in

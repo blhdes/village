@@ -9,9 +9,6 @@
 //  once per language and saves the attachments as
 //  raw/<language>/<shot>.png.
 //
-//  Lives in store/screenshots until the VILLEStoreShots UI test target
-//  exists in Xcode; then it replaces the file Xcode makes there.
-//
 
 import XCTest
 
@@ -53,19 +50,23 @@ nonisolated final class StoreShots: XCTestCase {
 
     /// Launches VILLE in demo mode, in the run's language (capture.sh sets
     /// STORE_LANGUAGE and STORE_REGION through TEST_RUNNER_ variables).
+    /// Without them (a run from Xcode), VILLE keeps the test's own
+    /// language instead of falling back to English.
     @MainActor
     private func launch(_ shot: String) -> XCUIApplication {
-        let environment = ProcessInfo.processInfo.environment
-        let language = environment["STORE_LANGUAGE"] ?? "en"
-        let region = environment["STORE_REGION"] ?? "US"
-        let locale = language.split(separator: "-").first.map(String.init) ?? language
-
         let app = XCUIApplication()
-        app.launchArguments = [
-            "-StoreScreenshots", shot,
-            "-AppleLanguages", "(\(language))",
-            "-AppleLocale", "\(locale)_\(region)",
-        ]
+        app.launchArguments = ["-StoreScreenshots", shot]
+
+        let environment = ProcessInfo.processInfo.environment
+        if let language = environment["STORE_LANGUAGE"], let region = environment["STORE_REGION"] {
+            let locale = language.split(separator: "-").first.map(String.init) ?? language
+            app.launchArguments += [
+                "-AppleLanguages", "(\(language))",
+                "-AppleLocale", "\(locale)_\(region)",
+            ]
+        } else {
+            print("StoreShots: no STORE_LANGUAGE/STORE_REGION, VILLE runs in the test's language")
+        }
         app.launch()
         return app
     }

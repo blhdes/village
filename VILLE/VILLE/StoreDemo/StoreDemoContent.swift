@@ -66,6 +66,17 @@ enum DemoFilm: String, CaseIterable {
         }
     }
 
+    /// A poster made from another frame of the film, cropped to 2:3, in
+    /// StoreDemo/Frames. Real posters are left out: their artists often
+    /// aren't public domain in the EU. The Last Laugh has none (no video of
+    /// it on Commons), so the spoiler shot shows a reel without one.
+    var hasPoster: Bool {
+        switch self {
+        case .nosferatu, .caligari, .moon: true
+        case .lastLaugh, .sunrise, .movieCamera, .nanook: false
+        }
+    }
+
     /// Newest first, a few days apart, so dates read the same on every run.
     var published: DateComponents {
         let day = switch self {
@@ -175,7 +186,7 @@ struct StoreDemoContent {
             let saved = Review(from: parsed)
             // Art is settled: no TMDB lookups, no skeletons.
             saved.artFetched = true
-            saved.posterPaths = []
+            saved.posterPaths = film.hasPoster ? ["/storedemo/\(film.rawValue)-poster"] : []
             saved.backdropPaths = film.hasFrame ? ["/storedemo/\(film.rawValue)"] : []
             if Self.bookmarked.contains(film) {
                 saved.bookmarkedAt = published

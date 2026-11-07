@@ -170,7 +170,7 @@ All six checked on 2026-10-31 (404 = no such member). Two first picks existed an
 | Man with a Movie Camera (1929) | ✅ | Dziga Vertov †1954 ✅ (since 2025) |
 | Nanook of the North (1922) | ✅ | Robert Flaherty †1951 ✅ (since 2022) |
 
-**Art in the screenshots:** posters off. Poster artists often lived longer than the filmmakers (Nosferatu's poster by Albin Grau †1971, for example), so a poster isn't safely public domain in the EU. Backdrops on, using **frames from the films themselves** (stills of a public-domain film are public domain too), from Wikimedia Commons, each tagged public domain there. Downloaded 2026-11-07, cropped to 16:9 and saved at 1280 × 720 in `VILLE/VILLE/StoreDemo/Frames/` (Debug builds only).
+**Art in the screenshots:** no real posters. Poster artists often lived longer than the filmmakers (Nosferatu's poster by Albin Grau †1971, for example), so a poster isn't safely public domain in the EU. Posters on since 2026-11-07 (they're on by default in the app), made from **other frames of the same films**, cropped to 2:3 (table below). Backdrops in half the reel shots, the dark ones (1 and 3; your call, 2026-11-07), using **frames from the films themselves** (stills of a public-domain film are public domain too), from Wikimedia Commons, each tagged public domain there. Downloaded 2026-11-07, cropped to 16:9 and saved at 1280 × 720 in `VILLE/VILLE/StoreDemo/Frames/` (Debug builds only).
 
 | Frame | Shot | Source on Wikimedia Commons |
 |---|---|---|
@@ -178,3 +178,11 @@ All six checked on 2026-10-31 (404 = no such member). Two first picks existed an
 | Cesare among the painted trees | 2 | `File:The Cabinet of Dr. Caligari (1920).webm`, at 48:20 |
 | The doorman with his trumpet, at the wedding party | 3 | `File:Emil Jannings in The Last Laugh.jpg` (UFA still, reproduced in a 1925 book; page number cropped off). The film's only video on Commons is its opening intertitle |
 | The rocket in the Moon's eye | 5 | `File:Le Voyage dans la Lune (1902).webm`, at 6:12 (black and white print) |
+
+**Posters** (shots 1, 2 and 5; The Last Laugh has no video on Commons, so shot 3's reel shows none, and shot 7 is "text only"). Frames taken on 2026-11-07 from the same Commons videos, through their 480p copies (`…webm.480p.vp9.webm`), cropped to 2:3 and saved as `storedemo-<film>-poster.jpg` next to the backdrops.
+
+| Poster | Film | Source on Wikimedia Commons |
+|---|---|---|
+| Orlok's shadow climbing the stairs | Nosferatu | `File:Nosferatu (1922).webm`, at about 1:26:58 |
+| Cesare's face, eyes open | The Cabinet of Dr. Caligari | `File:The Cabinet of Dr. Caligari (1920).webm`, at about 21:28 |
+| The lady on the crescent moon, Saturn beside her | A Trip to the Moon | `File:Le Voyage dans la Lune (1902).webm`, at about 7:51 |

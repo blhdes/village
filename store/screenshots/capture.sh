@@ -88,6 +88,11 @@ for locale in "${languages[@]}"; do
   mkdir -p "$raw/$locale"
 
   echo "== $locale"
+  # TEST_RUNNER_ variables reach the test only from xcodebuild's
+  # environment (prefix stripped), never as arguments after the command:
+  # there they're build settings, and every language came out in English.
+  TEST_RUNNER_STORE_LANGUAGE="$language" \
+  TEST_RUNNER_STORE_REGION="$region" \
   xcodebuild test \
     -project VILLE/VILLE.xcodeproj \
     -scheme "$scheme" \
@@ -95,8 +100,6 @@ for locale in "${languages[@]}"; do
     -destination "platform=iOS,id=$udid" \
     -testLanguage "${language%%-*}" -testRegion "$region" \
     -resultBundlePath "$result" \
-    TEST_RUNNER_STORE_LANGUAGE="$language" \
-    TEST_RUNNER_STORE_REGION="$region" \
     | grep -E "error:|Test Case|\*\* TEST" || true
 
   # The attachments come out with generated names; the manifest maps them

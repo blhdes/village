@@ -6,11 +6,27 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		89026954309FA5F7006639CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 890932BD2F97702100AB9F4D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 890932C42F97702100AB9F4D;
+			remoteInfo = VILLE;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		89026950309FA5F6006639CE /* VILLEStoreShots.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VILLEStoreShots.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		890932C52F97702100AB9F4D /* VILLE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VILLE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		89026951309FA5F6006639CE /* VILLEStoreShots */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VILLEStoreShots;
+			sourceTree = "<group>";
+		};
 		890932C72F97702100AB9F4D /* VILLE */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = VILLE;
@@ -19,6 +35,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		8902694D309FA5F6006639CE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		890932C22F97702100AB9F4D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				890932C72F97702100AB9F4D /* VILLE */,
+				89026951309FA5F6006639CE /* VILLEStoreShots */,
 				890932C62F97702100AB9F4D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				890932C52F97702100AB9F4D /* VILLE.app */,
+				89026950309FA5F6006639CE /* VILLEStoreShots.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +73,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		8902694F309FA5F6006639CE /* VILLEStoreShots */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 89026958309FA5F7006639CE /* Build configuration list for PBXNativeTarget "VILLEStoreShots" */;
+			buildPhases = (
+				8902694C309FA5F6006639CE /* Sources */,
+				8902694D309FA5F6006639CE /* Frameworks */,
+				8902694E309FA5F6006639CE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				89026955309FA5F7006639CE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				89026951309FA5F6006639CE /* VILLEStoreShots */,
+			);
+			name = VILLEStoreShots;
+			packageProductDependencies = (
+			);
+			productName = VILLEStoreShots;
+			productReference = 89026950309FA5F6006639CE /* VILLEStoreShots.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		890932C42F97702100AB9F4D /* VILLE */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 890932D22F97702400AB9F4D /* Build configuration list for PBXNativeTarget "VILLE" */;
@@ -77,9 +125,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2620;
+				LastSwiftUpdateCheck = 2720;
 				LastUpgradeCheck = 2720;
 				TargetAttributes = {
+					8902694F309FA5F6006639CE = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = 890932C42F97702100AB9F4D;
+					};
 					890932C42F97702100AB9F4D = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -107,11 +159,19 @@
 			projectRoot = "";
 			targets = (
 				890932C42F97702100AB9F4D /* VILLE */,
+				8902694F309FA5F6006639CE /* VILLEStoreShots */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		8902694E309FA5F6006639CE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		890932C32F97702100AB9F4D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -122,6 +182,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		8902694C309FA5F6006639CE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		890932C12F97702100AB9F4D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -131,7 +198,57 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		89026955309FA5F7006639CE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 890932C42F97702100AB9F4D /* VILLE */;
+			targetProxy = 89026954309FA5F7006639CE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		89026956309FA5F7006639CE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 56BK7T2JG7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = agu.VILLEStoreShots;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = VILLE;
+			};
+			name = Debug;
+		};
+		89026957309FA5F7006639CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 56BK7T2JG7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = agu.VILLEStoreShots;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = VILLE;
+			};
+			name = Release;
+		};
 		890932D02F97702400AB9F4D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -299,7 +416,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 56BK7T2JG7;
 				ENABLE_PREVIEWS = YES;
-				EXCLUDED_SOURCE_FILE_NAMES = "StoreDemo*.swift storedemo-*.jpg";
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"StoreDemo*.swift",
+					"storedemo-*.jpg",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -327,6 +447,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		89026958309FA5F7006639CE /* Build configuration list for PBXNativeTarget "VILLEStoreShots" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				89026956309FA5F7006639CE /* Debug */,
+				89026957309FA5F7006639CE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		890932C02F97702100AB9F4D /* Build configuration list for PBXProject "VILLE" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

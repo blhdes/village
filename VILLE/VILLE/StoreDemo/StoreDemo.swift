@@ -11,7 +11,8 @@
 //  `-StoreScreenshots <shot>`. VILLE then reads a fictional library kept in
 //  memory (`StoreDemoContent`), never the reader's own; fetches no feeds;
 //  keeps Settings in a store of its own, cleared at each launch; shows the
-//  reels in a fixed order with fixed art (public-domain film frames); and
+//  reels in a fixed order with fixed art (public-domain film frames, as
+//  backdrops and as posters); and
 //  hides the status bar. Same screens on every run.
 //
 
@@ -51,8 +52,18 @@ enum StoreShot: String, CaseIterable {
     /// "The words first": the shot without stars.
     var showsRatings: Bool { self != .words }
 
-    /// "Text only, if you like": Settings with Backdrops off.
-    var showsBackdrops: Bool { self != .settings }
+    /// Backdrops on half the reel shots, the dark ones: VILLE reads as
+    /// well without them (they're off by default), and the light shots
+    /// show that. Off in Settings: "Text only, if you like".
+    var showsBackdrops: Bool {
+        switch self {
+        case .reel, .spoiler: true
+        case .words, .fin, .translation, .people, .settings: false
+        }
+    }
+
+    /// "Text only, if you like": Settings with Posters off too.
+    var showsPosters: Bool { self != .settings }
 }
 
 struct StoreDemo {
@@ -80,10 +91,10 @@ struct StoreDemo {
 
     private static let settingsSuite = "agu.VILLE.StoreDemo"
 
-    /// Posters stay off: poster artists often aren't public domain in
-    /// the EU. Backdrops are frames from the films themselves.
+    /// Posters and backdrops are both frames from the films themselves
+    /// (`DemoFilm.hasPoster`, `hasFrame`), never real posters.
     private static func write(_ shot: StoreShot, to settings: UserDefaults) {
-        settings.set(false, forKey: SettingsKey.showPosters)
+        settings.set(shot.showsPosters, forKey: SettingsKey.showPosters)
         settings.set(false, forKey: SettingsKey.alternativePosters)
         settings.set(shot.showsBackdrops, forKey: SettingsKey.showBackdrops)
         settings.set(shot.showsRatings, forKey: SettingsKey.showRatings)

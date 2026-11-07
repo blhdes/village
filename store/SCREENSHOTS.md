@@ -1,6 +1,6 @@
 # VILLE: store screenshots plan
 
-Status (2026-11-07): demo mode, capture test, Koubou config, captions and fonts ready, and the template checked with placeholder screens in all eight languages. Nothing captured yet: that needs the `VILLEStoreShots` target (you, in Xcode) and your go. Pipeline and rules: the `app-store-release` skill, phase 4.
+Status (2026-11-07): demo mode, capture test, Koubou config, captions and fonts ready, and the template checked with placeholder screens in all eight languages. All 56 captured on the iPhone and composed (2026-11-07), checked in every language; not uploaded yet. Pipeline and rules: the `app-store-release` skill, phase 4.
 
 ## Sizes
 
@@ -14,13 +14,13 @@ The first three appear in search results, so they carry the pitch. Shots 5 to 7 
 
 | # | Screen | Look | Caption en | Caption es |
 |---|---|---|---|---|
-| 1 | A reel: Nosferatu, backdrop, stars | dark | Film reviews, one at a time | Críticas de cine, una a una |
-| 2 | A reel with a quote: Caligari, stars hidden | light | The words first | Primero, las palabras |
-| 3 | Spoiler cover: The Last Laugh | dark | No spoilers until you tap | Sin spoilers hasta que toques |
+| 1 | A reel: Nosferatu, poster, backdrop, stars | dark | Film reviews, one at a time | Críticas de cine, una a una |
+| 2 | A reel with a quote: Caligari, poster, no backdrop, stars hidden | light | The words first | Primero, las palabras |
+| 3 | Spoiler cover: The Last Laugh, backdrop, no poster | dark | No spoilers until you tap | Sin spoilers hasta que toques |
 | 4 | "Fin" card (with the plates), reached by swiping through the session | dark | A feed with an end | Un feed que termina |
-| 5 | A reel already translated: A Trip to the Moon, "See original" under its date | light | Any review, in your language | Cualquier reseña, en tu idioma |
+| 5 | A reel already translated: A Trip to the Moon, poster, no backdrop, "See original" under its date | light | Any review, in your language | Cualquier reseña, en tu idioma |
 | 6 | People: Search, demo suggestions, Bookmarks (2), Following | light | Follow the writers you love | Sigue a quien mejor escribe |
-| 7 | Settings: the preview and Look, Backdrops off | dark | Text only, if you like | Solo texto, si quieres |
+| 7 | Settings: the preview and Look, Posters and Backdrops off | dark | Text only, if you like | Solo texto, si quieres |
 
 The full reader (Sunrise, "Long reviews, in full") left to make room for the translation shot. It can come back as an 8th: a reader sheet over a reel.
 
@@ -50,7 +50,7 @@ Caption on top in Source Serif 4 Italic (opsz 60), the whole real screen below w
 
 ## Demo content
 
-All of it is in `screenshots/demo-content.md`: fictional members (each username checked: none exists on Letterboxd), reviews written by us in English and Spanish, seven silent films that are public domain in the U.S. and the EU, and the four film frames with their sources. Posters are off (poster artists often aren't public domain in the EU). Backdrops are frames from the films themselves.
+All of it is in `screenshots/demo-content.md`: fictional members (each username checked: none exists on Letterboxd), reviews written by us in English and Spanish, seven silent films that are public domain in the U.S. and the EU, and the film frames with their sources. No real posters (poster artists often aren't public domain in the EU): posters and backdrops are both frames from the films themselves. Posters show in shots 1, 2 and 5, as they're on by default in the app. Backdrops show in half the reel shots, the dark ones (1 and 3), so the set also shows how VILLE looks without them.
 
 ## Demo mode in the app (built 2026-11-07)
 
@@ -58,7 +58,7 @@ Launched with `-StoreScreenshots <shot>` (the shot names in the list above, e.g.
 
 - reads a fictional library kept in memory (`StoreDemoContent`), never the reader's own;
 - fetches no feeds and asks TMDB nothing; the backdrops are the bundled frames;
-- keeps Settings in a store of its own (`agu.VILLE.StoreDemo`), cleared at each launch and set per shot: appearance, Backdrops, Stars and likes; posters always off;
+- keeps Settings in a store of its own (`agu.VILLE.StoreDemo`), cleared at each launch and set per shot: appearance, Posters, Backdrops, Stars and likes;
 - shows the reels in a fixed order, the shot's film first, instead of chance;
 - opens A Trip to the Moon translated, with a translation we wrote (a test run can't wait for Apple's language downloads);
 - suggests fictional members in People, and hides the status bar.
@@ -67,7 +67,7 @@ Launched with `-StoreScreenshots <shot>` (the shot names in the list above, e.g.
 |---|---|
 | `VILLE/VILLE/StoreDemo/StoreDemo.swift` | The shots, their Settings, the hooks below |
 | `VILLE/VILLE/StoreDemo/StoreDemoContent.swift` | Members, reviews (en, es), the Moon translation in 8 languages, suggestions |
-| `VILLE/VILLE/StoreDemo/Frames/` | The four public-domain frames, 1280 × 720 |
+| `VILLE/VILLE/StoreDemo/Frames/` | The public-domain frames: four backdrops (1280 × 720) and three posters (2:3) |
 | `VILLEApp.swift` | Demo library and Settings, the translation, `.storeDemo()` |
 | `ReelSampler.swift` | Fixed order |
 | `TMDBService.swift` | Frames instead of TMDB images |
@@ -79,11 +79,9 @@ Launched with `-StoreScreenshots <shot>` (the shot names in the list above, e.g.
 
 ## Running it
 
-**Once, in Xcode (you):**
+**Set up once (done 2026-11-07):** the `VILLEStoreShots` UI Testing Bundle, made in Xcode (File → New → Target), holds the test, `VILLE/VILLEStoreShots/StoreShots.swift`, and runs from the VILLE scheme. Its minimum iOS is the app's, 26.2, and it's iPhone only: Xcode had set 27.2, which the iPhone (on iOS 26.6) can't install.
 
-1. File → New → Target → **UI Testing Bundle**. Name `VILLEStoreShots`, team as the app's, target to be tested **VILLE**. Finish.
-2. Xcode makes a folder `VILLE/VILLEStoreShots/` with two files. Tell Claude: it replaces them with `store/screenshots/StoreShots.swift` and checks that the test target is in the VILLE scheme.
-3. On the iPhone 13: Developer Mode on, **Settings → Developer → Enable UI Automation** on, unlocked and connected.
+**On the iPhone 13, each time:** Developer Mode on, **Settings → Developer → Enable UI Automation** on, unlocked and connected, and you beside it: each language's run asks for Face ID or the passcode on the iPhone before it starts (miss it and the run fails with "Canceled by user"). The test installs a Debug VILLE over the one on the phone, like running it from Xcode: the library and Settings stay as they were, because demo mode keeps its own.
 
 **Each time:**
 
@@ -91,6 +89,6 @@ Launched with `-StoreScreenshots <shot>` (the shot names in the list above, e.g.
 2. Look at every raw capture.
 3. `kou generate store/screenshots/koubou.yaml` writes `final/<language>/iPhone_17_-_Black_-_Portrait/<shot>.png` (the device name is only Koubou's label: frames are off).
 4. Check: `magick identify -format "%f %wx%h %[channels]\n" store/screenshots/final/*/*/*.png` gives 1206 × 2622 and `srgb` (no alpha) for all 56.
-5. Upload with `asc screenshots`, after your OK.
+5. Upload, after your OK: `asc screenshots upload --app 6829207754 --version 1.0 --path store/screenshots/final --device-type IPHONE_61` (6.3" set; add `--dry-run` first to see the plan, `--replace --confirm` to swap a set already there).
 
 `raw/` and `final/` stay out of git: both are rebuilt by the two commands.

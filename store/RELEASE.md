@@ -97,17 +97,17 @@
 - ✅ First capture on the iPhone, English only (`capture.sh --go en-US`, your OK): test passed, 7 raw screens, composed and checked at 1206 × 2622 (2026-11-07)
 - ✅ All 8 languages captured on the iPhone (your OK) and composed: 56 images, 1206 × 2622, no alpha, checked one by one (2026-11-07)
 - ✅ Upload dry run: 7 per language into `APP_IPHONE_61`, all 8 listings found, nothing there yet (2026-11-07)
-- 👉 Upload (your OK)
-- ⬜ Check the order in App Store Connect after the upload; optional 6.9" set (1320 × 2868) later
+- ✅ Uploaded (your OK, 2026-11-07): 8 languages × 7 in `APP_IPHONE_61`, order checked, three duplicates from upload timeouts removed (de 1, fr 5 twice)
+- ⬜ Optional 6.9" set (1320 × 2868), later
 
 ## 5. Build and submit
 
 - ✅ Final testing on the iPhone (you, 2026-11-07: OK)
-- ⬜ Archive and upload (a first TestFlight build as soon as the app runs well)
-- ⬜ TestFlight check (you)
+- ✅ Archive and upload 1.0 (1) (2026-11-07, your OK). Archive: `xcodebuild … -configuration Release -archivePath store/build/VILLE.xcarchive archive -allowProvisioningUpdates`. Upload: `PATH="/usr/bin:/bin:/usr/sbin:/sbin:$PATH" xcodebuild -exportArchive -archivePath store/build/VILLE.xcarchive -exportOptionsPlist store/ExportOptions.plist -exportPath store/build/export -allowProvisioningUpdates`. The PATH matters: with Homebrew's rsync first, the export fails with "Copy failed" (`--extended-attributes: unknown option`, Apple's openrsync and Homebrew's rsync 3.x don't talk)
+- ⏭️ TestFlight check skipped for 1.0: you tested the same code on the iPhone (Debug) and wanted to submit the same day
 - ✅ Review notes sent (2026-11-04, your OK): `store/review-notes.txt` (Search, Follow, Reading options, report and unfollow from the reel). Re-send with `asc review details-create … --if-exists update` after changing them
-- ⬜ Submitted (manual release)
-- ⬜ Released
+- ✅ Submitted for review, manual release (your OK, 2026-11-07 21:34): build `e096305f-592e-4790-9582-9cfb4565933c`, submission `9c6cb01a-bf28-4053-b610-2dd69b3fef61`. Status: `asc review status --app 6829207754`
+- 👉 Released: after approval, when you say so (`asc versions release --version-id 7712a8d8-4ee9-4ffc-a6ed-f4f282b1d949 --confirm`)
 
 ## Risks and open questions
 
@@ -155,3 +155,4 @@
 - 2026-11-07: Screenshot pipeline built, nothing captured or sent. Demo mode (`VILLE/VILLE/StoreDemo/`, Debug only): `-StoreScreenshots <shot>` opens a fictional library in memory, fixed reels and frames, its own Settings, no feeds fetched, no status bar; Release builds leave it out. Capture test and `capture.sh` (one run per language on the iPhone, attachments saved as `raw/<language>/<shot>.png`). Koubou config, captions in 8 languages and fonts; rendered with placeholders and checked in every language. Four frames from Wikimedia Commons (Nosferatu, Caligari, A Trip to the Moon from the films' public-domain videos; The Last Laugh from a 1925 book's still). 👉 Next: you create the `VILLEStoreShots` target in Xcode, then the first capture after your OK.
 - 2026-11-07: `VILLEStoreShots` test target made in Xcode (you); minimum iOS set to the app's 26.2 (Xcode had 27.2, the iPhone runs 26.6). First English capture on the iPhone with your OK: 7 screens, composed by Koubou. Fixes after looking at them: Settings switches gray in dark mode (the white knob vanished on a white switch), 13 English texts with ’, the appearance pages with a sun and a moon, the wordmark's dot no longer breathes (it steps aside for the loading dot), posters in demo mode from film frames. Built, not yet tested on the iPhone. Nothing sent to Apple.
 - 2026-11-07: Backdrops on shots 1 and 3 only (your call). All 8 languages captured: the first full run came out in English everywhere but the captions, because `capture.sh` passed the language as build settings instead of `TEST_RUNNER_` environment variables; fixed, and the test no longer falls back to English without them. The search field's placeholder was cut off in 6 languages: shortened in es, de, fr, it, pt-BR, ja, zh-Hans (e.g. "Usuario o enlace de Letterboxd"). 56 images composed and checked; upload dry run clean. Nothing sent to Apple.
+- 2026-11-07: Content rights declared (your call). Build 1.0 (1) archived, uploaded and processed (valid in 2 minutes). Screenshots uploaded in all 8 languages. `asc validate`: only "no build attached". Submitted for review with manual release: Waiting for Review. Commits pushed and `main` fast-forwarded to `8de6455` (your OK).

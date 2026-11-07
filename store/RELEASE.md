@@ -7,7 +7,7 @@
 
 | | |
 |---|---|
-| Store name | `ville. Film Review Reader` (en) · `ville. Críticas de cine` (es), proposed. Live now: `ville.` |
+| Store name | `ville. Film Review Reader` (en) · `ville. Críticas de cine` (es), in App Store Connect (metadata dry run clean, 2026-11-07) |
 | Home-screen name | `VILLE` (`PRODUCT_NAME`) |
 | Bundle ID | `agu.VILLE` (permanent) |
 | Apple ID (App Store Connect) | `6829207754` · version 1.0 id `7712a8d8-4ee9-4ffc-a6ed-f4f282b1d949` |
@@ -80,7 +80,7 @@
 - ✅ `store/apply-store-setup.sh --go` sent (2026-10-31, your OK): copy en/es with support and privacy URLs, categories, copyright, manual release, free price, availability without China, age rating, App Review contact and notes. Every call succeeded. Re-run it after changing any of those files.
 - ✅ App Privacy "Data Not Collected" published in App Store Connect (2026-10-31, Chrome)
 - ✅ Six more listings (de-DE, fr-FR, it, ja, pt-BR, zh-Hans) + "In your language" section in every description, sent with `asc metadata apply` (2026-10-31, your OK). A dry run afterwards shows no differences. To change them: edit `store/metadata/`, then the same command.
-- ⬜ Content rights (after Letterboxd answers)
+- ✅ Content rights: `USES_THIRD_PARTY_CONTENT`, rights declared (your call, 2026-11-07, without Letterboxd's answer; basis in Risks 1): `asc apps content-rights edit --uses-third-party-content=true`
 - ✅ Description and promotional text refreshed in all 8 languages and sent (2026-11-04, your OK): «Follow» instead of «Add», Search and Bookmarks sections, the Reading switches, backdrops as an option, the author's menu. A dry run afterwards shows no differences.
 
 `asc validate` (2026-10-31): 3 blocking items left: content rights (waits for Letterboxd; never answer "does not use third-party content", which `asc` suggests), screenshots, build. App Privacy is published (the API can't check it, so `asc` still shows an info line).
@@ -102,7 +102,7 @@
 
 ## 5. Build and submit
 
-- ⬜ Final testing on the iPhone (you)
+- ✅ Final testing on the iPhone (you, 2026-11-07: OK)
 - ⬜ Archive and upload (a first TestFlight build as soon as the app runs well)
 - ⬜ TestFlight check (you)
 - ✅ Review notes sent (2026-11-04, your OK): `store/review-notes.txt` (Search, Follow, Reading options, report and unfollow from the reel). Re-send with `asc review details-create … --if-exists update` after changing them
@@ -111,7 +111,7 @@
 
 ## Risks and open questions
 
-1. **Letterboxd rights (Guideline 5.2.2 + "Content Rights").** VILLE shows other members' reviews from their public RSS feeds. RSS is the route Letterboxd offers (letterboxd.com/api-beta), and every reel credits the author and links back. Emails to api@letterboxd.com, one thread: 2026-01-09 (API access for a web app, never answered) and 2026-10-31 (follow-up describing VILLE and its RSS use, asking for a written OK for Apple's content rights question). You expect no answer. Record any answer here.
+1. **Letterboxd rights (Guideline 5.2.2 + "Content Rights").** VILLE shows other members' reviews from their public RSS feeds. RSS is the route Letterboxd offers (letterboxd.com/api-beta), and every reel credits the author and links back. Emails to api@letterboxd.com, one thread: 2026-01-09 (API access for a web app, never answered) and 2026-10-31 (follow-up describing VILLE and its RSS use, asking for a written OK for Apple's content rights question). You expect no answer. Record any answer here. 2026-11-07: Content Rights answered in App Store Connect as "uses third-party content" with the rights declared (your call), on this basis: public RSS offered by Letterboxd, the author credited and linked on every reel, nothing stored beyond the reader's device.
 2. **Trademark.** Never "Letterboxd" in the name, subtitle or keywords (Guidelines 2.3.7 and 5.2.1, Letterboxd ToS 19). The description says it factually, plus "VILLE is not affiliated with Letterboxd".
 3. **Other people's content (Guideline 1.2).** The reader picks whom to follow, removing a member deletes their reviews, and each reel links to the original, where it can be reported. Since 2026-11-02 the reel itself covers report and block: tapping "Review by …" offers Report on Letterboxd and Unfollow (asks first; bookmarks stay). The review notes say so (updated locally the same day, with the "Add" button and bookmarks fixed). Sent 2026-11-04.
 4. **Age rating: unrestricted web access.** Decided 2026-10-31: answer "yes" (Safari inside the app reaches any site). The rating goes up, probably to 16+.

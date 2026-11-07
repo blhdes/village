@@ -42,3 +42,6 @@ store/build/
 # rebuilt by store/screenshots/capture.sh and `kou generate`
 store/screenshots/raw/
 store/screenshots/final/
+
+# asc CLI reports (upload failures, resumable)
+.asc/

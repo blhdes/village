@@ -89,6 +89,6 @@ Launched with `-StoreScreenshots <shot>` (the shot names in the list above, e.g.
 2. Look at every raw capture.
 3. `kou generate store/screenshots/koubou.yaml` writes `final/<language>/iPhone_17_-_Black_-_Portrait/<shot>.png` (the device name is only Koubou's label: frames are off).
 4. Check: `magick identify -format "%f %wx%h %[channels]\n" store/screenshots/final/*/*/*.png` gives 1206 × 2622 and `srgb` (no alpha) for all 56.
-5. Upload, after your OK: `asc screenshots upload --app 6829207754 --version 1.0 --path store/screenshots/final --device-type IPHONE_61` (6.3" set; add `--dry-run` first to see the plan, `--replace --confirm` to swap a set already there).
+5. Upload, after your OK, one language at a time from a folder holding only its 7 PNGs (Koubou writes a `.layout.json` beside each image, and `asc` counts those as screenshots): `ASC_TIMEOUT=180s asc screenshots upload --app 6829207754 --version 1.0 --locale <locale> --path <png folder> --device-type IPHONE_61 --skip-existing --concurrency 1` (6.3" set; `--dry-run` first to see the plan, `--replace --confirm` to swap a set already there). Apple is often slow to confirm each image: a timeout can still leave the image uploaded, so list the set afterwards and remove duplicates (`asc screenshots list … --locale`, `asc screenshots delete --id … --confirm`).
 
 `raw/` and `final/` stay out of git: both are rebuilt by the two commands.

@@ -82,6 +82,10 @@ final class FeedViewModel {
     /// one at launch, say), waits for it instead, so a pull-to-refresh ends
     /// when the new reviews are really in.
     func refreshAll() async {
+        #if DEBUG
+        // Store screenshots: fictional members, no feeds to fetch.
+        guard StoreDemo.current == nil else { return }
+        #endif
         if let running = refreshTask {
             await running.value
             return

@@ -45,6 +45,10 @@ enum ReelSampler {
     /// film aren't repeated straight away.
     static func pick(_ count: Int, from candidates: [ReelCandidate], after previous: ReelCandidate?) -> [ReelCandidate] {
         guard count > 0 else { return [] }
+        #if DEBUG
+        // Store screenshots: the same reels in the same order on every run.
+        if let demo = StoreDemo.current { return demo.arrange(candidates, count: count) }
+        #endif
 
         let unseen = candidates
             .filter { $0.lastShownAt == nil }

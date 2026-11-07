@@ -117,6 +117,15 @@ final class ReviewTranslator {
         }
     }
 
+    #if DEBUG
+    /// Store screenshots only (`StoreDemo`): a review that opens already
+    /// translated, with the translation written for it.
+    func preload(_ blocks: [ReviewBlock], for id: String, html: String) {
+        translations[id] = (html, blocks)
+        showing.insert(id)
+    }
+    #endif
+
     // MARK: Private
 
     private func translatedBlocks(for review: Review) -> [ReviewBlock]? {

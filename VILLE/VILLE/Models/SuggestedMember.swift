@@ -41,7 +41,13 @@ extension SuggestedMember {
 
     /// Up to `count` random suggestions, leaving out `taken` usernames.
     static func pick(_ count: Int, excluding taken: Set<String>) -> [SuggestedMember] {
-        Array(readable.filter { !taken.contains($0.username) }.shuffled().prefix(count))
+        #if DEBUG
+        // Store screenshots: fictional names, never real members.
+        if let demo = StoreDemo.current {
+            return Array(demo.suggestions.filter { !taken.contains($0.username) }.prefix(count))
+        }
+        #endif
+        return Array(readable.filter { !taken.contains($0.username) }.shuffled().prefix(count))
     }
 
     /// English for everyone; other languages only for readers whose iPhone

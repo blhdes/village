@@ -31,10 +31,13 @@ struct ReelTopBar: View {
 
             GlassEffectContainer(spacing: 8) {
                 HStack(spacing: 8) {
+                    // Identifiers for the store screenshots' UI test, the same in every language.
                     barButton("person.2", label: "People") { open(.members) }
                         .matchedTransitionSource(id: FeedSheet.members, in: namespace)
+                        .accessibilityIdentifier("people")
                     barButton("slider.horizontal.3", label: "Settings") { open(.settings) }
                         .matchedTransitionSource(id: FeedSheet.settings, in: namespace)
+                        .accessibilityIdentifier("settings")
                 }
             }
         }

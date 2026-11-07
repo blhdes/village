@@ -27,6 +27,8 @@ struct SessionEndView: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("The end")
+            // For the store screenshots' UI test, the same in every language.
+            .accessibilityIdentifier("fin")
 
             VStack(spacing: 10) {
                 Text("^[\(reviewCount) review](inflect: true) by ^[\(memberCount) member](inflect: true).")

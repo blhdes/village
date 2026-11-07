@@ -78,6 +78,10 @@ struct TMDBService {
     /// Full image URL for a TMDB path, e.g. size "w342" for posters.
     static func imageURL(path: String?, size: String) -> URL? {
         guard let path, !path.isEmpty else { return nil }
+        #if DEBUG
+        // Store screenshots: public-domain film frames bundled for them.
+        if let frame = StoreDemo.frameURL(for: path) { return frame }
+        #endif
         return URL(string: "\(imageBase)/\(size)\(path)")
     }
 
